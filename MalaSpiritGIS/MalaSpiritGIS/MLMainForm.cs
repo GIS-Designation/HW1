@@ -14,6 +14,7 @@ namespace MalaSpiritGIS
         public MLMainForm()
         {
             InitializeComponent();
+            MLFeatureProcessor fp = new MLFeatureProcessor();
         }
     }
 }
