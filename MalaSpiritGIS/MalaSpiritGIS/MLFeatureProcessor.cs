@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
+using System.IO;
 
 namespace MalaSpiritGIS
 {
@@ -74,6 +75,11 @@ namespace MalaSpiritGIS
             }
         }
 
+        /// <summary>
+        /// 从数据库和文件中加载要素类至内存
+        /// </summary>
+        /// <param name="id">唯一标识id</param>
+        /// <returns></returns>
         public MLFeatureClass LoadFeatureClass(uint id)
         {
             string featureClassName="";
@@ -102,14 +108,44 @@ namespace MalaSpiritGIS
                 featureClassMbr[3] = reader.GetDouble("Ymax");
                 shpFilePath = reader.GetString("FilePath");
             }
-            MLFeatureClass curFeaClass = new MLFeatureClass(featureClassName, featureClassType, featureClassMbr);
+            MLFeatureClass curFeaClass = new MLFeatureClass(id,featureClassName, featureClassType, featureClassMbr);
 
-            for(int i = 0; i < featureCount; ++i)
+            FileStream shp = new FileStream(shpFilePath, FileMode.Open, FileAccess.Read);
+            using(BinaryReader br=new BinaryReader(shp))
             {
-                //AddFeature
+                sql = "select * from " + featureClassName;
+                cmd = new MySqlCommand(sql, connection);
+                using(MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    for (int i = 0; i < featureCount; ++i)
+                    {
+                        reader.Read();
+                        br.BaseStream.Seek((long)reader.GetUInt32("FileBias"), SeekOrigin.Begin);
+                        MLFeature curFeature;
+                        switch (featureClassType)
+                        {
+                            case FeatureType.POINT:
+                                curFeature = new MLPoint(br);
+                                break;
+                            case FeatureType.POLYLINE:
+                            case FeatureType.POLYGON:
+                            case FeatureType.MULTIPOINT:
+                            default:
+                                curFeature = new MLPoint(br);//
+                                break;
+                        }
+                        curFeaClass.AddFeaure(curFeature);
+                    }
+                }
             }
+            shp.Close();
 
             return curFeaClass;
+        }
+
+        public void SaveFeatureClass()
+        {
+            //TODO
         }
     }
 }

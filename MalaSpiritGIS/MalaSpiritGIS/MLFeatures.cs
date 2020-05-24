@@ -5,6 +5,7 @@ using System.Text;
 using System.Data;
 using System.Drawing;
 using MySql.Data.MySqlClient;
+using System.IO;
 
 namespace MalaSpiritGIS
 {
@@ -140,8 +141,11 @@ namespace MalaSpiritGIS
             deviation = new PointF();
         }
 
+
         //用于剪切，复制，粘贴等操作
         public abstract byte[] ToBytes();
+
+        
 
         public void Move(float x,float y)
         {
@@ -161,6 +165,7 @@ namespace MalaSpiritGIS
     class MLFeatureClass
     {
         #region 属性
+        uint id;                    //要素类编号
         string name;                //要素类名称
         FeatureType featureType;    //要素类类型，其中的每个要素集合类型均一致
         double[] mbr;               //要素类最小外包矩形
@@ -169,8 +174,9 @@ namespace MalaSpiritGIS
         PointF deviation;           //要素类整体偏移
         #endregion
 
-        public MLFeatureClass(string _name,FeatureType _type,double[] _mbr)
+        public MLFeatureClass(uint _id,string _name,FeatureType _type,double[] _mbr)
         {
+            id = _id;
             name = _name;
             featureType = _type;
             mbr = new double[4];
@@ -218,11 +224,32 @@ namespace MalaSpiritGIS
             //TODO: FillDataTable
         }
 
+
+        /// <summary>
+        /// 从Shp文件字段中初始化要素
+        /// </summary>
+        /// <param name="biReader">二进制文件读取对象</param>
+        public MLPoint(BinaryReader biReader) : base()
+        {
+            //调用时读取器位于字段开头
+            biReader.BaseStream.Seek(12, SeekOrigin.Current);
+            double x, y;
+            x = biReader.ReadDouble();
+            y = biReader.ReadDouble();
+            point = new PointD(x,y);
+            featureType = FeatureType.POINT;
+            mbr[0] = mbr[1] = point.X;
+            mbr[2] = mbr[3] = point.Y;
+            pointNum = 1;
+        }
+
         public override byte[] ToBytes()
         {
             byte[] rslt=new byte[1];
             return rslt;
         }
+
+
     }
 
 }
