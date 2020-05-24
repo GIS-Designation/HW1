@@ -123,19 +123,18 @@ namespace MalaSpiritGIS
     abstract class MLFeature
     {
         #region 属性
-        protected int id;                     //要素编号
+        //protected int id;                     //要素编号
         protected FeatureType featureType;    //要素类型
         protected double[] mbr;               //要素最小外包矩形，xmin，xmax，ymin，ymax
         protected int pointNum;               //要素包含点的数量
-        protected DataTable attributeData;    //要素的属性表
         protected PointF deviation;           //要素在屏幕绘制的偏移值
         #endregion
 
-        static int count=0;
+        //static int count=0;
 
         public MLFeature()
         {
-            id = ++count;   //id自动+1
+            //id = ++count;   //id自动+1
             mbr = new double[4];
             deviation = new PointF();
         }
@@ -148,8 +147,45 @@ namespace MalaSpiritGIS
             deviation.X += x;
             deviation.Y += y;
         }
+
+        public double XMin { get { return mbr[0]; } }
+        public double XMax { get { return mbr[1]; } }
+        public double YMin { get { return mbr[2]; } }
+        public double YMax { get { return mbr[3]; } }
     }
 
+    /// <summary>
+    /// 麻辣精灵要素类，与图层一对一，包含多个要素
+    /// </summary>
+    class MLFeatureClass
+    {
+        #region 属性
+        string name;                //要素类名称
+        FeatureType featureType;    //要素类类型，其中的每个要素集合类型均一致
+        double[] mbr;               //要素类最小外包矩形
+        MLFeature[] features;       //要素数组
+        DataTable attributeData;    //要素属性表
+        PointF deviation;           //要素类整体偏移
+        #endregion
+
+        public MLFeatureClass(string _name,FeatureType _type,double[] _mbr)
+        {
+            name = _name;
+            featureType = _type;
+            mbr = new double[4];
+            Array.Copy(_mbr, mbr, 4);
+        }
+
+
+        public double XMin { get { return mbr[0]; } }
+        public double XMax { get { return mbr[1]; } }
+        public double YMin { get { return mbr[2]; } }
+        public double YMax { get { return mbr[3]; } }
+    }
+
+    /// <summary>
+    /// 麻辣精灵点要素类
+    /// </summary>
     class MLPoint : MLFeature
     {
         PointD point;
