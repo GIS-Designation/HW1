@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Drawing;
+using MySql.Data.MySqlClient;
 
 namespace MalaSpiritGIS
 {
@@ -163,7 +164,7 @@ namespace MalaSpiritGIS
         string name;                //要素类名称
         FeatureType featureType;    //要素类类型，其中的每个要素集合类型均一致
         double[] mbr;               //要素类最小外包矩形
-        MLFeature[] features;       //要素数组
+        List<MLFeature> features;       //要素数组
         DataTable attributeData;    //要素属性表
         PointF deviation;           //要素类整体偏移
         #endregion
@@ -174,8 +175,25 @@ namespace MalaSpiritGIS
             featureType = _type;
             mbr = new double[4];
             Array.Copy(_mbr, mbr, 4);
+            features = new List<MLFeature>();
         }
 
+        public void LoadAttribute(ref MySqlDataReader msdr)
+        {
+            attributeData = new DataTable();
+            attributeData.Load(msdr);
+            msdr.Close();
+        }
+
+        public void AddFeaure(MLFeature curFea)
+        {
+            features.Add(curFea);
+        }
+
+        public MLFeature GetFeature(int index)
+        {
+            return features[index];
+        }
 
         public double XMin { get { return mbr[0]; } }
         public double XMax { get { return mbr[1]; } }

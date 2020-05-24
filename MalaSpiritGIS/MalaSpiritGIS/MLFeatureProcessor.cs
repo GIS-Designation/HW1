@@ -31,6 +31,10 @@ namespace MalaSpiritGIS
                     break;
             }
         }
+
+        public uint ID { get { return id; } }
+        public string Name { get { return name; } }
+        public FeatureType Type { get { return featureType; } }
     }
     /// <summary>
     /// 在内存和数据库之间处理要素类
@@ -70,6 +74,42 @@ namespace MalaSpiritGIS
             }
         }
 
+        public MLFeatureClass LoadFeatureClass(uint id)
+        {
+            string featureClassName="";
+            FeatureType featureClassType=FeatureType.POINT;
+            double[] featureClassMbr=new double[4];
+            uint featureCount;
+            string shpFilePath;
+            foreach (MLRecord curRecord in records)
+            {
+                if (curRecord.ID == id)
+                {
+                    featureClassName = curRecord.Name;
+                    featureClassType = curRecord.Type;
+                    break;
+                }
+            }
+            string sql = "select * from header where ID=" + id.ToString();
+            MySqlCommand cmd = new MySqlCommand(sql, connection);
+            using(MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                featureCount = reader.GetUInt32("Count");
+                featureClassMbr[0] = reader.GetDouble("Xmin");
+                featureClassMbr[1] = reader.GetDouble("Xmax");
+                featureClassMbr[2] = reader.GetDouble("Ymin");
+                featureClassMbr[3] = reader.GetDouble("Ymax");
+                shpFilePath = reader.GetString("FilePath");
+            }
+            MLFeatureClass curFeaClass = new MLFeatureClass(featureClassName, featureClassType, featureClassMbr);
 
+            for(int i = 0; i < featureCount; ++i)
+            {
+                //AddFeature
+            }
+
+            return curFeaClass;
+        }
     }
 }
