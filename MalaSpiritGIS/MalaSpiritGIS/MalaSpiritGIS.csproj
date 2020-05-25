@@ -90,6 +90,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MLFeatureBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MLFeatureBox.Designer.cs">
+      <DependentUpon>MLFeatureBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="MLFeatureProcessor.cs" />
     <Compile Include="MLFeatures.cs" />
     <Compile Include="MLMainForm.cs">
@@ -100,6 +106,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="MLFeatureBox.resx">
+      <DependentUpon>MLFeatureBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MLMainForm.resx">
       <DependentUpon>MLMainForm.cs</DependentUpon>
     </EmbeddedResource>
