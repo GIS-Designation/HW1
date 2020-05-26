@@ -40,7 +40,7 @@ namespace MalaSpiritGIS
             {
                 return index != layers.Count;
             }
-            public void add(ControlCollection controls, MLFeatureClass layer,Label name,Label sign)
+            public void add(ControlCollection controls, MLFeatureClass layer, Label name, Label sign)
             {
                 if (!selected())
                 {
@@ -98,7 +98,7 @@ namespace MalaSpiritGIS
             }
             public void moveDown()
             {
-                if(selected() && index != layers.Count - 1)
+                if (selected() && index != layers.Count - 1)
                 {
                     move(1);
                     refresh();
@@ -108,7 +108,7 @@ namespace MalaSpiritGIS
             {
                 if (selected())
                 {
-                    while(index != 0)
+                    while (index != 0)
                     {
                         move(-1);
                     }
@@ -119,7 +119,7 @@ namespace MalaSpiritGIS
             {
                 if (selected())
                 {
-                    while(index != layers.Count - 1)
+                    while (index != layers.Count - 1)
                     {
                         move(1);
                     }
@@ -128,12 +128,27 @@ namespace MalaSpiritGIS
             }
             public void refresh()
             {
-                for(int i = 0;i != layers.Count; ++i)
+                for (int i = 0; i != layers.Count; ++i)
                 {
                     int y = 25 * i + 30;
                     signs[i].Location = new Point(0, y);
                     names[i].Location = new Point(12, y);
                 }
+            }
+            public void rename(string newName)
+            {
+                names[index].Text = newName;
+                //之后图层的名字也要改
+            }
+            public void delete(ControlCollection controls)
+            {
+                layers.RemoveAt(index);
+                controls.Remove(signs[index]);
+                controls.Remove(names[index]);
+                signs.RemoveAt(index);
+                names.RemoveAt(index);
+                index = layers.Count;
+                refresh();
             }
         }
         public void addFeatureClass(FeatureType type)  //添加一个图层，因为MLFeatureClass还未完善，所以暂不支持从现有要素类创建
@@ -161,7 +176,7 @@ namespace MalaSpiritGIS
             }
             int index = data.layers.Count;  //新建记录的索引，也是新建图层的索引
             MLFeatureClass layer = new MLFeatureClass((uint)index, name.Text, type, new double[4]);  //新建一个图层
-            data.add(Controls,layer, name, sign);
+            data.add(Controls, layer, name, sign);
 
             sign.MouseClick += new MouseEventHandler(editSign);  //点击符号的操作
             name.MouseClick += new MouseEventHandler(showLayerMenu);  //点击文字的操作
@@ -183,7 +198,7 @@ namespace MalaSpiritGIS
 
         private void showBoxMenu(object sender, MouseEventArgs e)  //右间空白区域打开菜单
         {
-            if(e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right)
             {
                 boxMenu.Show(MousePosition.X, MousePosition.Y);
             }
@@ -228,6 +243,28 @@ namespace MalaSpiritGIS
         private void bottom_Click(object sender, EventArgs e)
         {
             data.moveBottom();
+        }
+
+        private void 修改图层名称ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string name = "";
+            InputDialog input = new InputDialog();
+            input.TextHandler = (str) => { name = str; };
+            if (input.ShowDialog() == DialogResult.OK)
+            {
+                data.rename(name);
+            }
+        }
+
+        private void 删除图层ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            data.delete(Controls);
+        }
+
+        private void 打开属性表ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AttributeTable table = new AttributeTable();
+            table.ShowDialog();
         }
     }
 }

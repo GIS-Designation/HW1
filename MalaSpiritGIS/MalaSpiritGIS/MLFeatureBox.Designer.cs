@@ -50,10 +50,10 @@
             // up
             // 
             this.up.BackColor = System.Drawing.Color.White;
-            this.up.Location = new System.Drawing.Point(2, 2);
+            this.up.Location = new System.Drawing.Point(3, 2);
             this.up.Margin = new System.Windows.Forms.Padding(0);
             this.up.Name = "up";
-            this.up.Size = new System.Drawing.Size(20, 20);
+            this.up.Size = new System.Drawing.Size(27, 25);
             this.up.TabIndex = 0;
             this.up.Text = "↑";
             this.up.UseVisualStyleBackColor = false;
@@ -62,10 +62,10 @@
             // down
             // 
             this.down.BackColor = System.Drawing.Color.White;
-            this.down.Location = new System.Drawing.Point(24, 2);
+            this.down.Location = new System.Drawing.Point(32, 2);
             this.down.Margin = new System.Windows.Forms.Padding(0);
             this.down.Name = "down";
-            this.down.Size = new System.Drawing.Size(20, 20);
+            this.down.Size = new System.Drawing.Size(27, 25);
             this.down.TabIndex = 1;
             this.down.Text = "↓";
             this.down.UseVisualStyleBackColor = false;
@@ -75,10 +75,10 @@
             // 
             this.top.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("top.BackgroundImage")));
             this.top.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.top.Location = new System.Drawing.Point(46, 2);
+            this.top.Location = new System.Drawing.Point(61, 2);
             this.top.Margin = new System.Windows.Forms.Padding(0);
             this.top.Name = "top";
-            this.top.Size = new System.Drawing.Size(20, 20);
+            this.top.Size = new System.Drawing.Size(27, 25);
             this.top.TabIndex = 2;
             this.top.UseVisualStyleBackColor = true;
             this.top.Click += new System.EventHandler(this.top_Click);
@@ -87,92 +87,98 @@
             // 
             this.bottom.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("bottom.BackgroundImage")));
             this.bottom.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.bottom.Location = new System.Drawing.Point(68, 2);
+            this.bottom.Location = new System.Drawing.Point(91, 2);
             this.bottom.Margin = new System.Windows.Forms.Padding(0);
             this.bottom.Name = "bottom";
-            this.bottom.Size = new System.Drawing.Size(20, 20);
+            this.bottom.Size = new System.Drawing.Size(27, 25);
             this.bottom.TabIndex = 3;
             this.bottom.UseVisualStyleBackColor = true;
             this.bottom.Click += new System.EventHandler(this.bottom_Click);
             // 
             // boxMenu
             // 
+            this.boxMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.boxMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.新建点图层ToolStripMenuItem,
             this.新建多点图层ToolStripMenuItem,
             this.新建线图层ToolStripMenuItem,
             this.新建面图层ToolStripMenuItem});
             this.boxMenu.Name = "boxMenu";
-            this.boxMenu.Size = new System.Drawing.Size(149, 92);
+            this.boxMenu.Size = new System.Drawing.Size(169, 100);
             // 
             // 新建点图层ToolStripMenuItem
             // 
             this.新建点图层ToolStripMenuItem.Name = "新建点图层ToolStripMenuItem";
-            this.新建点图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.新建点图层ToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
             this.新建点图层ToolStripMenuItem.Text = "新建点图层";
             this.新建点图层ToolStripMenuItem.Click += new System.EventHandler(this.新建点图层ToolStripMenuItem_Click);
             // 
             // 新建多点图层ToolStripMenuItem
             // 
             this.新建多点图层ToolStripMenuItem.Name = "新建多点图层ToolStripMenuItem";
-            this.新建多点图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.新建多点图层ToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
             this.新建多点图层ToolStripMenuItem.Text = "新建多点图层";
             this.新建多点图层ToolStripMenuItem.Click += new System.EventHandler(this.新建多点图层ToolStripMenuItem_Click);
             // 
             // 新建线图层ToolStripMenuItem
             // 
             this.新建线图层ToolStripMenuItem.Name = "新建线图层ToolStripMenuItem";
-            this.新建线图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.新建线图层ToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
             this.新建线图层ToolStripMenuItem.Text = "新建线图层";
             this.新建线图层ToolStripMenuItem.Click += new System.EventHandler(this.新建线图层ToolStripMenuItem_Click);
             // 
             // 新建面图层ToolStripMenuItem
             // 
             this.新建面图层ToolStripMenuItem.Name = "新建面图层ToolStripMenuItem";
-            this.新建面图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.新建面图层ToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
             this.新建面图层ToolStripMenuItem.Text = "新建面图层";
             this.新建面图层ToolStripMenuItem.Click += new System.EventHandler(this.新建面图层ToolStripMenuItem_Click);
             // 
             // layerMenu
             // 
+            this.layerMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.layerMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.修改图层名称ToolStripMenuItem,
             this.删除图层ToolStripMenuItem,
             this.打开属性表ToolStripMenuItem});
             this.layerMenu.Name = "contextMenuStrip1";
-            this.layerMenu.Size = new System.Drawing.Size(149, 70);
+            this.layerMenu.Size = new System.Drawing.Size(211, 104);
             // 
             // 修改图层名称ToolStripMenuItem
             // 
             this.修改图层名称ToolStripMenuItem.Name = "修改图层名称ToolStripMenuItem";
-            this.修改图层名称ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.修改图层名称ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.修改图层名称ToolStripMenuItem.Text = "修改图层名称";
+            this.修改图层名称ToolStripMenuItem.Click += new System.EventHandler(this.修改图层名称ToolStripMenuItem_Click);
             // 
             // 删除图层ToolStripMenuItem
             // 
             this.删除图层ToolStripMenuItem.Name = "删除图层ToolStripMenuItem";
-            this.删除图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.删除图层ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.删除图层ToolStripMenuItem.Text = "删除图层";
+            this.删除图层ToolStripMenuItem.Click += new System.EventHandler(this.删除图层ToolStripMenuItem_Click);
             // 
             // 打开属性表ToolStripMenuItem
             // 
             this.打开属性表ToolStripMenuItem.Name = "打开属性表ToolStripMenuItem";
-            this.打开属性表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.打开属性表ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.打开属性表ToolStripMenuItem.Text = "打开属性表";
+            this.打开属性表ToolStripMenuItem.Click += new System.EventHandler(this.打开属性表ToolStripMenuItem_Click);
             // 
             // MLFeatureBox
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.bottom);
             this.Controls.Add(this.top);
             this.Controls.Add(this.down);
             this.Controls.Add(this.up);
-            this.MaximumSize = new System.Drawing.Size(90, 1080);
-            this.MinimumSize = new System.Drawing.Size(90, 2);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MaximumSize = new System.Drawing.Size(119, 1350);
+            this.MinimumSize = new System.Drawing.Size(119, 2);
             this.Name = "MLFeatureBox";
-            this.Size = new System.Drawing.Size(88, 362);
+            this.Size = new System.Drawing.Size(117, 452);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.showBoxMenu);
             this.boxMenu.ResumeLayout(false);
             this.layerMenu.ResumeLayout(false);
