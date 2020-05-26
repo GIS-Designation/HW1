@@ -6,13 +6,14 @@ using System.Data;
 using System.Drawing;
 using MySql.Data.MySqlClient;
 using System.IO;
+using System.Collections;
 
 namespace MalaSpiritGIS
 {
     /// <summary>
     /// 要素类型枚举，点，多段线，多边形，多点
     /// </summary>
-    public enum FeatureType { POINT,POLYLINE,POLYGON,MULTIPOINT}
+    enum FeatureType { POINT, POLYLINE, POLYGON, MULTIPOINT }
 
     /// <summary>
     /// double类型点坐标
@@ -122,7 +123,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 麻辣精灵要素抽象基类
     /// </summary>
-    public abstract class MLFeature
+    abstract class MLFeature
     {
         #region 属性
         //protected int id;                     //要素编号
@@ -145,9 +146,9 @@ namespace MalaSpiritGIS
         //用于剪切，复制，粘贴等操作
         public abstract byte[] ToBytes();
 
-        
 
-        public void Move(float x,float y)
+
+        public void Move(float x, float y)
         {
             deviation.X += x;
             deviation.Y += y;
@@ -162,7 +163,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 麻辣精灵要素类，与图层一对一，包含多个要素
     /// </summary>
-    public class MLFeatureClass
+    class MLFeatureClass
     {
         #region 属性
         uint id;                    //要素类编号
@@ -174,7 +175,7 @@ namespace MalaSpiritGIS
         PointF deviation;           //要素类整体偏移
         #endregion
 
-        public MLFeatureClass(uint _id,string _name,FeatureType _type,double[] _mbr)
+        public MLFeatureClass(uint _id, string _name, FeatureType _type, double[] _mbr)
         {
             id = _id;
             name = _name;
@@ -182,13 +183,38 @@ namespace MalaSpiritGIS
             mbr = new double[4];
             Array.Copy(_mbr, mbr, 4);
             features = new List<MLFeature>();
+            attributeData = new DataTable();
         }
 
-        public void LoadAttribute(ref MySqlDataReader msdr)
+        public void AddAttributeField(string fieldName, Type fieldType)
         {
-            attributeData = new DataTable();
-            attributeData.Load(msdr);
-            msdr.Close();
+            attributeData.Columns.Add(fieldName, fieldType);
+        }
+
+        public void AddAttributeRow(object[] values)
+        {
+            attributeData.BeginLoadData();
+            object[] curValues = new object[values.Length - 1];
+            curValues[0] = values[0];
+            curValues[1] = featureType;
+            Array.Copy(values, 3, curValues, 2, values.Length - 3);
+            attributeData.LoadDataRow(curValues, true);
+            attributeData.EndLoadData();
+        }
+
+        public string GetFieldName(int index)
+        {
+            return attributeData.Columns[index].ColumnName;
+        }
+
+        public Type GetFieldType(int index)
+        {
+            return attributeData.Columns[index].DataType;
+        }
+
+        public object GetAttributeCell(int rowIndex, int colIndex)
+        {
+            return attributeData.Rows[rowIndex][colIndex];
         }
 
         public void AddFeaure(MLFeature curFea)
@@ -205,6 +231,11 @@ namespace MalaSpiritGIS
         public double XMax { get { return mbr[1]; } }
         public double YMin { get { return mbr[2]; } }
         public double YMax { get { return mbr[3]; } }
+        public uint ID { get { return id; } }
+        public string Name { get { return name; } }
+        public FeatureType Type { get { return featureType; } }
+        public int Count { get { return features.Count; } }
+        public int FieldCount { get { return attributeData.Columns.Count; } }
     }
 
     /// <summary>
@@ -236,7 +267,7 @@ namespace MalaSpiritGIS
             double x, y;
             x = biReader.ReadDouble();
             y = biReader.ReadDouble();
-            point = new PointD(x,y);
+            point = new PointD(x, y);
             featureType = FeatureType.POINT;
             mbr[0] = mbr[1] = point.X;
             mbr[2] = mbr[3] = point.Y;
@@ -245,7 +276,10 @@ namespace MalaSpiritGIS
 
         public override byte[] ToBytes()
         {
-            byte[] rslt=new byte[1];
+            byte[] rslt = new byte[24];
+            Array.Copy(BitConverter.GetBytes(1), rslt, 4);
+            Array.Copy(BitConverter.GetBytes(point.X), 0, rslt, 4, 8);
+            Array.Copy(BitConverter.GetBytes(point.Y), 0, rslt, 12, 8);
             return rslt;
         }
 
