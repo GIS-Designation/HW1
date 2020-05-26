@@ -13,7 +13,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 要素类型枚举，点，多段线，多边形，多点
     /// </summary>
-    enum FeatureType { POINT, POLYLINE, POLYGON, MULTIPOINT }
+    public enum FeatureType { POINT, POLYLINE, POLYGON, MULTIPOINT }
 
     /// <summary>
     /// double类型点坐标
