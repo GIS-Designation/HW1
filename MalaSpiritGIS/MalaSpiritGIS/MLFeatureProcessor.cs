@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace MalaSpiritGIS
 {
-    class MLRecord
+    public class MLRecord
     {
         uint id;
         string name;
@@ -42,7 +42,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 在内存和数据库之间处理要素类
     /// </summary>
-    class MLFeatureProcessor
+    public class MLFeatureProcessor
     {
         string server = "localhost";
         string database = "mala spirit gis db";
@@ -131,7 +131,6 @@ namespace MalaSpiritGIS
                         reader.Read();
                         object[] curRow = new object[reader.FieldCount];
                         reader.GetValues(curRow);
-                        curFeaClass.AddAttributeRow(curRow);
                         br.BaseStream.Seek((long)reader.GetUInt32("FileBias"), SeekOrigin.Begin);
                         MLFeature curFeature;
                         switch (featureClassType)
@@ -146,7 +145,7 @@ namespace MalaSpiritGIS
                                 curFeature = new MLPoint(br);//
                                 break;
                         }
-                        curFeaClass.AddFeaure(curFeature);
+                        curFeaClass.AddFeaure(curFeature, curRow);
                     }
                 }
             }
