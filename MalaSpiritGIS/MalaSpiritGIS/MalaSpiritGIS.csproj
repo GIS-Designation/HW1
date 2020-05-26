@@ -134,5 +134,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Cross.ico" />
+    <Content Include="Resources\PanUp.ico" />
+    <Content Include="Resources\ZoomIn.ico" />
+    <Content Include="Resources\ZoomOut.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -36,6 +36,7 @@
             this.bottom = new System.Windows.Forms.Button();
             this.boxMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.新建点图层ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.新建多点图层ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.新建线图层ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.新建面图层ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.layerMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -56,6 +57,7 @@
             this.up.TabIndex = 0;
             this.up.Text = "↑";
             this.up.UseVisualStyleBackColor = false;
+            this.up.Click += new System.EventHandler(this.up_Click);
             // 
             // down
             // 
@@ -67,6 +69,7 @@
             this.down.TabIndex = 1;
             this.down.Text = "↓";
             this.down.UseVisualStyleBackColor = false;
+            this.down.Click += new System.EventHandler(this.down_Click);
             // 
             // top
             // 
@@ -78,6 +81,7 @@
             this.top.Size = new System.Drawing.Size(20, 20);
             this.top.TabIndex = 2;
             this.top.UseVisualStyleBackColor = true;
+            this.top.Click += new System.EventHandler(this.top_Click);
             // 
             // bottom
             // 
@@ -89,33 +93,45 @@
             this.bottom.Size = new System.Drawing.Size(20, 20);
             this.bottom.TabIndex = 3;
             this.bottom.UseVisualStyleBackColor = true;
+            this.bottom.Click += new System.EventHandler(this.bottom_Click);
             // 
             // boxMenu
             // 
             this.boxMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.新建点图层ToolStripMenuItem,
+            this.新建多点图层ToolStripMenuItem,
             this.新建线图层ToolStripMenuItem,
             this.新建面图层ToolStripMenuItem});
             this.boxMenu.Name = "boxMenu";
-            this.boxMenu.Size = new System.Drawing.Size(137, 70);
+            this.boxMenu.Size = new System.Drawing.Size(149, 92);
             // 
             // 新建点图层ToolStripMenuItem
             // 
             this.新建点图层ToolStripMenuItem.Name = "新建点图层ToolStripMenuItem";
-            this.新建点图层ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.新建点图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.新建点图层ToolStripMenuItem.Text = "新建点图层";
+            this.新建点图层ToolStripMenuItem.Click += new System.EventHandler(this.新建点图层ToolStripMenuItem_Click);
+            // 
+            // 新建多点图层ToolStripMenuItem
+            // 
+            this.新建多点图层ToolStripMenuItem.Name = "新建多点图层ToolStripMenuItem";
+            this.新建多点图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.新建多点图层ToolStripMenuItem.Text = "新建多点图层";
+            this.新建多点图层ToolStripMenuItem.Click += new System.EventHandler(this.新建多点图层ToolStripMenuItem_Click);
             // 
             // 新建线图层ToolStripMenuItem
             // 
             this.新建线图层ToolStripMenuItem.Name = "新建线图层ToolStripMenuItem";
-            this.新建线图层ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.新建线图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.新建线图层ToolStripMenuItem.Text = "新建线图层";
+            this.新建线图层ToolStripMenuItem.Click += new System.EventHandler(this.新建线图层ToolStripMenuItem_Click);
             // 
             // 新建面图层ToolStripMenuItem
             // 
             this.新建面图层ToolStripMenuItem.Name = "新建面图层ToolStripMenuItem";
-            this.新建面图层ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.新建面图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.新建面图层ToolStripMenuItem.Text = "新建面图层";
+            this.新建面图层ToolStripMenuItem.Click += new System.EventHandler(this.新建面图层ToolStripMenuItem_Click);
             // 
             // layerMenu
             // 
@@ -124,24 +140,24 @@
             this.删除图层ToolStripMenuItem,
             this.打开属性表ToolStripMenuItem});
             this.layerMenu.Name = "contextMenuStrip1";
-            this.layerMenu.Size = new System.Drawing.Size(181, 92);
+            this.layerMenu.Size = new System.Drawing.Size(149, 70);
             // 
             // 修改图层名称ToolStripMenuItem
             // 
             this.修改图层名称ToolStripMenuItem.Name = "修改图层名称ToolStripMenuItem";
-            this.修改图层名称ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.修改图层名称ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.修改图层名称ToolStripMenuItem.Text = "修改图层名称";
             // 
             // 删除图层ToolStripMenuItem
             // 
             this.删除图层ToolStripMenuItem.Name = "删除图层ToolStripMenuItem";
-            this.删除图层ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.删除图层ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.删除图层ToolStripMenuItem.Text = "删除图层";
             // 
             // 打开属性表ToolStripMenuItem
             // 
             this.打开属性表ToolStripMenuItem.Name = "打开属性表ToolStripMenuItem";
-            this.打开属性表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.打开属性表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.打开属性表ToolStripMenuItem.Text = "打开属性表";
             // 
             // MLFeatureBox
@@ -178,5 +194,6 @@
         private System.Windows.Forms.ToolStripMenuItem 修改图层名称ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 删除图层ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 打开属性表ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 新建多点图层ToolStripMenuItem;
     }
 }
