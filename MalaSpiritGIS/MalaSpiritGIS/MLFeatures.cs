@@ -12,7 +12,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 要素类型枚举，点，多段线，多边形，多点
     /// </summary>
-    enum FeatureType { POINT,POLYLINE,POLYGON,MULTIPOINT}
+    public enum FeatureType { POINT,POLYLINE,POLYGON,MULTIPOINT}
 
     /// <summary>
     /// double类型点坐标
@@ -122,7 +122,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 麻辣精灵要素抽象基类
     /// </summary>
-    abstract class MLFeature
+    public abstract class MLFeature
     {
         #region 属性
         //protected int id;                     //要素编号
@@ -162,7 +162,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 麻辣精灵要素类，与图层一对一，包含多个要素
     /// </summary>
-    class MLFeatureClass
+    public class MLFeatureClass
     {
         #region 属性
         uint id;                    //要素类编号
