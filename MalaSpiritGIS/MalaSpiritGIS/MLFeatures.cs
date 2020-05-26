@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using MySql.Data.MySqlClient;
 using System.IO;
+using System.Collections;
 
 namespace MalaSpiritGIS
 {
@@ -182,13 +183,38 @@ namespace MalaSpiritGIS
             mbr = new double[4];
             Array.Copy(_mbr, mbr, 4);
             features = new List<MLFeature>();
+            attributeData = new DataTable();
         }
 
-        public void LoadAttribute(ref MySqlDataReader msdr)
+        public void AddAttributeField(string fieldName,Type fieldType)
         {
-            attributeData = new DataTable();
-            attributeData.Load(msdr);
-            msdr.Close();
+            attributeData.Columns.Add(fieldName, fieldType);
+        }
+
+        public void AddAttributeRow(object[] values)
+        {
+            attributeData.BeginLoadData();
+            object[] curValues = new object[values.Length - 1];
+            curValues[0] = values[0];
+            curValues[1] = featureType;
+            Array.Copy(values, 3, curValues, 2, values.Length - 3);
+            attributeData.LoadDataRow(curValues, true);
+            attributeData.EndLoadData();
+        }
+
+        public string GetFieldName(int index)
+        {
+            return attributeData.Columns[index].ColumnName;
+        }
+
+        public Type GetFieldType(int index)
+        {
+            return attributeData.Columns[index].DataType;
+        }
+
+        public object GetAttributeCell(int rowIndex,int colIndex)
+        {
+            return attributeData.Rows[rowIndex][colIndex];
         }
 
         public void AddFeaure(MLFeature curFea)
@@ -205,6 +231,11 @@ namespace MalaSpiritGIS
         public double XMax { get { return mbr[1]; } }
         public double YMin { get { return mbr[2]; } }
         public double YMax { get { return mbr[3]; } }
+        public uint ID { get { return id; } }
+        public string Name { get { return name; } }
+        public FeatureType Type { get { return featureType; } }
+        public int Count { get { return features.Count; } }
+        public int FieldCount { get { return attributeData.Columns.Count; } }
     }
 
     /// <summary>
@@ -245,7 +276,10 @@ namespace MalaSpiritGIS
 
         public override byte[] ToBytes()
         {
-            byte[] rslt=new byte[1];
+            byte[] rslt = new byte[24];
+            Array.Copy(BitConverter.GetBytes(1), rslt, 4);
+            Array.Copy(BitConverter.GetBytes(point.X), 0,rslt,4, 8);
+            Array.Copy(BitConverter.GetBytes(point.Y), 0, rslt, 12, 8);
             return rslt;
         }
 
