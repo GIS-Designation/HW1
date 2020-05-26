@@ -15,7 +15,6 @@ namespace MalaSpiritGIS
         {
             InitializeComponent();
             MLFeatureProcessor fp = new MLFeatureProcessor();
-            MLFeatureClass fc = fp.LoadFeatureClass(2);
         }
     }
 }
