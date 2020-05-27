@@ -118,6 +118,7 @@ namespace MalaSpiritGIS
         {
             rings.Add(ring);
         }
+
     }
 
     /// <summary>
@@ -383,16 +384,76 @@ namespace MalaSpiritGIS
 
     public class MLPolygon : MLFeature
     {
-        PolygonD[] polygons;
+        PolygonD polygon;
 
         public MLPolygon(BinaryReader biReader)
         {
-            throw new NotImplementedException();
+            biReader.BaseStream.Seek(12, SeekOrigin.Current);
+            mbr[0] = biReader.ReadDouble();
+            mbr[2] = biReader.ReadDouble();
+            mbr[1] = biReader.ReadDouble();
+            mbr[3] = biReader.ReadDouble();
+            int partNum = biReader.ReadInt32();
+            pointNum = biReader.ReadInt32();
+            PolylineD[] rings = new PolylineD[partNum];
+
+            //将part数组后面多加一个元素pointNum，方便计算每个part的长度
+            int[] parts = new int[partNum + 1];
+            for (int i = 0; i < partNum; ++i)
+            {
+                parts[i] = biReader.ReadInt32();
+            }
+            parts[partNum] = pointNum;
+
+            double x, y;
+            PointD[] segPoints;
+            for (int i = 0; i < partNum; ++i)
+            {
+                segPoints = new PointD[parts[i + 1] - parts[i]];
+                for (int j = 0; j < parts[i + 1] - parts[i]; ++j)
+                {
+                    x = biReader.ReadDouble();
+                    y = biReader.ReadDouble();
+                    segPoints[j] = new PointD(x, y);
+                }
+                rings[i] = new PolylineD(segPoints);
+            }
+
+            polygon = new PolygonD(rings);
         }
 
         public override byte[] ToBytes()
         {
-            throw new NotImplementedException();
+            byte[] rslt;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (BinaryWriter bw = new BinaryWriter(ms))
+                {
+                    bw.Write(5);
+                    bw.Write(mbr[0]);//xmin
+                    bw.Write(mbr[2]);//ymin
+                    bw.Write(mbr[1]);//xmax
+                    bw.Write(mbr[3]);//ymax
+                    bw.Write(polygon.Count);
+                    bw.Write(pointNum);
+                    int curSum = 0;
+                    for (int i = 0; i < polygon.Count; ++i)
+                    {
+                        bw.Write(curSum);
+                        curSum += polygon.GetRing(i).Count;
+                    }
+                    for (int i = 0; i < polygon.Count; ++i)
+                    {
+                        for (int j = 0; j < polygon.GetRing(i).Count; ++j)
+                        {
+                            bw.Write(polygon.GetRing(i).GetPoint(j).X);
+                            bw.Write(polygon.GetRing(i).GetPoint(j).Y);
+                        }
+                    }
+                }
+                rslt = ms.ToArray();
+            }
+            return rslt;
         }
     }
 
@@ -402,11 +463,45 @@ namespace MalaSpiritGIS
 
         public MLMultiPoint(BinaryReader biReader)
         {
-            throw new NotImplementedException();
+            biReader.BaseStream.Seek(12, SeekOrigin.Current);
+            mbr[0] = biReader.ReadDouble();
+            mbr[2] = biReader.ReadDouble();
+            mbr[1] = biReader.ReadDouble();
+            mbr[3] = biReader.ReadDouble();
+            pointNum = biReader.ReadInt32();
+            points = new PointD[pointNum];
+            double x, y;
+            for(int i = 0; i < pointNum; ++i)
+            {
+                x = biReader.ReadDouble();
+                y = biReader.ReadDouble();
+                points[i] = new PointD(x, y);
+            }
         }
+
         public override byte[] ToBytes()
         {
-            throw new NotImplementedException();
+            byte[] rslt;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (BinaryWriter bw = new BinaryWriter(ms))
+                {
+                    bw.Write(8);
+                    bw.Write(mbr[0]);//xmin
+                    bw.Write(mbr[2]);//ymin
+                    bw.Write(mbr[1]);//xmax
+                    bw.Write(mbr[3]);//ymax
+                    bw.Write(pointNum);
+                    for(int i = 0; i < points.Length; ++i)
+                    {
+                        bw.Write(points[i].X);
+                        bw.Write(points[i].Y);
+                    }
+                    
+                }
+                rslt = ms.ToArray();
+            }
+            return rslt;
         }
     }
 }
