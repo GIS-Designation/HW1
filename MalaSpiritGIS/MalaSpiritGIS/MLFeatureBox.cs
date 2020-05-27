@@ -17,8 +17,8 @@ namespace MalaSpiritGIS
             InitializeComponent();
             data = new Dataframe(this);
         }
-        Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
-        class Layer  //图层
+        public Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
+        public class Layer  //图层
         {
             public Label sign, name;  //图层包括符号（·/—/■）和图层名字
             public MLFeatureClass featureClass;  //以及数据实体的要素类
@@ -78,7 +78,7 @@ namespace MalaSpiritGIS
                 controls.Remove(sign);
             }
         }
-        class Dataframe
+        public class Dataframe
         {
             public List<Layer> layers;  //数据框包括多个图层
             public MLFeatureBox self;  //指向界面，用于绑定一些事件属性
