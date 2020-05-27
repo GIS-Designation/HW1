@@ -15,49 +15,45 @@ namespace MalaSpiritGIS
         {
             InitializeComponent();
             MLFeatureProcessor fp = new MLFeatureProcessor();
-            dataFrame = this.mlFeatureBox;
+            dataFrame = this.mlFeatureBox.data;  //获取图层记录区域的数据
+            mlMap.getDataFrame(dataFrame);  //将数据传递给绘制区域
+            toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");
         }
-        MLFeatureBox dataFrame;
+        MLFeatureBox.Dataframe dataFrame;
 
         private void createFeature_Click(object sender, EventArgs e)
         {
-            if(dataFrame.data.index > -1)
-            {
-                MLFeatureClass layer = dataFrame.data.layers[dataFrame.data.index].featureClass;
-                switch (layer.featureType)
-                {
-                    case FeatureType.POINT:
-                        //创建点要素，创建完成后往layer中添加
-                        break;
-                    case FeatureType.MULTIPOINT:
-                        //创建多点要素
-                        break;
-                    case FeatureType.POLYLINE:
-                        //创建线要素
-                        break;
-                    case FeatureType.POLYGON:
-                        //创建面要素
-                        break;
-                }
-            }
-            else
-            {
-                MessageBox.Show("请先点击目标图层");
-            }
+            mlMap.TrackFeature();
         }
 
         private void selectFeature_Click(object sender, EventArgs e)
         {
-            //假设完成了框的绘制
-            for(int i = 0;i < dataFrame.data.layers.Count; ++i)
-            {
-                MLFeatureClass layer = dataFrame.data.layers[i].featureClass;
-                for(int j = 0;j < layer.Count; ++j)
-                {
-                    MLFeature feature = layer.GetFeature(j);
-                    //对feature和框进行判别，若feature在框内就是被选中的
-                }
-            }
+            mlMap.SelectFeature();
+        }
+        private void zoomIn_Click(object sender, EventArgs e)
+        {
+            mlMap.ZoomIn();
+        }
+
+        private void zoomOut_Click(object sender, EventArgs e)
+        {
+            mlMap.ZoomOut();
+        }
+
+        private void pan_Click(object sender, EventArgs e)
+        {
+            mlMap.Pan();
+        }
+        private void mlMap_MouseMove(object sender, MouseEventArgs e)
+        {
+            PointF sMouseLocation = new PointF(e.Location.X, e.Location.Y);
+            PointF sPointOnMap = mlMap.ToMapPoint(sMouseLocation);
+            toolStripStatusLabel1.Text = "X:" + sPointOnMap.X.ToString("0.00") + " Y:" + sPointOnMap.Y.ToString("0.00");
+        }
+        private void mlMap_TrackingFinished(object sender, MLFeature feature)
+        {
+            //mcMap.AddPolygon(polygon);
+            //mcMap.Refresh();
         }
     }
 }

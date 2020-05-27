@@ -39,6 +39,7 @@
             this.Name = "MLMap";
             this.Size = new System.Drawing.Size(146, 146);
             this.ResumeLayout(false);
+            this.MouseWheel += MapControl_MouseWheel;
 
         }
 

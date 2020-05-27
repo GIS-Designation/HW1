@@ -61,7 +61,7 @@
             this.文件FToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1067, 30);
+            this.menuStrip1.Size = new System.Drawing.Size(1067, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -127,6 +127,7 @@
             this.zoomIn.TabIndex = 5;
             this.zoomIn.Text = "放大";
             this.zoomIn.UseVisualStyleBackColor = true;
+            this.zoomIn.Click += new System.EventHandler(this.zoomIn_Click);
             // 
             // zoomOut
             // 
@@ -137,6 +138,7 @@
             this.zoomOut.TabIndex = 6;
             this.zoomOut.Text = "缩小";
             this.zoomOut.UseVisualStyleBackColor = true;
+            this.zoomOut.Click += new System.EventHandler(this.zoomOut_Click);
             // 
             // pan
             // 
@@ -147,6 +149,7 @@
             this.pan.TabIndex = 7;
             this.pan.Text = "漫游";
             this.pan.UseVisualStyleBackColor = true;
+            this.pan.Click += new System.EventHandler(this.pan_Click);
             // 
             // query
             // 
@@ -211,6 +214,7 @@
             this.mlMap.Name = "mlMap";
             this.mlMap.Size = new System.Drawing.Size(928, 466);
             this.mlMap.TabIndex = 9;
+            this.mlMap.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mlMap_MouseMove);
             // 
             // mlFeatureBox
             // 
@@ -241,7 +245,7 @@
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MLMainForm";
             this.Text = "麻辣精灵GIS";
             this.menuStrip1.ResumeLayout(false);
