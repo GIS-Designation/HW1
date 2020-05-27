@@ -18,7 +18,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// double类型点坐标
     /// </summary>
-    class PointD
+    public class PointD
     {
         private double x, y;
 
@@ -56,7 +56,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 多段线
     /// </summary>
-    class PolylineD
+    public class PolylineD
     {
         List<PointD> points;
 
@@ -92,7 +92,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 多边形
     /// </summary>
-    class PolygonD
+    public class PolygonD
     {
         List<PolylineD> rings;
 
@@ -123,7 +123,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 麻辣精灵要素抽象基类
     /// </summary>
-    abstract class MLFeature
+    public abstract class MLFeature
     {
         #region 属性
         //protected int id;                     //要素编号
@@ -143,9 +143,8 @@ namespace MalaSpiritGIS
         }
 
 
-        //用于剪切，复制，粘贴等操作
+        //用于剪切，复制，粘贴等操作；结果为shp文件中要素记录字段，去掉编号和字段长度，见P8-P9记录格式
         public abstract byte[] ToBytes();
-
 
 
         public void Move(float x, float y)
@@ -163,7 +162,7 @@ namespace MalaSpiritGIS
     /// <summary>
     /// 麻辣精灵要素类，与图层一对一，包含多个要素
     /// </summary>
-    class MLFeatureClass
+    public class MLFeatureClass
     {
         #region 属性
         uint id;                    //要素类编号
@@ -191,16 +190,16 @@ namespace MalaSpiritGIS
             attributeData.Columns.Add(fieldName, fieldType);
         }
 
-        public void AddAttributeRow(object[] values)
-        {
-            attributeData.BeginLoadData();
-            object[] curValues = new object[values.Length - 1];
-            curValues[0] = values[0];
-            curValues[1] = featureType;
-            Array.Copy(values, 3, curValues, 2, values.Length - 3);
-            attributeData.LoadDataRow(curValues, true);
-            attributeData.EndLoadData();
-        }
+        //public void AddAttributeRow(object[] values)
+        //{
+        //    attributeData.BeginLoadData();
+        //    object[] curValues = new object[values.Length - 1];
+        //    curValues[0] = values[0];
+        //    curValues[1] = featureType;
+        //    Array.Copy(values, 3, curValues, 2, values.Length - 3);
+        //    attributeData.LoadDataRow(curValues, true);
+        //    attributeData.EndLoadData();
+        //}
 
         public string GetFieldName(int index)
         {
@@ -217,9 +216,21 @@ namespace MalaSpiritGIS
             return attributeData.Rows[rowIndex][colIndex];
         }
 
-        public void AddFeaure(MLFeature curFea)
+        /// <summary>
+        /// 向要素类中添加要素
+        /// </summary>
+        /// <param name="curFea">要素</param>
+        /// <param name="values">要素对应的属性信息</param>
+        public void AddFeaure(MLFeature curFea, object[] values)
         {
             features.Add(curFea);
+            attributeData.BeginLoadData();
+            object[] curValues = new object[values.Length - 1];
+            curValues[0] = values[0];
+            curValues[1] = featureType;
+            Array.Copy(values, 3, curValues, 2, values.Length - 3);
+            attributeData.LoadDataRow(curValues, true);
+            attributeData.EndLoadData();
         }
 
         public MLFeature GetFeature(int index)
@@ -239,9 +250,9 @@ namespace MalaSpiritGIS
     }
 
     /// <summary>
-    /// 麻辣精灵点要素类
+    /// 麻辣精灵点要素
     /// </summary>
-    class MLPoint : MLFeature
+    public class MLPoint : MLFeature
     {
         PointD point;
 
@@ -254,7 +265,6 @@ namespace MalaSpiritGIS
             pointNum = 1;
             //TODO: FillDataTable
         }
-
 
         /// <summary>
         /// 从Shp文件字段中初始化要素
@@ -276,14 +286,127 @@ namespace MalaSpiritGIS
 
         public override byte[] ToBytes()
         {
-            byte[] rslt = new byte[24];
-            Array.Copy(BitConverter.GetBytes(1), rslt, 4);
-            Array.Copy(BitConverter.GetBytes(point.X), 0, rslt, 4, 8);
-            Array.Copy(BitConverter.GetBytes(point.Y), 0, rslt, 12, 8);
+            byte[] rslt;
+            using(MemoryStream ms=new MemoryStream())
+            {
+                using(BinaryWriter bw=new BinaryWriter(ms))
+                {
+                    bw.Write(1);
+                    bw.Write(point.X);
+                    bw.Write(point.Y);
+                }
+                rslt = ms.ToArray();
+            }
             return rslt;
         }
-
-
     }
 
+    /// <summary>
+    /// 麻辣精灵多段线要素
+    /// </summary>
+    public class MLPolyline : MLFeature
+    {
+        PolylineD[] segments;
+
+        /// <summary>
+        /// 从shp初始化要素
+        /// </summary>
+        /// <param name="biReader"></param>
+        public MLPolyline(BinaryReader biReader) :base()
+        {
+            biReader.BaseStream.Seek(12, SeekOrigin.Current);
+            mbr[0] = biReader.ReadDouble();
+            mbr[2] = biReader.ReadDouble();
+            mbr[1] = biReader.ReadDouble();
+            mbr[3] = biReader.ReadDouble();
+            int partNum = biReader.ReadInt32();
+            pointNum = biReader.ReadInt32();
+            segments = new PolylineD[partNum];
+
+            //将part数组后面多加一个元素pointNum，方便计算每个part的长度
+            int[] parts = new int[partNum+1];
+            for(int i = 0; i < partNum; ++i)
+            {
+                parts[i] = biReader.ReadInt32();
+            }
+            parts[partNum] = pointNum;
+
+            double x, y;
+            PointD[] segPoints;
+            for (int i = 0; i < partNum; ++i)
+            {
+                segPoints = new PointD[parts[i + 1] - parts[i]];
+                for(int j = 0; j < parts[i + 1] - parts[i]; ++j)
+                {
+                    x = biReader.ReadDouble();
+                    y = biReader.ReadDouble();
+                    segPoints[j] = new PointD(x, y);
+                }
+                segments[i] = new PolylineD(segPoints);
+            }
+        }
+
+        public override byte[] ToBytes()
+        {
+            byte[] rslt;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (BinaryWriter bw = new BinaryWriter(ms))
+                {
+                    bw.Write(3);
+                    bw.Write(mbr[0]);//xmin
+                    bw.Write(mbr[2]);//ymin
+                    bw.Write(mbr[1]);//xmax
+                    bw.Write(mbr[3]);//ymax
+                    bw.Write(segments.Length);
+                    bw.Write(pointNum);
+                    int curSum = 0;
+                    for(int i = 0; i < segments.Length; ++i)
+                    {
+                        bw.Write(curSum);
+                        curSum += segments[i].Count;
+                    }
+                    for(int i = 0; i < segments.Length; ++i)
+                    {
+                        for(int j = 0; j < segments[i].Count; ++j)
+                        {
+                            bw.Write(segments[i].GetPoint(j).X);
+                            bw.Write(segments[i].GetPoint(j).Y);
+                        }
+                    }
+                }
+                rslt = ms.ToArray();
+            }
+            return rslt;
+        }
+    }
+
+    public class MLPolygon : MLFeature
+    {
+        PolygonD[] polygons;
+
+        public MLPolygon(BinaryReader biReader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override byte[] ToBytes()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class MLMultiPoint : MLFeature
+    {
+        PointD[] points;
+
+        public MLMultiPoint(BinaryReader biReader)
+        {
+            throw new NotImplementedException();
+        }
+        public override byte[] ToBytes()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
