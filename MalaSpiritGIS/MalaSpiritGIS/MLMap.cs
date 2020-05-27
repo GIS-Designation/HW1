@@ -31,13 +31,14 @@ namespace MalaSpiritGIS
         private Color trackingColor = Color.DarkGreen;  //描绘多边形的颜色
 
         //运行时属性变量
-        private float displayScale = 1;  //显示比例尺的倒数
-        private List<List<int>> selectedFeatures = new List<List<int>>();  //选中要素集合*****缺陷
+        private float displayScale = 1F;  //显示比例尺的倒数
+        private List<List<int>> selectedFeatures = new List<List<int>>();  //选中要素集合
 
         //内部变量
         private float mOffsetX = 0, mOffsetY = 0;  //窗口左上点的地图坐标
         private int mMapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素
-        private MLFeature mTrackingFeature;  //用户正在描绘的多边形******缺陷
+        private MLFeature mTrackingFeature;  //用户正在描绘的要素*********************************************************
+        private FeatureType mTrackingType;  //用户正在描绘的要素种类****************************************************
         private PointF mMouseLocation = new PointF();  //鼠标当前的位置，用于漫游、拉框等
         private PointF mStartPoint = new PointF();  //记录鼠标按下时的位置，用于拉框
 
@@ -224,7 +225,7 @@ namespace MalaSpiritGIS
 
         private void DrawTrackingFeatures(Graphics g)
         {
-            switch (mTrackingFeature.FeatureType)
+            switch (FeatureType.POINT)//mTrackingFeature.FeatureType)
             {
                 case FeatureType.POINT:
                     break;
@@ -294,7 +295,7 @@ namespace MalaSpiritGIS
         #endregion
 
         #region 母版事件处理
-        private void MapControl_MouseDown(object sender, MouseEventArgs e)
+        private void MLMouseDown(object sender, MouseEventArgs e)
         {
             switch (mMapOpStyle)
             {
@@ -368,7 +369,7 @@ namespace MalaSpiritGIS
             }
         }
 
-        private void MapControl_MouseMove(object sender, MouseEventArgs e)
+        private void MLMouseMove(object sender, MouseEventArgs e)
         {
             switch (mMapOpStyle)
             {
@@ -415,37 +416,11 @@ namespace MalaSpiritGIS
             }
         }
 
-        private void MapControl_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void MLMouseDoubleClick(object sender, MouseEventArgs e)
         {
-            switch (mMapOpStyle)
-            {
-                case 0:
-                    break;
-                case 1:  //放大
-                    break;
-                case 2:  //缩小
-                    break;
-                case 3:  //漫游
-                    break;
-                case 4:  //输入多边形
-                    if (e.Button == MouseButtons.Left)
-                    {
-                        //if (mTrackingPolygon.PointCount >= 3)
-                        //{
-                        //    Polygon sTrackingPolygon = mTrackingPolygon.Clone();
-                        //    mTrackingPolygon.Clear();
-                        //    if (TrackingFinished != null)
-                        //    {
-                        //        TrackingFinished(this, sTrackingPolygon);
-                        //    }
-                        //}
-                    }
-                    break;
-                case 5:  //选择
-                    break;
-            }
+
         }
-        private void MapControl_MouseWheel(object sender, MouseEventArgs e)
+        private void MLMouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta > 0)
             {
@@ -465,7 +440,7 @@ namespace MalaSpiritGIS
             }
         }
 
-        private void MapControl_MouseUp(object sender, MouseEventArgs e)
+        private void MLMouseUp(object sender, MouseEventArgs e)
         {
             switch (mMapOpStyle)
             {
@@ -499,7 +474,7 @@ namespace MalaSpiritGIS
         }
 
         //母版重绘
-        private void MapControl_Paint(object sender, PaintEventArgs e)
+        private void MLPaint(object sender, PaintEventArgs e)
         {
             //绘制所有多边形
             DrawFeatureClass(e.Graphics);

@@ -32,14 +32,14 @@
             // 
             // MLMap
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
-            this.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.Name = "MLMap";
-            this.Size = new System.Drawing.Size(146, 146);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.MLPaint);
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.MLMouseDoubleClick);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MLMouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MLMouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MLMouseUp);
+            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MLMouseWheel);
             this.ResumeLayout(false);
-            this.MouseWheel += MapControl_MouseWheel;
 
         }
 

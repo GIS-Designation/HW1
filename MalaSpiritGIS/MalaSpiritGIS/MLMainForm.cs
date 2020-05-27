@@ -17,7 +17,7 @@ namespace MalaSpiritGIS
             MLFeatureProcessor fp = new MLFeatureProcessor();
             dataFrame = this.mlFeatureBox.data;  //获取图层记录区域的数据
             mlMap.getDataFrame(dataFrame);  //将数据传递给绘制区域
-            toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");
+            ShowScale();
         }
         MLFeatureBox.Dataframe dataFrame;
 
@@ -55,5 +55,22 @@ namespace MalaSpiritGIS
             //mcMap.AddPolygon(polygon);
             //mcMap.Refresh();
         }
+
+        private void mlMap_DisplayScaleChanged(object sender)
+        {
+            ShowScale();
+        }
+        private void mlMap_SelectingFinished(object sender, RectangleF box)
+        {
+            //MyMapObjects.Polygon[] sPolygons = mcMap.SelectByBox(box);
+            //mcMap.SelectedPolygons = sPolygons;
+            //mcMap.Refresh();
+        }
+
+        private void ShowScale()
+        {
+            toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");
+        }
+
     }
 }

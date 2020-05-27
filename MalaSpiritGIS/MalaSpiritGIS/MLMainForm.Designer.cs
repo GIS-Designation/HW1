@@ -61,14 +61,14 @@
             this.文件FToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1067, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1067, 30);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // 文件FToolStripMenuItem
             // 
             this.文件FToolStripMenuItem.Name = "文件FToolStripMenuItem";
-            this.文件FToolStripMenuItem.Size = new System.Drawing.Size(71, 24);
+            this.文件FToolStripMenuItem.Size = new System.Drawing.Size(71, 26);
             this.文件FToolStripMenuItem.Text = "文件(&F)";
             // 
             // statusStrip1
@@ -214,6 +214,9 @@
             this.mlMap.Name = "mlMap";
             this.mlMap.Size = new System.Drawing.Size(928, 466);
             this.mlMap.TabIndex = 9;
+            this.mlMap.TrackingFinished += new MalaSpiritGIS.MLMap.TrackingFinishedHandle(this.mlMap_TrackingFinished);
+            this.mlMap.DisplayScaleChanged += new MalaSpiritGIS.MLMap.DisplayScaleChangedHandle(this.mlMap_DisplayScaleChanged);
+            this.mlMap.SelectingFinished += new MalaSpiritGIS.MLMap.SelectingFinishiedHandle(this.mlMap_SelectingFinished);
             this.mlMap.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mlMap_MouseMove);
             // 
             // mlFeatureBox
