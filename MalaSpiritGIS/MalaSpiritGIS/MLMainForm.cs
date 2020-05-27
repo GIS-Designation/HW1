@@ -15,6 +15,20 @@ namespace MalaSpiritGIS
         {
             InitializeComponent();
             MLFeatureProcessor fp = new MLFeatureProcessor();
+            dataFrame = this.mlFeatureBox;
+        }
+        MLFeatureBox dataFrame;
+
+        private void createFeature_Click(object sender, EventArgs e)
+        {
+            if(dataFrame.data.index > -1)
+            {
+                //进行要素创建
+            }
+            else
+            {
+                MessageBox.Show("请先点击目标图层");
+            }
         }
     }
 }
