@@ -168,7 +168,7 @@ namespace MalaSpiritGIS
         #region 属性
         uint id;                    //要素类编号
         string name;                //要素类名称
-        FeatureType featureType;    //要素类类型，其中的每个要素集合类型均一致
+        public FeatureType featureType;    //要素类类型，其中的每个要素集合类型均一致
         double[] mbr;               //要素类最小外包矩形
         List<MLFeature> features;       //要素数组
         DataTable attributeData;    //要素属性表
