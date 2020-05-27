@@ -15,184 +15,190 @@ namespace MalaSpiritGIS
         public MLFeatureBox()
         {
             InitializeComponent();
-            data = new Dataframe();
+            data = new Dataframe(this);
         }
-
-        #region 属性
-
-        Dataframe data;
-
-        #endregion
-
-        class Dataframe
+        Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
+        class Layer  //图层
         {
-            public List<MLFeatureClass> layers;
-            public List<Label> signs, names;
-            public int index;
-            public Dataframe()
+            public Label sign, name;  //图层包括符号（·/—/■）和图层名字
+            public MLFeatureClass featureClass;  //以及数据实体的要素类
+            public static int id = 0;  //唯一编号
+            public int index;  //在数据框data中的索引
+            public Layer(FeatureType type, int _index, ControlCollection controls)
             {
-                signs = new List<Label>();
-                names = new List<Label>();
-                layers = new List<MLFeatureClass>();
-                index = 0;
-            }
-            public bool selected()
-            {
-                return index != layers.Count;
-            }
-            public void add(ControlCollection controls, MLFeatureClass layer, Label name, Label sign)
-            {
-                if (!selected())
+                index = _index;
+                sign = new Label();
+                name = new Label();
+                switch (type)
                 {
-                    index += 1;
+                    case FeatureType.POINT:
+                        sign.Text = "·";
+                        name.Text = "新建点图层";
+                        break;
+                    case FeatureType.MULTIPOINT:
+                        sign.Text = "·";
+                        name.Text = "新建多点图层";
+                        break;
+                    case FeatureType.POLYLINE:
+                        sign.Text = "—";
+                        name.Text = "新建线图层";
+                        break;
+                    case FeatureType.POLYGON:
+                        sign.Text = "■";
+                        name.Text = "新建面图层";
+                        break;
                 }
-                layers.Add(layer);
-                names.Add(name);
-                signs.Add(sign);
-                controls.Add(name);
-                controls.Add(sign);
-                int y = 25 * layers.Count + 5;  //新建记录待显示的位置
+                featureClass = new MLFeatureClass((uint)id, name.Text, type, new double[4]);  //新建一个要素类
+                sign.Width = 12;  //长宽固定
+                name.Width = 78;
+
+                int y = 25 * index + 30;  //新图层的显示位置可以推算
                 sign.Location = new Point(0, y);
                 name.Location = new Point(12, y);
-                sign.Width = 12;
-                name.Width = 78;
+                ++id;
+
+                controls.Add(name);  //添加到控件中
+                controls.Add(sign);
             }
-            public void cancelSelected()
+            public void moveUp()  //本图层上移
+            {
+                --index;  //对应在数据框data中的索引也要-1
+                sign.Location = new Point(0, sign.Location.Y - 25);
+                name.Location = new Point(12, name.Location.Y - 25);
+            }
+            public void moveDown()  //本图层下移
+            {
+                ++index;
+                sign.Location = new Point(0, sign.Location.Y + 25);
+                name.Location = new Point(12, name.Location.Y + 25);
+            }
+            public void remove(ControlCollection controls)  //从controls中删除本图层
+            {
+                controls.Remove(name);
+                controls.Remove(sign);
+            }
+        }
+        class Dataframe
+        {
+            public List<Layer> layers;  //数据框包括多个图层
+            public MLFeatureBox self;  //指向界面，用于绑定一些事件属性
+            public int index;  //正在操作的图层
+            public Dataframe(MLFeatureBox that)
+            {
+                layers = new List<Layer>();
+                self = that;
+                index = -1;
+            }
+            public bool selected()  //判断是否有操作图层，如果index为-1则没有
+            {
+                return index > -1;
+            }
+            public void cancelSelected()  //变成无操作图层状态
             {
                 if (selected())
                 {
-                    names[index].BorderStyle = BorderStyle.None;
-                    index = layers.Count;
+                    layers[index].name.BorderStyle = BorderStyle.None;  //取消上一个操作图层的框
+                    index = -1;  //设置index
                 }
             }
-            public void setSelected(int newIndex)
+            public void setSelected(int _index)  //变成有操作图层状态
             {
-                cancelSelected();
-                index = newIndex;
-                names[index].BorderStyle = BorderStyle.FixedSingle;
+                cancelSelected();  //先取消上一个操作状态
+                index = _index;
+                layers[index].name.BorderStyle = BorderStyle.FixedSingle;
             }
-            private void move(int delta)
+            public void add(FeatureType type)  //新加一条数据
             {
-                int pos = index + delta;
-                MLFeatureClass layer = layers[pos];
-                layers[pos] = layers[index];
-                layers[index] = layer;
-
-                Label name = names[pos];
-                names[pos] = names[index];
-                names[index] = name;
-
-                Label sign = signs[pos];
-                signs[pos] = signs[index];
-                signs[index] = sign;
-
-                index = pos;
-            }
-            public void moveUp()
-            {
-                if (selected() && index != 0)
+                Layer layer = new Layer(type, layers.Count,self.Controls) ;
+                //绑定事件
+                layer.sign.MouseClick += new MouseEventHandler(editSign);  //点击符号的操作
+                layer.name.MouseClick += new MouseEventHandler(showLayerMenu);  //点击文字的操作
+                void editSign(object sender, MouseEventArgs e)  //点击符号触发的操作，修改符号
                 {
-                    move(-1);
-                    refresh();
+                    MessageBox.Show("这里将来会跳出符号修改窗口");
                 }
-            }
-            public void moveDown()
-            {
-                if (selected() && index != layers.Count - 1)
+
+                void showLayerMenu(object sender, MouseEventArgs e)  //点击文字触发的操作
                 {
-                    move(1);
-                    refresh();
-                }
-            }
-            public void moveTop()
-            {
-                if (selected())
-                {
-                    while (index != 0)
+                    if (e.Button == MouseButtons.Right)  //如果是右键，就打开菜单
                     {
-                        move(-1);
+                        self.layerMenu.Show(MousePosition.X, MousePosition.Y);
                     }
-                    refresh();
+                    setSelected(layer.index);  //不管左键右键都会使图层被选中
+                }
+                layers.Add(layer);
+            }
+            public void moveUp()  //将操作中的图层上移
+            {
+                if (selected())
+                {
+                    if (index != 0)  //如果不在顶部
+                    {
+                        layers[index].moveUp();  //上下移
+                        layers[index - 1].moveDown();
+                        Layer layer = layers[index];
+                        layers[index] = layers[index - 1];
+                        layers[--index] = layer;
+                    }
                 }
             }
-            public void moveBottom()
+            public void moveDown()  //将操作中的图层下移
+            {
+                if (selected())
+                {
+                    if (index != layers.Count - 1)
+                    {
+                        layers[index].moveDown();  //上下移
+                        layers[index + 1].moveUp();
+                        Layer layer = layers[index];
+                        layers[index] = layers[index + 1];
+                        layers[++index] = layer;
+                    }
+                }
+            }
+            public void moveTop()  //将操作中的图层移至顶部
+            {
+                if (selected())
+                {
+                    while (index != 0)  //如果不在顶部
+                    {
+                        layers[index].moveUp();  //上下移
+                        layers[index - 1].moveDown();
+                        Layer layer = layers[index];
+                        layers[index] = layers[index - 1];
+                        layers[--index] = layer;
+                    }
+                }
+            }
+            public void moveBottom()  //将操作中的图层移至底部
             {
                 if (selected())
                 {
                     while (index != layers.Count - 1)
                     {
-                        move(1);
+                        layers[index].moveDown();  //上下移
+                        layers[index + 1].moveUp();
+                        Layer layer = layers[index];
+                        layers[index] = layers[index + 1];
+                        layers[++index] = layer;
                     }
-                    refresh();
                 }
             }
-            public void refresh()
+            public void rename(string newName)  //修改图层名字
             {
-                for (int i = 0; i != layers.Count; ++i)
-                {
-                    int y = 25 * i + 30;
-                    signs[i].Location = new Point(0, y);
-                    names[i].Location = new Point(12, y);
-                }
+                layers[index].name.Text = newName;
+                //之后要素类的名字也要改
             }
-            public void rename(string newName)
+            public void delete()  //删除图层
             {
-                names[index].Text = newName;
-                //之后图层的名字也要改
-            }
-            public void delete(ControlCollection controls)
-            {
+                layers[index].remove(self.Controls);
                 layers.RemoveAt(index);
-                controls.Remove(signs[index]);
-                controls.Remove(names[index]);
-                signs.RemoveAt(index);
-                names.RemoveAt(index);
-                index = layers.Count;
-                refresh();
-            }
-        }
-        public void addFeatureClass(FeatureType type)  //添加一个图层，因为MLFeatureClass还未完善，所以暂不支持从现有要素类创建
-        {
-            Label name = new Label();  //新建记录的文字信息（图层的名字）
-            Label sign = new Label();  //新建记录的符号信息（图层对应的要素类型）
-            switch (type)  //按类型初始化新建记录
-            {
-                case FeatureType.POINT:
-                    sign.Text = "·";
-                    name.Text = "新建点图层";
-                    break;
-                case FeatureType.MULTIPOINT:
-                    sign.Text = "·";
-                    name.Text = "新建多点图层";
-                    break;
-                case FeatureType.POLYLINE:
-                    sign.Text = "—";
-                    name.Text = "新建线图层";
-                    break;
-                case FeatureType.POLYGON:
-                    sign.Text = "■";
-                    name.Text = "新建面图层";
-                    break;
-            }
-            int index = data.layers.Count;  //新建记录的索引，也是新建图层的索引
-            MLFeatureClass layer = new MLFeatureClass((uint)index, name.Text, type, new double[4]);  //新建一个图层
-            data.add(Controls, layer, name, sign);
-
-            sign.MouseClick += new MouseEventHandler(editSign);  //点击符号的操作
-            name.MouseClick += new MouseEventHandler(showLayerMenu);  //点击文字的操作
-
-            void editSign(object sender, MouseEventArgs e)  //点击符号触发的操作，修改符号
-            {
-                MessageBox.Show("这里将来会跳出符号修改窗口");
-            }
-
-            void showLayerMenu(object sender, MouseEventArgs e)  //点击文字触发的操作
-            {
-                if (e.Button == MouseButtons.Right)  //如果是右键，就打开菜单
+                while(index != layers.Count)
                 {
-                    layerMenu.Show(MousePosition.X, MousePosition.Y);
+                    layers[index].moveUp();
+                    ++index;
                 }
-                data.setSelected(index);
+                index = -1;
             }
         }
 
@@ -202,27 +208,27 @@ namespace MalaSpiritGIS
             {
                 boxMenu.Show(MousePosition.X, MousePosition.Y);
             }
-            data.cancelSelected();
+            data.cancelSelected();  //会变成无图层选中状态
         }
 
         private void 新建点图层ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            addFeatureClass(FeatureType.POINT);
+            data.add(FeatureType.POINT);
         }
 
         private void 新建多点图层ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            addFeatureClass(FeatureType.MULTIPOINT);
+            data.add(FeatureType.MULTIPOINT);
         }
 
         private void 新建线图层ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            addFeatureClass(FeatureType.POLYLINE);
+            data.add(FeatureType.POLYLINE);
         }
 
         private void 新建面图层ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            addFeatureClass(FeatureType.POLYGON);
+            data.add(FeatureType.POLYGON);
         }
 
         private void up_Click(object sender, EventArgs e)
@@ -258,7 +264,7 @@ namespace MalaSpiritGIS
 
         private void 删除图层ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            data.delete(Controls);
+            data.delete();
         }
 
         private void 打开属性表ToolStripMenuItem_Click(object sender, EventArgs e)
