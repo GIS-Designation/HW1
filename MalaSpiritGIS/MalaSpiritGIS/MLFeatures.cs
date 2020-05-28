@@ -256,15 +256,26 @@ namespace MalaSpiritGIS
     public class MLPoint : MLFeature
     {
         PointD point;
+
         public PointD Point { get { return point; } }
-        public MLPoint(PointD _p) : base()//TODO: 应该是函数体内进行sql查询，直接获取数据进行构造
+
+        public MLPoint(double x,double y) : base()
+        {
+            point = new PointD(x, y);
+            featureType = FeatureType.POINT;
+            mbr[0] = mbr[1] = x;
+            mbr[2] = mbr[3] = y;
+            pointNum = 1;
+
+        }
+
+        public MLPoint(PointD _p) : base()
         {
             point = new PointD(_p.X, _p.Y);
             featureType = FeatureType.POINT;
             mbr[0] = mbr[1] = point.X;
             mbr[2] = mbr[3] = point.Y;
             pointNum = 1;
-            //TODO: FillDataTable
         }
 
         /// <summary>
@@ -309,6 +320,38 @@ namespace MalaSpiritGIS
     {
         PolylineD[] segments;
         public PolylineD[] Segments { get { return segments; } }
+
+        public MLPolyline(PointD[] points)
+        {
+            PolylineD segment = new PolylineD(points);
+            mbr[0] = mbr[2] = points[0].X;
+            mbr[1] = mbr[3] = points[0].Y;
+            for(int i = 1; i < points.Length; ++i)
+            {
+                if (points[i].X < mbr[0]) mbr[0] = points[i].X;
+                if (points[i].X > mbr[2]) mbr[2] = points[i].X;
+                if (points[i].Y < mbr[1]) mbr[1] = points[i].Y;
+                if (points[i].Y < mbr[3]) mbr[3] = points[i].Y;
+            }
+            pointNum = points.Length;
+            segments = new PolylineD[] { segment };
+        }
+
+        public MLPolyline(PolylineD segment)
+        {
+            mbr[0] = mbr[2] = segment.GetPoint(0).X;
+            mbr[1] = mbr[3] = segment.GetPoint(0).Y;
+            for (int i = 1; i < segment.Count; ++i)
+            {
+                if (segment.GetPoint(i).X < mbr[0]) mbr[0] = segment.GetPoint(i).X;
+                if (segment.GetPoint(i).X > mbr[2]) mbr[2] = segment.GetPoint(i).X;
+                if (segment.GetPoint(i).Y < mbr[1]) mbr[1] = segment.GetPoint(i).Y;
+                if (segment.GetPoint(i).Y < mbr[3]) mbr[3] = segment.GetPoint(i).Y;
+            }
+            pointNum = segment.Count;
+            segments = new PolylineD[] { segment };
+        }
+
         /// <summary>
         /// 从shp初始化要素
         /// </summary>
@@ -385,7 +428,28 @@ namespace MalaSpiritGIS
     public class MLPolygon : MLFeature
     {
         PolygonD polygon;
+
         public PolygonD Polygon { get { return polygon; } }
+
+        /// <summary>
+        /// 由于多边形创建要求环闭合，需要在调用构造函数前进行检查，故不具备用点数组作为集合的构造函数
+        /// </summary>
+        /// <param name="ring">单独外环</param>
+        public MLPolygon(PolylineD ring)
+        {
+            mbr[0] = mbr[2] = ring.GetPoint(0).X;
+            mbr[1] = mbr[3] = ring.GetPoint(0).Y;
+            for (int i = 1; i < ring.Count; ++i)
+            {
+                if (ring.GetPoint(i).X < mbr[0]) mbr[0] = ring.GetPoint(i).X;
+                if (ring.GetPoint(i).X > mbr[2]) mbr[2] = ring.GetPoint(i).X;
+                if (ring.GetPoint(i).Y < mbr[1]) mbr[1] = ring.GetPoint(i).Y;
+                if (ring.GetPoint(i).Y < mbr[3]) mbr[3] = ring.GetPoint(i).Y;
+            }
+            pointNum = ring.Count;
+            polygon = new PolygonD(new PolylineD[] { ring });
+        }
+
         public MLPolygon(BinaryReader biReader)
         {
             biReader.BaseStream.Seek(12, SeekOrigin.Current);
@@ -461,6 +525,22 @@ namespace MalaSpiritGIS
     {
         PointD[] points;
         public PointD[] Points { get { return points; } }
+
+        public MLMultiPoint(PointD[] _points)
+        {
+            points = new PointD[_points.Length];
+            Array.Copy(_points, points, _points.Length);
+            mbr[0] = mbr[2] = points[0].X;
+            mbr[1] = mbr[3] = points[0].Y;
+            for (int i = 1; i < points.Length; ++i)
+            {
+                if (points[i].X < mbr[0]) mbr[0] = points[i].X;
+                if (points[i].X > mbr[2]) mbr[2] = points[i].X;
+                if (points[i].Y < mbr[1]) mbr[1] = points[i].Y;
+                if (points[i].Y < mbr[3]) mbr[3] = points[i].Y;
+            }
+            pointNum = points.Length;
+        }
         public MLMultiPoint(BinaryReader biReader)
         {
             biReader.BaseStream.Seek(12, SeekOrigin.Current);
@@ -497,7 +577,6 @@ namespace MalaSpiritGIS
                         bw.Write(points[i].X);
                         bw.Write(points[i].Y);
                     }
-                    
                 }
                 rslt = ms.ToArray();
             }
