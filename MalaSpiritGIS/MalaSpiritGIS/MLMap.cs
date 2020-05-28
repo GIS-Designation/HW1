@@ -19,17 +19,6 @@ namespace MalaSpiritGIS
             dataFrame = df;
             InitializeComponent();
         }
-        public class SelectedFeature
-        {
-            private int numLayer, numFeature;
-            public SelectedFeature(int _numLayer, int _numFeature)
-            {
-                numLayer = _numLayer;
-                numFeature = _numFeature;
-            }
-            public int La { get { return numLayer; } }
-            public int Fe { get { return numFeature; } }
-        }
         private Dataframe dataFrame;  //记录数据
         //设计时属性变量
         private Color fillColor = Color.Tomato;  //多边形填充色
@@ -38,7 +27,7 @@ namespace MalaSpiritGIS
 
         //运行时属性变量
         private float displayScale = 1F;  //显示比例尺的倒数
-        public List<SelectedFeature> selectedFeatures = new List<SelectedFeature>();  //选中要素集合
+        public List<MLFeature> selectedFeatures = new List<MLFeature>();  //选中要素集合
 
         //内部变量
         private float mOffsetX = 0, mOffsetY = 0;  //窗口左上点的地图坐标
@@ -142,9 +131,9 @@ namespace MalaSpiritGIS
             mMapOpStyle = 5;
             this.Cursor = Cursors.Arrow;
         }
-        public List<SelectedFeature> SelectByBox(RectangleF box)
+        public List<MLFeature> SelectByBox(RectangleF box)
         {
-            List<SelectedFeature> result = new List<SelectedFeature>();
+            List<MLFeature> result = new List<MLFeature>();
             for (int i = 0; i < dataFrame.layers.Count; ++i)
             {
                 MLFeatureClass layer = dataFrame.layers[i].featureClass;
@@ -154,19 +143,19 @@ namespace MalaSpiritGIS
                     {
                         case FeatureType.POINT:
                             if (MLPointInBox((MLPoint)layer.GetFeature(j), box))
-                                result.Add(new SelectedFeature(i, j));
+                                result.Add(layer.GetFeature(j));
                             break;
                         case FeatureType.MULTIPOINT:
                             if (MLMultiPointInBox((MLMultiPoint)layer.GetFeature(j), box))
-                                result.Add(new SelectedFeature(i, j));
+                                result.Add(layer.GetFeature(j));
                             break;
                         case FeatureType.POLYLINE:
                             if (MLPolylineInBox((MLPolyline)layer.GetFeature(j), box))
-                                result.Add(new SelectedFeature(i, j));
+                                result.Add(layer.GetFeature(j));
                             break;
                         case FeatureType.POLYGON:
                             if (MLPolygonInBox((MLPolygon)layer.GetFeature(j), box))
-                                result.Add(new SelectedFeature(i, j));
+                                result.Add(layer.GetFeature(j));
                             break;
                     }
                 }
@@ -388,21 +377,20 @@ namespace MalaSpiritGIS
                 Pen pen = new Pen(mcSelectingBoxColor, 2);
                 for (int i = selectedFeatures.Count - 1; i != -1; --i)
                 {
-                    SelectedFeature s = selectedFeatures[i];
-                    MLFeatureClass fc = dataFrame.layers[s.La].featureClass;
-                    switch (fc.Type)
+                    MLFeature fc = selectedFeatures[i];
+                    switch (fc.FeatureType)
                     {
                         case FeatureType.POINT:
-                            PaintPoint(fc.GetFeature(s.Fe), pen, g);
+                            PaintPoint(fc, pen, g);
                             break;
                         case FeatureType.MULTIPOINT:
-                            PaintMultiPoint(fc.GetFeature(s.Fe), pen, g);
+                            PaintMultiPoint(fc, pen, g);
                             break;
                         case FeatureType.POLYLINE:
-                            PaintPolyline(fc.GetFeature(s.Fe), pen, g);
+                            PaintPolyline(fc, pen, g);
                             break;
                         case FeatureType.POLYGON:
-                            PaintPolygon(fc.GetFeature(s.Fe), pen, g);
+                            PaintPolygon(fc, pen, g);
                             break;
                     }
                 }

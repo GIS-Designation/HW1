@@ -325,6 +325,7 @@ namespace MalaSpiritGIS
         public MLPolyline(PointD[] points)
         {
             PolylineD segment = new PolylineD(points);
+            featureType = FeatureType.POLYLINE;
             mbr[0] = mbr[2] = points[0].X;
             mbr[1] = mbr[3] = points[0].Y;
             for(int i = 1; i < points.Length; ++i)
@@ -340,6 +341,7 @@ namespace MalaSpiritGIS
 
         public MLPolyline(PolylineD segment)
         {
+            featureType = FeatureType.POLYLINE;
             mbr[0] = mbr[2] = segment.GetPoint(0).X;
             mbr[1] = mbr[3] = segment.GetPoint(0).Y;
             for (int i = 1; i < segment.Count; ++i)
@@ -359,6 +361,7 @@ namespace MalaSpiritGIS
         /// <param name="biReader"></param>
         public MLPolyline(BinaryReader biReader) :base()
         {
+            featureType = FeatureType.POLYLINE;
             biReader.BaseStream.Seek(12, SeekOrigin.Current);
             mbr[0] = biReader.ReadDouble();
             mbr[2] = biReader.ReadDouble();
@@ -438,6 +441,7 @@ namespace MalaSpiritGIS
         /// <param name="ring">单独外环</param>
         public MLPolygon(PolylineD ring)
         {
+            featureType = FeatureType.POLYGON;
             mbr[0] = mbr[2] = ring.GetPoint(0).X;
             mbr[1] = mbr[3] = ring.GetPoint(0).Y;
             for (int i = 1; i < ring.Count; ++i)
@@ -453,6 +457,7 @@ namespace MalaSpiritGIS
 
         public MLPolygon(BinaryReader biReader)
         {
+            featureType = FeatureType.POLYGON;
             biReader.BaseStream.Seek(12, SeekOrigin.Current);
             mbr[0] = biReader.ReadDouble();
             mbr[2] = biReader.ReadDouble();
@@ -529,6 +534,7 @@ namespace MalaSpiritGIS
 
         public MLMultiPoint(PointD[] _points)
         {
+            featureType = FeatureType.MULTIPOINT;
             points = new PointD[_points.Length];
             Array.Copy(_points, points, _points.Length);
             mbr[0] = mbr[2] = points[0].X;
@@ -544,6 +550,7 @@ namespace MalaSpiritGIS
         }
         public MLMultiPoint(BinaryReader biReader)
         {
+            featureType = FeatureType.MULTIPOINT;
             biReader.BaseStream.Seek(12, SeekOrigin.Current);
             mbr[0] = biReader.ReadDouble();
             mbr[2] = biReader.ReadDouble();
