@@ -50,8 +50,13 @@ namespace MalaSpiritGIS
         }
         private void mlMap_TrackingFinished(object sender, MLFeature feature)
         {
-            //dataFrame.layers[dataFrame.index].featureClass.AddFeaure(feature, null);
-            //mlMap.Refresh();
+            object[] v = new object[4];
+            v[0] = 1;
+            v[1] = 1;
+            v[2] = 1;
+            v[3] = 1;
+            dataFrame.layers[dataFrame.index].featureClass.AddFeaure(feature, v);
+            mlMap.Refresh();
         }
 
         private void mlMap_DisplayScaleChanged(object sender)

@@ -44,7 +44,6 @@ namespace MalaSpiritGIS
         private float mOffsetX = 0, mOffsetY = 0;  //窗口左上点的地图坐标
         private int mMapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素
         private List<PointD> mTrackingFeature = new List<PointD>();  //用户正在描绘的要素
-        private FeatureType mTrackingType;  //用户正在描绘的要素种类
         private PointF mMouseLocation = new PointF();  //鼠标当前的位置，用于漫游、拉框等
         private PointF mStartPoint = new PointF();  //记录鼠标按下时的位置，用于拉框
 
@@ -128,7 +127,6 @@ namespace MalaSpiritGIS
             {
                 mMapOpStyle = 4;
                 this.Cursor = mCur_Cross;
-                mTrackingType = dataFrame.layers[dataFrame.index].featureClass.featureType;
             }
             else
             {
@@ -173,6 +171,7 @@ namespace MalaSpiritGIS
                     }
                 }
             }
+            //MessageBox.Show(result[0].La.ToString());
             return result;
         }
         #endregion
@@ -233,6 +232,7 @@ namespace MalaSpiritGIS
                 {
                     if (!PointDInBox(polyline.GetPoint(j), rec))
                     {
+                        //MessageBox.Show(polyline.GetPoint(j).X.ToString() + ";" + polyline.GetPoint(j).Y.ToString());
                         return false;
                     }
                 }
@@ -338,47 +338,45 @@ namespace MalaSpiritGIS
 
         private void DrawTrackingFeatures(Graphics g)
         {
-            if(mTrackingType != FeatureType.POINT)
+            if (dataFrame.selected())
             {
-                int sPointCount = mTrackingFeature.Count;
-                if (sPointCount == 0)
-                    return;
-                //坐标转换
-                PointF[] sScreenPoints = new PointF[sPointCount];
-                for (int i = 0; i < sPointCount; ++i)
+                FeatureType mTrackingType = dataFrame.layers[dataFrame.index].featureClass.featureType;
+                if (mTrackingType != FeatureType.POINT)
                 {
-                    PointF sScreenPoint = FromMapPoint(new PointF((float)mTrackingFeature[i].X, (float)mTrackingFeature[i].Y));
-                    sScreenPoints[i].X = (float)sScreenPoint.X;
-                    sScreenPoints[i].Y = (float)sScreenPoint.Y;
-                }
-                SolidBrush sVertexBrush = new SolidBrush(trackingColor);
-                for (int i = 0; i < sPointCount; ++i)
-                {
-                    RectangleF sRect = new RectangleF(sScreenPoints[i].X - mcVertexHandleSize / 2, sScreenPoints[i].Y - mcVertexHandleSize / 2, mcVertexHandleSize, mcVertexHandleSize);
-                    g.FillRectangle(sVertexBrush, sRect);
-                }
-                if(mTrackingType != FeatureType.MULTIPOINT)
-                {
-                    Pen sTrackingPen = new Pen(trackingColor, mcTrackingWidth);
-                    if (sPointCount > 1)
+                    int sPointCount = mTrackingFeature.Count;
+                    if (sPointCount == 0)
+                        return;
+                    //坐标转换
+                    PointF[] sScreenPoints = new PointF[sPointCount];
+                    for (int i = 0; i < sPointCount; ++i)
                     {
-                        g.DrawLines(sTrackingPen, sScreenPoints);
+                        PointF sScreenPoint = FromMapPoint(new PointF((float)mTrackingFeature[i].X, (float)mTrackingFeature[i].Y));
+                        sScreenPoints[i].X = (float)sScreenPoint.X;
+                        sScreenPoints[i].Y = (float)sScreenPoint.Y;
                     }
-                    if (mTrackingType == FeatureType.POLYGON && mMapOpStyle == 4)
+                    SolidBrush sVertexBrush = new SolidBrush(trackingColor);
+                    for (int i = 0; i < sPointCount; ++i)
                     {
-                        if (sPointCount == 1)
+                        RectangleF sRect = new RectangleF(sScreenPoints[i].X - mcVertexHandleSize / 2, sScreenPoints[i].Y - mcVertexHandleSize / 2, mcVertexHandleSize, mcVertexHandleSize);
+                        g.FillRectangle(sVertexBrush, sRect);
+                    }
+                    if (mTrackingType != FeatureType.MULTIPOINT)
+                    {
+                        Pen sTrackingPen = new Pen(trackingColor, mcTrackingWidth);
+                        if (sPointCount > 1)
                         {
-                            g.DrawLine(sTrackingPen, sScreenPoints[0], mMouseLocation);
+                            g.DrawLines(sTrackingPen, sScreenPoints);
                         }
-                        else
+                        if (mMapOpStyle == 4)
                         {
-                            g.DrawLine(sTrackingPen, sScreenPoints[0], mMouseLocation);
                             g.DrawLine(sTrackingPen, sScreenPoints[sPointCount - 1], mMouseLocation);
+                            if (sPointCount > 1 && mTrackingType == FeatureType.POLYGON)
+                                g.DrawLine(sTrackingPen, sScreenPoints[0], mMouseLocation);
                         }
+                        sTrackingPen.Dispose();
                     }
-                    sTrackingPen.Dispose();
+                    sVertexBrush.Dispose();
                 }
-                sVertexBrush.Dispose();
             }
         }
 
@@ -449,7 +447,7 @@ namespace MalaSpiritGIS
                     if (e.Button == MouseButtons.Left && e.Clicks == 1)
                     {
                         PointF p = ToMapPoint(new PointF(e.Location.X, e.Location.Y));
-                        switch (mTrackingType)
+                        switch (dataFrame.layers[dataFrame.index].featureClass.featureType)
                         {
                             case FeatureType.POINT:
                                 MLPoint point = new MLPoint(new PointD(p.X, p.Y));
@@ -536,7 +534,7 @@ namespace MalaSpiritGIS
                 case 4:  //输入多边形
                     if (e.Button == MouseButtons.Left)
                     {
-                        switch (mTrackingType)
+                        switch (dataFrame.layers[dataFrame.index].featureClass.featureType)
                         {
                             case FeatureType.POINT:
                                 //这个是真没有要执行的
@@ -564,6 +562,7 @@ namespace MalaSpiritGIS
                             case FeatureType.POLYGON:
                                 if (mTrackingFeature.Count >= 3)
                                 {
+                                    mTrackingFeature.Add(mTrackingFeature[0]);
                                     PointD[] polygonPs = new PointD[mTrackingFeature.Count];
                                     for (int i = 0; i != polygonPs.Length; ++i)
                                         polygonPs[i] = mTrackingFeature[i];
@@ -626,7 +625,9 @@ namespace MalaSpiritGIS
                         PointF sBottomRight = new PointF(sMaxX, sMaxY);
                         PointF sTopLeftOnMap = ToMapPoint(sTopLeft);
                         PointF sBottomRightOnMap = ToMapPoint(sBottomRight);
-                        RectangleF sSelBox = new RectangleF(sTopLeftOnMap.X, sBottomRightOnMap.X, sTopLeftOnMap.Y, sBottomRightOnMap.Y);
+                        float width = sBottomRightOnMap.X - sTopLeftOnMap.X;
+                        float height = sBottomRightOnMap.Y - sTopLeftOnMap.Y;
+                        RectangleF sSelBox = new RectangleF(sTopLeftOnMap.X, sTopLeftOnMap.Y, width, height);
                         Refresh();
                         SelectingFinished?.Invoke(this, sSelBox);
                     }
