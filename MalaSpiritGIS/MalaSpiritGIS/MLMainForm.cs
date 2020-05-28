@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using static MalaSpiritGIS.MLDataFrame;
 
 namespace MalaSpiritGIS
 {
@@ -15,12 +16,9 @@ namespace MalaSpiritGIS
         {
             InitializeComponent();
             MLFeatureProcessor fp = new MLFeatureProcessor();
-            dataFrame = this.mlFeatureBox.data;  //获取图层记录区域的数据
-            mlMap.getDataFrame(dataFrame);  //将数据传递给绘制区域
             ShowScale();
         }
-        MLFeatureBox.Dataframe dataFrame;
-
+        Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性
         private void createFeature_Click(object sender, EventArgs e)
         {
             mlMap.TrackFeature();

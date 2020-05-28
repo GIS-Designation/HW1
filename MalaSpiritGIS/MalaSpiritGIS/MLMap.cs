@@ -8,23 +8,29 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
+using static MalaSpiritGIS.MLDataFrame;
 
 namespace MalaSpiritGIS
 {
     public partial class MLMap : UserControl
     {
-        public MLMap()
-        {
-            InitializeComponent();
-        }
-        private MLFeatureBox.Dataframe dataFrame;  //记录数据
-        public void getDataFrame(MLFeatureBox.Dataframe df)  //同步数据
+        public MLMap(Dataframe df)  //接收从mainForm传递来的dataFrame
         {
             dataFrame = df;
+            InitializeComponent();
         }
-
-
-
+        public class SelectedFeature
+        {
+            private int numLayer, numFeature;
+            public SelectedFeature(int _numLayer, int _numFeature)
+            {
+                numLayer = _numLayer;
+                numFeature = _numFeature;
+            }
+            public int La { get { return numLayer; } }
+            public int Fe { get { return numFeature; } }
+        }
+        private Dataframe dataFrame;  //记录数据
         //设计时属性变量
         private Color fillColor = Color.Tomato;  //多边形填充色
         private Color boundaryColor = Color.Black;  //多边形边界色
@@ -32,7 +38,7 @@ namespace MalaSpiritGIS
 
         //运行时属性变量
         private float displayScale = 1F;  //显示比例尺的倒数
-        private List<List<int>> selectedFeatures = new List<List<int>>();  //选中要素集合
+        private List<SelectedFeature> selectedFeatures = new List<SelectedFeature>();  //选中要素集合
 
         //内部变量
         private float mOffsetX = 0, mOffsetY = 0;  //窗口左上点的地图坐标
@@ -129,17 +135,33 @@ namespace MalaSpiritGIS
             mMapOpStyle = 5;
             this.Cursor = Cursors.Arrow;
         }
-        public List<List<int>> SelectByBox(RectangleF box)
+        public List<SelectedFeature> SelectByBox(RectangleF box)
         {
-            //List<Polygon> sSels = new List<Polygon>();
-            List<List<int>> result = new List<List<int>>();
+            List<SelectedFeature> result = new List<SelectedFeature>();
             for (int i = 0; i < dataFrame.layers.Count; ++i)
             {
                 MLFeatureClass layer = dataFrame.layers[i].featureClass;
                 for (int j = 0; j < layer.Count; ++j)
                 {
-                    MLFeature feature = layer.GetFeature(j);
-                    //对feature和框进行判别，若feature在框内就是被选中的
+                    switch (layer.Type)
+                    {
+                        case FeatureType.POINT:
+                            if (MLPointInBox((MLPoint)layer.GetFeature(j), box))
+                                result.Add(new SelectedFeature(i, j));
+                            break;
+                        case FeatureType.MULTIPOINT:
+                            if (MLMultiPointInBox((MLMultiPoint)layer.GetFeature(j), box))
+                                result.Add(new SelectedFeature(i, j));
+                            break;
+                        case FeatureType.POLYLINE:
+                            if (MLPolylineInBox((MLPolyline)layer.GetFeature(j), box))
+                                result.Add(new SelectedFeature(i, j));
+                            break;
+                        case FeatureType.POLYGON:
+                            if (MLPolygonInBox((MLPolygon)layer.GetFeature(j), box))
+                                result.Add(new SelectedFeature(i, j));
+                            break;
+                    }
                 }
             }
             return result;
@@ -172,60 +194,127 @@ namespace MalaSpiritGIS
         #endregion
 
         #region 私有函数
-
-        //绘制多边形
-        private void DrawFeatureClass(Graphics g)
+        private bool PointDInBox(PointD p,RectangleF rec)
         {
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            Pen pen = new Pen(boundaryColor, mcBoundaryWidth);
-            for (int i = dataFrame.layers.Count - 1;i != -1; --i)
+            return (p.X > rec.X && p.X < rec.X + rec.Width && p.Y > rec.Y && p.Y < rec.Y + rec.Height);
+        }
+        private bool MLPointInBox(MLPoint p, RectangleF rec)
+        {
+            return PointDInBox(p.Point, rec);
+        }
+        private bool MLMultiPointInBox(MLMultiPoint m,RectangleF rec)
+        {
+            PointD[] ps = m.Points;
+            for(int i = 0;i != ps.Length; ++i)
             {
-                MLFeatureClass fc = dataFrame.layers[i].featureClass;
-                for (int j = 0;j != fc.Count; ++j)
+                if (!PointDInBox(ps[i], rec))
                 {
-                    switch (fc.Type)
+                    return false;
+                }
+            }
+            return true;
+        }
+        private bool MLPolylineInBox(MLPolyline p,RectangleF rec)
+        {
+            PolylineD[] polylines = p.Segments;
+            for(int i = 0;i != polylines.Length; ++i)
+            {
+                PolylineD polyline = polylines[i];
+                for(int j = 0;j != polyline.Count; ++j)
+                {
+                    if (!PointDInBox(polyline.GetPoint(j), rec))
                     {
-                        case FeatureType.POINT:
-                            PointD point = ((MLPoint)fc.GetFeature(j)).Point;
-                            PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
-                            g.DrawRectangle(pen, sScreenPoint.X, sScreenPoint.Y, 1, 1);
-                            break;
-                        case FeatureType.MULTIPOINT:
-                            PointD[] ps = ((MLMultiPoint)fc.GetFeature(j)).Points;
-                            for(int k = 0;k != ps.Length; ++k)
-                            {
-                                PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
-                                g.DrawRectangle(pen, sp.X, sp.Y, 1, 1);
-                            }
-                            break;
-                        case FeatureType.POLYLINE:
-                            PolylineD[] segs = ((MLPolyline)fc.GetFeature(j)).Segments;
-                            for (int k = 0; k != segs.Length; ++k)
-                            {
-                                for (int h = 1; h != segs[k].Count; ++h)
-                                {
-                                    PointD p1 = segs[k].GetPoint(h - 1);
-                                    PointD p2 = segs[k].GetPoint(h);
-                                    PointF sp1 = FromMapPoint(new PointF((float)p1.X, (float)p1.Y));
-                                    PointF sp2 = FromMapPoint(new PointF((float)p2.X, (float)p2.Y));
-                                    g.DrawLine(pen, sp1, sp2);
-                                }
-                            }
-                            break;
-                        case FeatureType.POLYGON:
-                            PolygonD polygon = ((MLPolygon)fc.GetFeature(j)).Polygon;
-                            //太复杂了暂时不写
-                            break;
+                        return false;
                     }
                 }
             }
-            pen.Dispose();
-            //sPolygonBrush.Dispose();
+            return true;
+        }
+        private bool MLPolygonInBox(MLPolygon p,RectangleF rec)
+        {
+            PolygonD polygon = p.Polygon;
+            for(int i = 0;i != polygon.Count; ++i)
+            {
+                PolylineD polyline = polygon.GetRing(i);
+                for(int j = 0;j != polyline.Count; ++j)
+                {
+                    if (!PointDInBox(polyline.GetPoint(j), rec))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        //绘制多边形
+        private void DrawFeatureClass(Graphics g)
+        {
+            if (dataFrame.layers != null)
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                Pen pen = new Pen(boundaryColor, mcBoundaryWidth);
+                int b = dataFrame.layers.Count;
+                for (int i = dataFrame.layers.Count - 1; i != -1; --i)
+                {
+                    MLFeatureClass fc = dataFrame.layers[i].featureClass;
+                    for (int j = 0; j != fc.Count; ++j)
+                    {
+                        switch (fc.Type)
+                        {
+                            case FeatureType.POINT:
+                                PointD point = ((MLPoint)fc.GetFeature(j)).Point;
+                                PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
+                                g.DrawRectangle(pen, sScreenPoint.X, sScreenPoint.Y, 1, 1);
+                                break;
+                            case FeatureType.MULTIPOINT:
+                                PointD[] ps = ((MLMultiPoint)fc.GetFeature(j)).Points;
+                                for (int k = 0; k != ps.Length; ++k)
+                                {
+                                    PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
+                                    g.DrawRectangle(pen, sp.X, sp.Y, 1, 1);
+                                }
+                                break;
+                            case FeatureType.POLYLINE:
+                                PolylineD[] segs = ((MLPolyline)fc.GetFeature(j)).Segments;
+                                for (int k = 0; k != segs.Length; ++k)
+                                {
+                                    for (int h = 1; h != segs[k].Count; ++h)
+                                    {
+                                        PointD p1 = segs[k].GetPoint(h - 1);
+                                        PointD p2 = segs[k].GetPoint(h);
+                                        PointF sp1 = FromMapPoint(new PointF((float)p1.X, (float)p1.Y));
+                                        PointF sp2 = FromMapPoint(new PointF((float)p2.X, (float)p2.Y));
+                                        g.DrawLine(pen, sp1, sp2);
+                                    }
+                                }
+                                break;
+                            case FeatureType.POLYGON:
+                                PolygonD polygon = ((MLPolygon)fc.GetFeature(j)).Polygon;
+                                for(int k = 0;k != polygon.Count; ++k)
+                                {
+                                    PolylineD ring = polygon.GetRing(k);
+                                    for(int h = 1;h != ring.Count; ++h)
+                                    {
+                                        PointD p1 = ring.GetPoint(h - 1);
+                                        PointD p2 = ring.GetPoint(h);
+                                        PointF sp1 = FromMapPoint(new PointF((float)p1.X, (float)p1.Y));
+                                        PointF sp2 = FromMapPoint(new PointF((float)p2.X, (float)p2.Y));
+                                        g.DrawLine(pen, sp1, sp2);
+                                    }
+                                }
+                                //多边形还需要上色，但是这里先画出轮廓来吧。
+                                break;
+                        }
+                    }
+                }
+                pen.Dispose();
+                //sPolygonBrush.Dispose();
+            }
         }
 
         private void DrawTrackingFeatures(Graphics g)
         {
-            switch (FeatureType.POINT)//mTrackingFeature.FeatureType)
+            switch (mTrackingType)
             {
                 case FeatureType.POINT:
                     break;
@@ -332,11 +421,10 @@ namespace MalaSpiritGIS
 
                         if (dataFrame.index > -1)
                         {
-                            MLFeatureClass layer = dataFrame.layers[dataFrame.index].featureClass;
-                            switch (layer.featureType)
+                            switch (mTrackingType)
                             {
                                 case FeatureType.POINT:
-                                    //创建点要素，创建完成后往layer中添加
+                                    dataFrame.layers[dataFrame.index].featureClass.AddFeaure(mTrackingFeature, null);
                                     break;
                                 case FeatureType.MULTIPOINT:
                                     //创建多点要素
@@ -439,7 +527,6 @@ namespace MalaSpiritGIS
                 Refresh();
             }
         }
-
         private void MLMouseUp(object sender, MouseEventArgs e)
         {
             switch (mMapOpStyle)

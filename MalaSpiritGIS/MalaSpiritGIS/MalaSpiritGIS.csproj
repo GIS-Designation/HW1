@@ -102,6 +102,7 @@
     <Compile Include="InputDialog.Designer.cs">
       <DependentUpon>InputDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="MLDataFrame.cs" />
     <Compile Include="MLFeatureBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
