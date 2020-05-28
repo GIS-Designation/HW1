@@ -8,23 +8,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
+using static MalaSpiritGIS.MLDataFrame;
 
 namespace MalaSpiritGIS
 {
     public partial class MLMap : UserControl
     {
-        public MLMap()
+        public MLMap(Dataframe df)
         {
             InitializeComponent();
-        }
-        private MLFeatureBox.Dataframe dataFrame;  //记录数据
-        public void getDataFrame(MLFeatureBox.Dataframe df)  //同步数据
-        {
             dataFrame = df;
         }
-
-
-
+        private Dataframe dataFrame;  //记录数据
         //设计时属性变量
         private Color fillColor = Color.Tomato;  //多边形填充色
         private Color boundaryColor = Color.Black;  //多边形边界色
@@ -176,51 +171,55 @@ namespace MalaSpiritGIS
         //绘制多边形
         private void DrawFeatureClass(Graphics g)
         {
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            Pen pen = new Pen(boundaryColor, mcBoundaryWidth);
-            for (int i = dataFrame.layers.Count - 1;i != -1; --i)
+            if (dataFrame.layers != null)
             {
-                MLFeatureClass fc = dataFrame.layers[i].featureClass;
-                for (int j = 0;j != fc.Count; ++j)
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                Pen pen = new Pen(boundaryColor, mcBoundaryWidth);
+                int b = dataFrame.layers.Count;
+                for (int i = dataFrame.layers.Count - 1; i != -1; --i)
                 {
-                    switch (fc.Type)
+                    MLFeatureClass fc = dataFrame.layers[i].featureClass;
+                    for (int j = 0; j != fc.Count; ++j)
                     {
-                        case FeatureType.POINT:
-                            PointD point = ((MLPoint)fc.GetFeature(j)).Point;
-                            PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
-                            g.DrawRectangle(pen, sScreenPoint.X, sScreenPoint.Y, 1, 1);
-                            break;
-                        case FeatureType.MULTIPOINT:
-                            PointD[] ps = ((MLMultiPoint)fc.GetFeature(j)).Points;
-                            for(int k = 0;k != ps.Length; ++k)
-                            {
-                                PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
-                                g.DrawRectangle(pen, sp.X, sp.Y, 1, 1);
-                            }
-                            break;
-                        case FeatureType.POLYLINE:
-                            PolylineD[] segs = ((MLPolyline)fc.GetFeature(j)).Segments;
-                            for (int k = 0; k != segs.Length; ++k)
-                            {
-                                for (int h = 1; h != segs[k].Count; ++h)
+                        switch (fc.Type)
+                        {
+                            case FeatureType.POINT:
+                                PointD point = ((MLPoint)fc.GetFeature(j)).Point;
+                                PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
+                                g.DrawRectangle(pen, sScreenPoint.X, sScreenPoint.Y, 1, 1);
+                                break;
+                            case FeatureType.MULTIPOINT:
+                                PointD[] ps = ((MLMultiPoint)fc.GetFeature(j)).Points;
+                                for (int k = 0; k != ps.Length; ++k)
                                 {
-                                    PointD p1 = segs[k].GetPoint(h - 1);
-                                    PointD p2 = segs[k].GetPoint(h);
-                                    PointF sp1 = FromMapPoint(new PointF((float)p1.X, (float)p1.Y));
-                                    PointF sp2 = FromMapPoint(new PointF((float)p2.X, (float)p2.Y));
-                                    g.DrawLine(pen, sp1, sp2);
+                                    PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
+                                    g.DrawRectangle(pen, sp.X, sp.Y, 1, 1);
                                 }
-                            }
-                            break;
-                        case FeatureType.POLYGON:
-                            PolygonD polygon = ((MLPolygon)fc.GetFeature(j)).Polygon;
-                            //太复杂了暂时不写
-                            break;
+                                break;
+                            case FeatureType.POLYLINE:
+                                PolylineD[] segs = ((MLPolyline)fc.GetFeature(j)).Segments;
+                                for (int k = 0; k != segs.Length; ++k)
+                                {
+                                    for (int h = 1; h != segs[k].Count; ++h)
+                                    {
+                                        PointD p1 = segs[k].GetPoint(h - 1);
+                                        PointD p2 = segs[k].GetPoint(h);
+                                        PointF sp1 = FromMapPoint(new PointF((float)p1.X, (float)p1.Y));
+                                        PointF sp2 = FromMapPoint(new PointF((float)p2.X, (float)p2.Y));
+                                        g.DrawLine(pen, sp1, sp2);
+                                    }
+                                }
+                                break;
+                            case FeatureType.POLYGON:
+                                PolygonD polygon = ((MLPolygon)fc.GetFeature(j)).Polygon;
+                                //太复杂了暂时不写
+                                break;
+                        }
                     }
                 }
+                pen.Dispose();
+                //sPolygonBrush.Dispose();
             }
-            pen.Dispose();
-            //sPolygonBrush.Dispose();
         }
 
         private void DrawTrackingFeatures(Graphics g)
@@ -439,7 +438,6 @@ namespace MalaSpiritGIS
                 Refresh();
             }
         }
-
         private void MLMouseUp(object sender, MouseEventArgs e)
         {
             switch (mMapOpStyle)

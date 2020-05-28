@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            dataFrame = new MLDataFrame.Dataframe();
             this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.文件FToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,8 +47,8 @@
             this.移动图形坐标ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.编辑节点ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.裁剪ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mlMap = new MalaSpiritGIS.MLMap();
-            this.mlFeatureBox = new MalaSpiritGIS.MLFeatureBox();
+            this.mlMap = new MalaSpiritGIS.MLMap(dataFrame);  //初始化时就传入dataFrame防止数据不一致
+            this.mlFeatureBox = new MalaSpiritGIS.MLFeatureBox(dataFrame);  //同上
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.featureMenu.SuspendLayout();
@@ -258,7 +259,6 @@
             this.featureMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
