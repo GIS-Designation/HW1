@@ -135,7 +135,7 @@ namespace MalaSpiritGIS
         #endregion
 
         //static int count=0;
-
+        public FeatureType FeatureType { get { return featureType; } }
         public MLFeature()
         {
             //id = ++count;   //id自动+1
@@ -168,7 +168,7 @@ namespace MalaSpiritGIS
         #region 属性
         uint id;                    //要素类编号
         string name;                //要素类名称
-        FeatureType featureType;    //要素类类型，其中的每个要素集合类型均一致
+        public FeatureType featureType;    //要素类类型，其中的每个要素集合类型均一致
         double[] mbr;               //要素类最小外包矩形
         List<MLFeature> features;       //要素数组
         DataTable attributeData;    //要素属性表
@@ -256,7 +256,7 @@ namespace MalaSpiritGIS
     public class MLPoint : MLFeature
     {
         PointD point;
-
+        public PointD Point { get { return point; } }
         public MLPoint(PointD _p) : base()//TODO: 应该是函数体内进行sql查询，直接获取数据进行构造
         {
             point = new PointD(_p.X, _p.Y);
@@ -308,7 +308,7 @@ namespace MalaSpiritGIS
     public class MLPolyline : MLFeature
     {
         PolylineD[] segments;
-
+        public PolylineD[] Segments { get { return segments; } }
         /// <summary>
         /// 从shp初始化要素
         /// </summary>
@@ -385,7 +385,7 @@ namespace MalaSpiritGIS
     public class MLPolygon : MLFeature
     {
         PolygonD polygon;
-
+        public PolygonD Polygon { get { return polygon; } }
         public MLPolygon(BinaryReader biReader)
         {
             biReader.BaseStream.Seek(12, SeekOrigin.Current);
@@ -460,7 +460,7 @@ namespace MalaSpiritGIS
     public class MLMultiPoint : MLFeature
     {
         PointD[] points;
-
+        public PointD[] Points { get { return points; } }
         public MLMultiPoint(BinaryReader biReader)
         {
             biReader.BaseStream.Seek(12, SeekOrigin.Current);

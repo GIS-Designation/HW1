@@ -95,3 +95,4 @@ C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\D
 C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.csproj.CopyComplete
 C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.exe
 C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.pdb
+C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MLMap.resources

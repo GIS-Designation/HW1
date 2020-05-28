@@ -116,6 +116,12 @@
     <Compile Include="MLMainForm.Designer.cs">
       <DependentUpon>MLMainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MLMap.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MLMap.Designer.cs">
+      <DependentUpon>MLMap.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AttributeTable.resx">
@@ -129,6 +135,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MLMainForm.resx">
       <DependentUpon>MLMainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MLMap.resx">
+      <DependentUpon>MLMap.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -153,10 +162,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Cross.ico" />
-    <Content Include="Resources\PanUp.ico" />
-    <Content Include="Resources\ZoomIn.ico" />
-    <Content Include="Resources\ZoomOut.ico" />
+    <EmbeddedResource Include="Resources\Cross.ico" />
+    <EmbeddedResource Include="Resources\PanUp.ico" />
+    <EmbeddedResource Include="Resources\ZoomIn.ico" />
+    <EmbeddedResource Include="Resources\ZoomOut.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

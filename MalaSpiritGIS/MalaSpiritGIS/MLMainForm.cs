@@ -15,20 +15,62 @@ namespace MalaSpiritGIS
         {
             InitializeComponent();
             MLFeatureProcessor fp = new MLFeatureProcessor();
-            dataFrame = this.mlFeatureBox;
+            dataFrame = this.mlFeatureBox.data;  //获取图层记录区域的数据
+            mlMap.getDataFrame(dataFrame);  //将数据传递给绘制区域
+            ShowScale();
         }
-        MLFeatureBox dataFrame;
+        MLFeatureBox.Dataframe dataFrame;
 
         private void createFeature_Click(object sender, EventArgs e)
         {
-            if(dataFrame.data.index > -1)
-            {
-                //进行要素创建
-            }
-            else
-            {
-                MessageBox.Show("请先点击目标图层");
-            }
+            mlMap.TrackFeature();
         }
+
+        private void selectFeature_Click(object sender, EventArgs e)
+        {
+            mlMap.SelectFeature();
+        }
+        private void zoomIn_Click(object sender, EventArgs e)
+        {
+            mlMap.ZoomIn();
+        }
+
+        private void zoomOut_Click(object sender, EventArgs e)
+        {
+            mlMap.ZoomOut();
+        }
+
+        private void pan_Click(object sender, EventArgs e)
+        {
+            mlMap.Pan();
+        }
+        private void mlMap_MouseMove(object sender, MouseEventArgs e)
+        {
+            PointF sMouseLocation = new PointF(e.Location.X, e.Location.Y);
+            PointF sPointOnMap = mlMap.ToMapPoint(sMouseLocation);
+            toolStripStatusLabel1.Text = "X:" + sPointOnMap.X.ToString("0.00") + " Y:" + sPointOnMap.Y.ToString("0.00");
+        }
+        private void mlMap_TrackingFinished(object sender, MLFeature feature)
+        {
+            //mcMap.AddPolygon(polygon);
+            //mcMap.Refresh();
+        }
+
+        private void mlMap_DisplayScaleChanged(object sender)
+        {
+            ShowScale();
+        }
+        private void mlMap_SelectingFinished(object sender, RectangleF box)
+        {
+            //MyMapObjects.Polygon[] sPolygons = mcMap.SelectByBox(box);
+            //mcMap.SelectedPolygons = sPolygons;
+            //mcMap.Refresh();
+        }
+
+        private void ShowScale()
+        {
+            toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");
+        }
+
     }
 }
