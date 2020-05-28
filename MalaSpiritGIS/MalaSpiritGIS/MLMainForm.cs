@@ -50,8 +50,8 @@ namespace MalaSpiritGIS
         }
         private void mlMap_TrackingFinished(object sender, MLFeature feature)
         {
-            //mcMap.AddPolygon(polygon);
-            //mcMap.Refresh();
+            //dataFrame.layers[dataFrame.index].featureClass.AddFeaure(feature, null);
+            //mlMap.Refresh();
         }
 
         private void mlMap_DisplayScaleChanged(object sender)
@@ -60,9 +60,8 @@ namespace MalaSpiritGIS
         }
         private void mlMap_SelectingFinished(object sender, RectangleF box)
         {
-            //MyMapObjects.Polygon[] sPolygons = mcMap.SelectByBox(box);
-            //mcMap.SelectedPolygons = sPolygons;
-            //mcMap.Refresh();
+            mlMap.selectedFeatures = mlMap.SelectByBox(box);
+            mlMap.Refresh();
         }
 
         private void ShowScale()
