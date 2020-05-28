@@ -18,7 +18,7 @@ namespace MalaSpiritGIS
             MLFeatureProcessor fp = new MLFeatureProcessor();
             ShowScale();
         }
-        Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行
+        Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性
         private void createFeature_Click(object sender, EventArgs e)
         {
             mlMap.TrackFeature();

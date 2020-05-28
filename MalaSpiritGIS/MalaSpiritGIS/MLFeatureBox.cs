@@ -13,10 +13,10 @@ namespace MalaSpiritGIS
 {
     public partial class MLFeatureBox : UserControl
     {
-        public MLFeatureBox(Dataframe df)
+        public MLFeatureBox(Dataframe df)  //接收从mainForm传递来的dataFrame
         {
-            InitializeComponent();
             data = df;
+            InitializeComponent();
         }
         public Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
         private void showBoxMenu(object sender, MouseEventArgs e)  //右间空白区域打开菜单

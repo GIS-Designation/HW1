@@ -14,10 +14,10 @@ namespace MalaSpiritGIS
 {
     public partial class MLMap : UserControl
     {
-        public MLMap(Dataframe df)
+        public MLMap(Dataframe df)  //接收从mainForm传递来的dataFrame
         {
-            InitializeComponent();
             dataFrame = df;
+            InitializeComponent();
         }
         private Dataframe dataFrame;  //记录数据
         //设计时属性变量

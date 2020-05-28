@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace MalaSpiritGIS
 {
-    public class MLDataFrame
+    public class MLDataFrame  //数据框，负责记录所有图层的信息，所以还是独立成一个类比较好
     {
         public class Dataframe
         {
