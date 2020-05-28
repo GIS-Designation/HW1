@@ -89,7 +89,7 @@ namespace MalaSpiritGIS
             offsetX = sOffsetX;
             offsetY = sOffsetY;
 
-            DisplayScaleChanged?.Invoke(this);
+            DisplayScaleChanged?.Invoke(this);  //触发DisplayScaleChanged事件
         }
 
         public void ZoomIn()
@@ -109,9 +109,9 @@ namespace MalaSpiritGIS
             mapOpStyle = 3;
             this.Cursor = cur_PanUp;
         }
-        public void TrackFeature()
+        public void TrackFeature()  //开始或继续创建要素
         {
-            if (dataFrame.index > -1)
+            if (dataFrame.index > -1)  //如果有图层被选中
             {
                 mapOpStyle = 4;
                 this.Cursor = cur_Cross;
@@ -125,18 +125,18 @@ namespace MalaSpiritGIS
         /// <summary>
         /// 将地图操作设置为选择要素状态
         /// </summary>
-        public void SelectFeature()
+        public void SelectFeature()  //选择要素
         {
             mapOpStyle = 5;
             this.Cursor = Cursors.Arrow;
         }
-        public List<MLFeature> SelectByBox(RectangleF box)
+        public List<MLFeature> SelectByBox(RectangleF box)  //返回完全位于box中的要素
         {
             List<MLFeature> result = new List<MLFeature>();
-            for (int i = 0; i < dataFrame.layers.Count; ++i)
+            for (int i = 0; i < dataFrame.layers.Count; ++i)  //遍历图层
             {
                 MLFeatureClass layer = dataFrame.layers[i].featureClass;
-                for (int j = 0; j < layer.Count; ++j)
+                for (int j = 0; j < layer.Count; ++j)  //遍历图层中的要素
                 {
                     switch (layer.Type)
                     {
@@ -159,9 +159,17 @@ namespace MalaSpiritGIS
                     }
                 }
             }
-            //MessageBox.Show(result[0].La.ToString());
             return result;
         }
+        public void zoomToLayer()
+        {
+            MLFeatureClass fc = dataFrame.layers[dataFrame.index].featureClass;
+            displayScale = (float)Math.Max((fc.XMax - fc.XMin) / this.Width, (fc.YMax - fc.YMin) / this.Height);
+            offsetX = (float)fc.XMin / displayScale;
+            offsetY = (float)fc.YMin / displayScale;
+            Refresh();
+        }
+
         #endregion
 
         #region 事件
@@ -190,15 +198,15 @@ namespace MalaSpiritGIS
         #endregion
 
         #region 私有函数
-        private bool PointDInBox(PointD p,RectangleF rec)
+        private bool PointDInBox(PointD p,RectangleF rec)  //点p完全位于rec中
         {
             return (p.X > rec.X && p.X < rec.X + rec.Width && p.Y > rec.Y && p.Y < rec.Y + rec.Height);
         }
-        private bool MLPointInBox(MLPoint p, RectangleF rec)
+        private bool MLPointInBox(MLPoint p, RectangleF rec)  //点要素p完全位于rec中
         {
             return PointDInBox(p.Point, rec);
         }
-        private bool MLMultiPointInBox(MLMultiPoint m,RectangleF rec)
+        private bool MLMultiPointInBox(MLMultiPoint m,RectangleF rec)  //多点要素m完全位于rec中
         {
             PointD[] ps = m.Points;
             for(int i = 0;i != ps.Length; ++i)
@@ -210,7 +218,7 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private bool MLPolylineInBox(MLPolyline p,RectangleF rec)
+        private bool MLPolylineInBox(MLPolyline p,RectangleF rec)  //线要素p完全位于rec中
         {
             PolylineD[] polylines = p.Segments;
             for(int i = 0;i != polylines.Length; ++i)
@@ -226,7 +234,7 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private bool MLPolygonInBox(MLPolygon p,RectangleF rec)
+        private bool MLPolygonInBox(MLPolygon p,RectangleF rec)  //面要素p完全位于rec中
         {
             PolygonD polygon = p.Polygon;
             for(int i = 0;i != polygon.Count; ++i)
@@ -242,13 +250,13 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private void PaintPoint(MLFeature feature,Brush brush,Graphics g)
+        private void PaintPoint(MLFeature feature,Brush brush,Graphics g)  //绘制点要素
         {
             PointD point = ((MLPoint)feature).Point;
             PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
             g.FillRectangle(brush, sScreenPoint.X - 1, sScreenPoint.Y - 1, 3, 3);
         }
-        private void PaintMultiPoint(MLFeature feature, Brush brush, Graphics g)
+        private void PaintMultiPoint(MLFeature feature, Brush brush, Graphics g)  //绘制多点要素
         {
             PointD[] ps = ((MLMultiPoint)feature).Points;
             for (int k = 0; k != ps.Length; ++k)
@@ -257,7 +265,7 @@ namespace MalaSpiritGIS
                 g.FillRectangle(brush, sp.X - 1, sp.Y - 1, 3, 3);
             }
         }
-        private void PaintPolyline(MLFeature feature, Pen pen, Graphics g)
+        private void PaintPolyline(MLFeature feature, Pen pen, Graphics g)  //绘制线要素
         {
             PolylineD[] segs = ((MLPolyline)feature).Segments;
             for (int k = 0; k != segs.Length; ++k)
@@ -272,7 +280,20 @@ namespace MalaSpiritGIS
                 }
             }
         }
-        private void PaintPolygon(MLFeature feature, Pen pen, Graphics g)
+        private void PaintPolygon(MLFeature feature, Brush brush,Pen pen, Graphics g)  //绘制面要素，仅支持简单面
+        {
+            PolygonD polygon = ((MLPolygon)feature).Polygon;
+            for (int k = 0; k != polygon.Count; ++k)
+            {
+                PolylineD ring = polygon.GetRing(k);
+                PointF[] ps = new PointF[ring.Count];
+                for(int i = 0;i != ps.Length; ++i)
+                    ps[i] = new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y);
+                g.FillPolygon(brush, ps);
+                g.DrawPolygon(pen, ps);
+            }
+        }
+        private void SelectPolygon(MLFeature feature,Pen pen,Graphics g)  //不填充仅描边
         {
             PolygonD polygon = ((MLPolygon)feature).Polygon;
             for (int k = 0; k != polygon.Count; ++k)
@@ -287,18 +308,17 @@ namespace MalaSpiritGIS
                     g.DrawLine(pen, sp1, sp2);
                 }
             }
-            //多边形还需要上色，但是这里先画出轮廓来吧。
         }
         //绘制要素
-        private void DrawFeatureClass(Graphics g)
+        private void DrawFeatureClass(Graphics g)  //画出所有图层中的所有要素
         {
-            if (dataFrame.layers != null)
+            if (dataFrame.layers != null)  //必须要有图层才能开始画
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                for (int i = dataFrame.layers.Count - 1; i != -1; --i)
+                for (int i = dataFrame.layers.Count - 1; i != -1; --i)  //从最后一个图层开始画，越上层的越不会被遮盖
                 {
                     Brush brush = new SolidBrush(colors[i % 7]);
-                    Pen pen = new Pen(colors[i%7], boundaryWidth);
+                    Pen pen = new Pen(colors[i % 7], boundaryWidth);
                     MLFeatureClass fc = dataFrame.layers[i].featureClass;
                     for (int j = 0; j != fc.Count; ++j)
                     {
@@ -314,7 +334,7 @@ namespace MalaSpiritGIS
                                 PaintPolyline(fc.GetFeature(j), pen, g);
                                 break;
                             case FeatureType.POLYGON:
-                                PaintPolygon(fc.GetFeature(j), pen, g);
+                                PaintPolygon(fc.GetFeature(j), brush, pen, g);
                                 break;
                         }
                     }
@@ -324,16 +344,14 @@ namespace MalaSpiritGIS
             }
         }
 
-        private void DrawTrackingFeatures(Graphics g)
+        private void DrawTrackingFeatures(Graphics g)  //描绘正在追踪中的要素
         {
-            if (dataFrame.selected())
+            int sPointCount = trackingFeature.Count;
+            if (sPointCount != 0)  //当然前提是已经点下了至少一个点
             {
                 FeatureType mTrackingType = dataFrame.layers[dataFrame.index].featureClass.featureType;
-                if (mTrackingType != FeatureType.POINT)
+                if (mTrackingType != FeatureType.POINT)  //如果类型是点要素，就不必绘制
                 {
-                    int sPointCount = trackingFeature.Count;
-                    if (sPointCount == 0)
-                        return;
                     //坐标转换
                     PointF[] sScreenPoints = new PointF[sPointCount];
                     for (int i = 0; i < sPointCount; ++i)
@@ -342,23 +360,23 @@ namespace MalaSpiritGIS
                         sScreenPoints[i].X = (float)sScreenPoint.X;
                         sScreenPoints[i].Y = (float)sScreenPoint.Y;
                     }
-                    SolidBrush sVertexBrush = new SolidBrush(trackingColor);
+                    SolidBrush sVertexBrush = new SolidBrush(trackingColor);  //把所有点先以方格的形式绘制出来
                     for (int i = 0; i < sPointCount; ++i)
                     {
                         RectangleF sRect = new RectangleF(sScreenPoints[i].X - vertexHandleSize / 2, sScreenPoints[i].Y - vertexHandleSize / 2, vertexHandleSize, vertexHandleSize);
                         g.FillRectangle(sVertexBrush, sRect);
                     }
-                    if (mTrackingType != FeatureType.MULTIPOINT)
+                    if (mTrackingType != FeatureType.MULTIPOINT)  //如果是多点要素就不必连线了，但如果是线要素或者面要素就需要连线
                     {
                         Pen sTrackingPen = new Pen(trackingColor, trackingWidth);
-                        if (sPointCount > 1)
+                        if (sPointCount > 1)  //如果有至少2个点，就需要把点与点连接起来
                         {
                             g.DrawLines(sTrackingPen, sScreenPoints);
                         }
-                        if (mapOpStyle == 4)
+                        if (mapOpStyle == 4)  //如果处于创建要素的过程中
                         {
-                            g.DrawLine(sTrackingPen, sScreenPoints[sPointCount - 1], mouseLocation);
-                            if (sPointCount > 1 && mTrackingType == FeatureType.POLYGON)
+                            g.DrawLine(sTrackingPen, sScreenPoints[sPointCount - 1], mouseLocation);  //需要连接鼠标和最后一个点
+                            if (sPointCount > 1 && mTrackingType == FeatureType.POLYGON)  //如果是面要素，还需要让曲线闭合
                                 g.DrawLine(sTrackingPen, sScreenPoints[0], mouseLocation);
                         }
                         sTrackingPen.Dispose();
@@ -368,9 +386,9 @@ namespace MalaSpiritGIS
             }
         }
 
-        private void DrawSelectedFeatures(Graphics g)
+        private void DrawSelectedFeatures(Graphics g)  //画出被选中的要素
         {
-            if (selectedFeatures.Count != 0)
+            if (selectedFeatures.Count != 0)  //如果有要素被选中
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 Pen pen = new Pen(selectedColor, 2);
@@ -390,7 +408,7 @@ namespace MalaSpiritGIS
                             PaintPolyline(fc, pen, g);
                             break;
                         case FeatureType.POLYGON:
-                            PaintPolygon(fc, pen, g);
+                            SelectPolygon(fc, pen, g);
                             break;
                     }
                 }
@@ -438,7 +456,7 @@ namespace MalaSpiritGIS
                         PointF p = ToMapPoint(new PointF(e.Location.X, e.Location.Y));
                         switch (dataFrame.layers[dataFrame.index].featureClass.featureType)
                         {
-                            case FeatureType.POINT:
+                            case FeatureType.POINT:  //如果是点要素，那点击即创建
                                 MLPoint point = new MLPoint(new PointD(p.X, p.Y));
                                 if (TrackingFinished != null)
                                 {
@@ -537,6 +555,7 @@ namespace MalaSpiritGIS
                                 {
                                     TrackingFinished(this, multipoint);
                                 }
+                                trackingFeature.Clear();
                                 break;
                             case FeatureType.POLYLINE:
                                 PointD[] polylinePs = new PointD[trackingFeature.Count];
@@ -547,6 +566,7 @@ namespace MalaSpiritGIS
                                 {
                                     TrackingFinished(this, polyline);
                                 }
+                                trackingFeature.Clear();
                                 break;
                             case FeatureType.POLYGON:
                                 if (trackingFeature.Count >= 3)
@@ -560,10 +580,10 @@ namespace MalaSpiritGIS
                                     {
                                         TrackingFinished(this,polygon);
                                     }
+                                    trackingFeature.Clear();
                                 }
                                 break;
                         }
-                        trackingFeature.Clear();
                     }
                     break;
                 case 5:  //选择
