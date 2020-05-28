@@ -16,5 +16,10 @@ namespace MalaSpiritGIS
         {
             InitializeComponent();
         }
+
+        public void BindData(MLFeatureClass curFeaClass)
+        {
+            dataGridView1.DataSource = curFeaClass.AttributeData;
+        }
     }
 }
