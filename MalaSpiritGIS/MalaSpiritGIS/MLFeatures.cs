@@ -248,6 +248,7 @@ namespace MalaSpiritGIS
         public FeatureType Type { get { return featureType; } }
         public int Count { get { return features.Count; } }
         public int FieldCount { get { return attributeData.Columns.Count; } }
+        public DataTable AttributeData { get { return attributeData; } }
     }
 
     /// <summary>
