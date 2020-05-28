@@ -21,35 +21,34 @@ namespace MalaSpiritGIS
         }
         private Dataframe dataFrame;  //记录数据
         //设计时属性变量
-        private Color fillColor = Color.Tomato;  //多边形填充色
-        private Color boundaryColor = Color.Black;  //多边形边界色
-        private Color trackingColor = Color.DarkGreen;  //描绘多边形的颜色
+        public Color[] colors = { Color.Red, Color.Orange, Color.Yellow, Color.Blue, Color.DarkBlue, Color.Violet, Color.Pink };  //线条、填充色
+        private Color trackingColor = Color.DarkGreen;  //追踪中要素的颜色
 
         //运行时属性变量
         private float displayScale = 1F;  //显示比例尺的倒数
         public List<MLFeature> selectedFeatures = new List<MLFeature>();  //选中要素集合
 
         //内部变量
-        private float mOffsetX = 0, mOffsetY = 0;  //窗口左上点的地图坐标
-        private int mMapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素
-        private List<PointD> mTrackingFeature = new List<PointD>();  //用户正在描绘的要素
-        private PointF mMouseLocation = new PointF();  //鼠标当前的位置，用于漫游、拉框等
-        private PointF mStartPoint = new PointF();  //记录鼠标按下时的位置，用于拉框
+        private float offsetX = 0, offsetY = 0;  //窗口左上点的地图坐标
+        private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素
+        private List<PointD> trackingFeature = new List<PointD>();  //用户正在描绘的要素
+        private PointF mouseLocation = new PointF();  //鼠标当前的位置，用于漫游、拉框等
+        private PointF startPoint = new PointF();  //记录鼠标按下时的位置，用于拉框
 
         //鼠标光标
-        private Cursor mCur_Cross = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.Cross.ico"));
-        private Cursor mCur_ZoomIn = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomIn.ico"));
-        private Cursor mCur_ZoomOut = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomOut.ico"));
-        private Cursor mCur_PanUp = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.PanUp.ico"));
+        private Cursor cur_Cross = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.Cross.ico"));
+        private Cursor cur_ZoomIn = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomIn.ico"));
+        private Cursor cur_ZoomOut = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomOut.ico"));
+        private Cursor cur_PanUp = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.PanUp.ico"));
 
         //常量
-        private const float mcBoundaryWidth = 1F; //多边形边界宽度，单位像素
-        private const float mcTrackingWidth = 1F; //描绘多边形的边界宽度，单位像素
-        private const float mcVertexHandleSize = 7F;  //描绘多边形顶点手柄的大小，单位像素
-        private const float mcZoomRatio = 1.2F;  //缩放系数
-        private Color mcSelectingBoxColor = Color.DarkGreen;  //选择盒的颜色
-        private const float mcSelectingBoxWidth = 2F;  //选择盒边界宽度，单位像素
-        private Color mcSelectionColor = Color.Cyan;  //选中要素的颜色
+        private const float boundaryWidth = 1F; //完成追踪的要素边界宽度，单位像素
+        private const float trackingWidth = 1F; //追踪中要素的边界宽度，单位像素
+        private const float vertexHandleSize = 7F;  //描绘多边形顶点手柄的大小，单位像素
+        private const float zoomRatio = 1.2F;  //缩放系数
+        private Color selectingBoxColor = Color.DarkGreen;  //选择盒的颜色
+        private const float selectingBoxWidth = 2F;  //选择盒边界宽度，单位像素
+        private Color selectedColor = Color.Cyan;  //选中要素的颜色
 
         //运行时属性
         [Browsable(false)]
@@ -66,16 +65,16 @@ namespace MalaSpiritGIS
         public PointF FromMapPoint(PointF point)
         {
             PointF sPoint = new PointF();
-            sPoint.X = (point.X - mOffsetX) / displayScale;
-            sPoint.Y = (point.Y - mOffsetY) / displayScale;
+            sPoint.X = (point.X - offsetX) / displayScale;
+            sPoint.Y = (point.Y - offsetY) / displayScale;
             return sPoint;
         }
 
         public PointF ToMapPoint(PointF point)
         {
             PointF sPoint = new PointF();
-            sPoint.X = point.X * displayScale + mOffsetX;
-            sPoint.Y = point.Y * displayScale + mOffsetY;
+            sPoint.X = point.X * displayScale + offsetX;
+            sPoint.Y = point.Y * displayScale + offsetY;
             return sPoint;
         }
 
@@ -84,38 +83,38 @@ namespace MalaSpiritGIS
             displayScale /= ratio;
 
             float sOffsetX, sOffsetY;  //定义新的偏移量
-            sOffsetX = mOffsetX + (1 - 1 / ratio) * (center.X - mOffsetX);
-            sOffsetY = mOffsetY + (1 - 1 / ratio) * (center.Y - mOffsetY);
+            sOffsetX = offsetX + (1 - 1 / ratio) * (center.X - offsetX);
+            sOffsetY = offsetY + (1 - 1 / ratio) * (center.Y - offsetY);
 
-            mOffsetX = sOffsetX;
-            mOffsetY = sOffsetY;
+            offsetX = sOffsetX;
+            offsetY = sOffsetY;
 
             DisplayScaleChanged?.Invoke(this);
         }
 
         public void ZoomIn()
         {
-            mMapOpStyle = 1;  //记录操作状态
-            this.Cursor = mCur_ZoomIn;  //更改鼠标光标
+            mapOpStyle = 1;  //记录操作状态
+            this.Cursor = cur_ZoomIn;  //更改鼠标光标
         }
 
         public void ZoomOut()
         {
-            mMapOpStyle = 2;  //记录操作状态
-            this.Cursor = mCur_ZoomOut;  //更改鼠标光标
+            mapOpStyle = 2;  //记录操作状态
+            this.Cursor = cur_ZoomOut;  //更改鼠标光标
         }
 
         public void Pan()
         {
-            mMapOpStyle = 3;
-            this.Cursor = mCur_PanUp;
+            mapOpStyle = 3;
+            this.Cursor = cur_PanUp;
         }
         public void TrackFeature()
         {
             if (dataFrame.index > -1)
             {
-                mMapOpStyle = 4;
-                this.Cursor = mCur_Cross;
+                mapOpStyle = 4;
+                this.Cursor = cur_Cross;
             }
             else
             {
@@ -128,7 +127,7 @@ namespace MalaSpiritGIS
         /// </summary>
         public void SelectFeature()
         {
-            mMapOpStyle = 5;
+            mapOpStyle = 5;
             this.Cursor = Cursors.Arrow;
         }
         public List<MLFeature> SelectByBox(RectangleF box)
@@ -221,7 +220,6 @@ namespace MalaSpiritGIS
                 {
                     if (!PointDInBox(polyline.GetPoint(j), rec))
                     {
-                        //MessageBox.Show(polyline.GetPoint(j).X.ToString() + ";" + polyline.GetPoint(j).Y.ToString());
                         return false;
                     }
                 }
@@ -244,19 +242,19 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private void PaintPoint(MLFeature feature,Pen pen,Graphics g)
+        private void PaintPoint(MLFeature feature,Brush brush,Graphics g)
         {
             PointD point = ((MLPoint)feature).Point;
             PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
-            g.DrawRectangle(pen, sScreenPoint.X, sScreenPoint.Y, 1, 1);
+            g.FillRectangle(brush, sScreenPoint.X - 1, sScreenPoint.Y - 1, 3, 3);
         }
-        private void PaintMultiPoint(MLFeature feature, Pen pen, Graphics g)
+        private void PaintMultiPoint(MLFeature feature, Brush brush, Graphics g)
         {
             PointD[] ps = ((MLMultiPoint)feature).Points;
             for (int k = 0; k != ps.Length; ++k)
             {
                 PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
-                g.DrawRectangle(pen, sp.X, sp.Y, 1, 1);
+                g.FillRectangle(brush, sp.X - 1, sp.Y - 1, 3, 3);
             }
         }
         private void PaintPolyline(MLFeature feature, Pen pen, Graphics g)
@@ -297,19 +295,20 @@ namespace MalaSpiritGIS
             if (dataFrame.layers != null)
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                Pen pen = new Pen(boundaryColor, mcBoundaryWidth);
                 for (int i = dataFrame.layers.Count - 1; i != -1; --i)
                 {
+                    Brush brush = new SolidBrush(colors[i % 7]);
+                    Pen pen = new Pen(colors[i%7], boundaryWidth);
                     MLFeatureClass fc = dataFrame.layers[i].featureClass;
                     for (int j = 0; j != fc.Count; ++j)
                     {
                         switch (fc.Type)
                         {
                             case FeatureType.POINT:
-                                PaintPoint(fc.GetFeature(j), pen, g);
+                                PaintPoint(fc.GetFeature(j), brush, g);
                                 break;
                             case FeatureType.MULTIPOINT:
-                                PaintMultiPoint(fc.GetFeature(j), pen, g);
+                                PaintMultiPoint(fc.GetFeature(j), brush, g);
                                 break;
                             case FeatureType.POLYLINE:
                                 PaintPolyline(fc.GetFeature(j), pen, g);
@@ -319,9 +318,9 @@ namespace MalaSpiritGIS
                                 break;
                         }
                     }
+                    pen.Dispose();
+                    brush.Dispose();
                 }
-                pen.Dispose();
-                //sPolygonBrush.Dispose();
             }
         }
 
@@ -332,35 +331,35 @@ namespace MalaSpiritGIS
                 FeatureType mTrackingType = dataFrame.layers[dataFrame.index].featureClass.featureType;
                 if (mTrackingType != FeatureType.POINT)
                 {
-                    int sPointCount = mTrackingFeature.Count;
+                    int sPointCount = trackingFeature.Count;
                     if (sPointCount == 0)
                         return;
                     //坐标转换
                     PointF[] sScreenPoints = new PointF[sPointCount];
                     for (int i = 0; i < sPointCount; ++i)
                     {
-                        PointF sScreenPoint = FromMapPoint(new PointF((float)mTrackingFeature[i].X, (float)mTrackingFeature[i].Y));
+                        PointF sScreenPoint = FromMapPoint(new PointF((float)trackingFeature[i].X, (float)trackingFeature[i].Y));
                         sScreenPoints[i].X = (float)sScreenPoint.X;
                         sScreenPoints[i].Y = (float)sScreenPoint.Y;
                     }
                     SolidBrush sVertexBrush = new SolidBrush(trackingColor);
                     for (int i = 0; i < sPointCount; ++i)
                     {
-                        RectangleF sRect = new RectangleF(sScreenPoints[i].X - mcVertexHandleSize / 2, sScreenPoints[i].Y - mcVertexHandleSize / 2, mcVertexHandleSize, mcVertexHandleSize);
+                        RectangleF sRect = new RectangleF(sScreenPoints[i].X - vertexHandleSize / 2, sScreenPoints[i].Y - vertexHandleSize / 2, vertexHandleSize, vertexHandleSize);
                         g.FillRectangle(sVertexBrush, sRect);
                     }
                     if (mTrackingType != FeatureType.MULTIPOINT)
                     {
-                        Pen sTrackingPen = new Pen(trackingColor, mcTrackingWidth);
+                        Pen sTrackingPen = new Pen(trackingColor, trackingWidth);
                         if (sPointCount > 1)
                         {
                             g.DrawLines(sTrackingPen, sScreenPoints);
                         }
-                        if (mMapOpStyle == 4)
+                        if (mapOpStyle == 4)
                         {
-                            g.DrawLine(sTrackingPen, sScreenPoints[sPointCount - 1], mMouseLocation);
+                            g.DrawLine(sTrackingPen, sScreenPoints[sPointCount - 1], mouseLocation);
                             if (sPointCount > 1 && mTrackingType == FeatureType.POLYGON)
-                                g.DrawLine(sTrackingPen, sScreenPoints[0], mMouseLocation);
+                                g.DrawLine(sTrackingPen, sScreenPoints[0], mouseLocation);
                         }
                         sTrackingPen.Dispose();
                     }
@@ -374,17 +373,18 @@ namespace MalaSpiritGIS
             if (selectedFeatures.Count != 0)
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                Pen pen = new Pen(mcSelectingBoxColor, 2);
+                Pen pen = new Pen(selectedColor, 2);
+                SolidBrush brush = new SolidBrush(selectedColor);
                 for (int i = selectedFeatures.Count - 1; i != -1; --i)
                 {
                     MLFeature fc = selectedFeatures[i];
                     switch (fc.FeatureType)
                     {
                         case FeatureType.POINT:
-                            PaintPoint(fc, pen, g);
+                            PaintPoint(fc, brush, g);
                             break;
                         case FeatureType.MULTIPOINT:
-                            PaintMultiPoint(fc, pen, g);
+                            PaintMultiPoint(fc, brush, g);
                             break;
                         case FeatureType.POLYLINE:
                             PaintPolyline(fc, pen, g);
@@ -394,6 +394,7 @@ namespace MalaSpiritGIS
                             break;
                     }
                 }
+                brush.Dispose();
                 pen.Dispose();
             }
         }
@@ -402,7 +403,7 @@ namespace MalaSpiritGIS
         #region 母版事件处理
         private void MLMouseDown(object sender, MouseEventArgs e)
         {
-            switch (mMapOpStyle)
+            switch (mapOpStyle)
             {
                 case 0:
                     break;
@@ -411,7 +412,7 @@ namespace MalaSpiritGIS
                     {
                         PointF sMouseLocation = new PointF(e.Location.X, e.Location.Y);
                         PointF sPoint = ToMapPoint(sMouseLocation);
-                        ZoomByCenter(sPoint, mcZoomRatio);
+                        ZoomByCenter(sPoint, zoomRatio);
                         Refresh();
                     }
                     break;
@@ -420,15 +421,15 @@ namespace MalaSpiritGIS
                     {
                         PointF sMouseLocation = new PointF(e.Location.X, e.Location.Y);
                         PointF sPoint = ToMapPoint(sMouseLocation);
-                        ZoomByCenter(sPoint, 1 / mcZoomRatio);
+                        ZoomByCenter(sPoint, 1 / zoomRatio);
                         Refresh();
                     }
                     break;
                 case 3:  //漫游
                     if (e.Button == MouseButtons.Left)
                     {
-                        mMouseLocation.X = e.Location.X;
-                        mMouseLocation.Y = e.Location.Y;
+                        mouseLocation.X = e.Location.X;
+                        mouseLocation.Y = e.Location.Y;
                     }
                     break;
                 case 4:  //输入要素
@@ -445,7 +446,7 @@ namespace MalaSpiritGIS
                                 }
                                 break;
                             default:
-                                mTrackingFeature.Add(new PointD(p.X, p.Y));
+                                trackingFeature.Add(new PointD(p.X, p.Y));
                                 Refresh();
                                 break;
                         }
@@ -454,7 +455,7 @@ namespace MalaSpiritGIS
                 case 5:  //选择
                     if (e.Button == MouseButtons.Left)
                     {
-                        mStartPoint = e.Location;
+                        startPoint = e.Location;
                     }
                     break;
             }
@@ -462,7 +463,7 @@ namespace MalaSpiritGIS
 
         private void MLMouseMove(object sender, MouseEventArgs e)
         {
-            switch (mMapOpStyle)
+            switch (mapOpStyle)
             {
                 case 0:
                     break;
@@ -473,21 +474,21 @@ namespace MalaSpiritGIS
                 case 3:  //漫游
                     if (e.Button == MouseButtons.Left)
                     {
-                        PointF sPreMouseLocation = new PointF(mMouseLocation.X, mMouseLocation.Y);
+                        PointF sPreMouseLocation = new PointF(mouseLocation.X, mouseLocation.Y);
                         PointF sPrePoint = ToMapPoint(sPreMouseLocation);
                         PointF sCurMouseLocation = new PointF(e.Location.X, e.Location.Y);
                         PointF sCurPoint = ToMapPoint(sCurMouseLocation);
                         //修改偏移量
-                        mOffsetX = mOffsetX + sPrePoint.X - sCurPoint.X;
-                        mOffsetY = mOffsetY + sPrePoint.Y - sCurPoint.Y;
+                        offsetX = offsetX + sPrePoint.X - sCurPoint.X;
+                        offsetY = offsetY + sPrePoint.Y - sCurPoint.Y;
                         Refresh();
-                        mMouseLocation.X = e.Location.X;
-                        mMouseLocation.Y = e.Location.Y;
+                        mouseLocation.X = e.Location.X;
+                        mouseLocation.Y = e.Location.Y;
                     }
                     break;
                 case 4:  //输入多边形
-                    mMouseLocation.X = e.Location.X;
-                    mMouseLocation.Y = e.Location.Y;
+                    mouseLocation.X = e.Location.X;
+                    mouseLocation.Y = e.Location.Y;
                     Refresh();
                     break;
                 case 5:  //选择
@@ -495,11 +496,11 @@ namespace MalaSpiritGIS
                     {
                         Refresh();
                         Graphics g = Graphics.FromHwnd(this.Handle);
-                        Pen sBoxPen = new Pen(mcSelectingBoxColor, mcSelectingBoxWidth);
-                        float sMinX = Math.Min(mStartPoint.X, e.Location.X);
-                        float sMaxX = Math.Max(mStartPoint.X, e.Location.X);
-                        float sMinY = Math.Min(mStartPoint.Y, e.Location.Y);
-                        float sMaxY = Math.Max(mStartPoint.Y, e.Location.Y);
+                        Pen sBoxPen = new Pen(selectingBoxColor, selectingBoxWidth);
+                        float sMinX = Math.Min(startPoint.X, e.Location.X);
+                        float sMaxX = Math.Max(startPoint.X, e.Location.X);
+                        float sMinY = Math.Min(startPoint.Y, e.Location.Y);
+                        float sMaxY = Math.Max(startPoint.Y, e.Location.Y);
                         g.DrawRectangle(sBoxPen, sMinX, sMinY, sMaxX - sMinX, sMaxY - sMinY);
                         g.Dispose();
                     }
@@ -509,7 +510,7 @@ namespace MalaSpiritGIS
 
         private void MLMouseDoubleClick(object sender, MouseEventArgs e)
         {
-            switch (mMapOpStyle)
+            switch (mapOpStyle)
             {
                 case 0:
                     break;
@@ -528,9 +529,9 @@ namespace MalaSpiritGIS
                                 //这个是真没有要执行的
                                 break;
                             case FeatureType.MULTIPOINT:
-                                PointD[] multipointPs = new PointD[mTrackingFeature.Count];
+                                PointD[] multipointPs = new PointD[trackingFeature.Count];
                                 for (int i = 0; i != multipointPs.Length; ++i)
-                                    multipointPs[i] = mTrackingFeature[i];
+                                    multipointPs[i] = trackingFeature[i];
                                 MLMultiPoint multipoint = new MLMultiPoint(multipointPs);
                                 if (TrackingFinished != null)
                                 {
@@ -538,9 +539,9 @@ namespace MalaSpiritGIS
                                 }
                                 break;
                             case FeatureType.POLYLINE:
-                                PointD[] polylinePs = new PointD[mTrackingFeature.Count];
+                                PointD[] polylinePs = new PointD[trackingFeature.Count];
                                 for (int i = 0; i != polylinePs.Length; ++i)
-                                    polylinePs[i] = mTrackingFeature[i];
+                                    polylinePs[i] = trackingFeature[i];
                                 MLPolyline polyline = new MLPolyline(polylinePs);
                                 if (TrackingFinished != null)
                                 {
@@ -548,12 +549,12 @@ namespace MalaSpiritGIS
                                 }
                                 break;
                             case FeatureType.POLYGON:
-                                if (mTrackingFeature.Count >= 3)
+                                if (trackingFeature.Count >= 3)
                                 {
-                                    mTrackingFeature.Add(mTrackingFeature[0]);
-                                    PointD[] polygonPs = new PointD[mTrackingFeature.Count];
+                                    trackingFeature.Add(trackingFeature[0]);
+                                    PointD[] polygonPs = new PointD[trackingFeature.Count];
                                     for (int i = 0; i != polygonPs.Length; ++i)
-                                        polygonPs[i] = mTrackingFeature[i];
+                                        polygonPs[i] = trackingFeature[i];
                                     MLPolygon polygon = new MLPolygon(new PolylineD(polygonPs));
                                     if (TrackingFinished != null)
                                     {
@@ -562,7 +563,7 @@ namespace MalaSpiritGIS
                                 }
                                 break;
                         }
-                        mTrackingFeature.Clear();
+                        trackingFeature.Clear();
                     }
                     break;
                 case 5:  //选择
@@ -576,7 +577,7 @@ namespace MalaSpiritGIS
                 PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
                     this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
-                ZoomByCenter(sCenterPointOnMap, mcZoomRatio);
+                ZoomByCenter(sCenterPointOnMap, zoomRatio);
                 Refresh();
             }
             else
@@ -584,13 +585,13 @@ namespace MalaSpiritGIS
                 PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
                     this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
-                ZoomByCenter(sCenterPointOnMap, 1 / mcZoomRatio);
+                ZoomByCenter(sCenterPointOnMap, 1 / zoomRatio);
                 Refresh();
             }
         }
         private void MLMouseUp(object sender, MouseEventArgs e)
         {
-            switch (mMapOpStyle)
+            switch (mapOpStyle)
             {
                 case 0:
                     break;
@@ -605,10 +606,10 @@ namespace MalaSpiritGIS
                 case 5:  //选择
                     if (e.Button == MouseButtons.Left)
                     {
-                        float sMinX = Math.Min(mStartPoint.X, e.Location.X);
-                        float sMaxX = Math.Max(mStartPoint.X, e.Location.X);
-                        float sMinY = Math.Min(mStartPoint.Y, e.Location.Y);
-                        float sMaxY = Math.Max(mStartPoint.Y, e.Location.Y);
+                        float sMinX = Math.Min(startPoint.X, e.Location.X);
+                        float sMaxX = Math.Max(startPoint.X, e.Location.X);
+                        float sMinY = Math.Min(startPoint.Y, e.Location.Y);
+                        float sMaxY = Math.Max(startPoint.Y, e.Location.Y);
                         PointF sTopLeft = new PointF(sMinX, sMinY);
                         PointF sBottomRight = new PointF(sMaxX, sMaxY);
                         PointF sTopLeftOnMap = ToMapPoint(sTopLeft);
