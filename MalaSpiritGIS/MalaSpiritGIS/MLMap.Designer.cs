@@ -32,6 +32,7 @@
             // 
             // MLMap
             // 
+            this.DoubleBuffered = true;
             this.Name = "MLMap";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MLPaint);
             this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.MLMouseDoubleClick);

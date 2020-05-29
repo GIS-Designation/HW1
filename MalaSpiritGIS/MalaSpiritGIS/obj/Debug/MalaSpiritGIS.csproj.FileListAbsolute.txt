@@ -168,3 +168,8 @@ C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.csproj.CopyComplete
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.exe
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.pdb
+C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.AddFieldForm.resources
+C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.AttributeTable.resources
+C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.InputDialog.resources
+C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MLFeatureBox.resources
+C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MLMap.resources

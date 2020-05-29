@@ -189,6 +189,8 @@ namespace MalaSpiritGIS
             featureType = _type;
             features = new List<MLFeature>();
             attributeData = new DataTable();
+            attributeData.Columns.Add("ID", typeof(uint));
+            attributeData.Columns.Add("Type", typeof(FeatureType));
         }
 
         /// <summary>
@@ -245,7 +247,7 @@ namespace MalaSpiritGIS
         /// </summary>
         /// <param name="curFea">要素</param>
         /// <param name="values">要素对应的属性信息</param>
-        public void AddFeaure(MLFeature curFea, object[] values)
+        public void AddFeaure(MLFeature curFea, object[] values=null)
         {
             //更新要素列表
             features.Add(curFea);
@@ -268,11 +270,22 @@ namespace MalaSpiritGIS
 
             //更新属性表
             attributeData.BeginLoadData();
-            object[] curValues = new object[values.Length - 1];
-            curValues[0] = values[0];
-            curValues[1] = featureType;
-            Array.Copy(values, 3, curValues, 2, values.Length - 3);
-            attributeData.LoadDataRow(curValues, true);
+            if (values!=null)
+            {
+                object[] curValues = new object[values.Length - 1];
+                curValues[0] = values[0];
+                curValues[1] = featureType;
+                Array.Copy(values, 3, curValues, 2, values.Length - 3);
+                attributeData.LoadDataRow(curValues, true);
+            }
+            else
+            {
+                object[] curValues = new object[attributeData.Columns.Count];
+                curValues[0] = attributeData.Rows.Count;
+                curValues[1] = featureType;
+                attributeData.LoadDataRow(curValues, true);
+            }
+            
             attributeData.EndLoadData();
         }
 
