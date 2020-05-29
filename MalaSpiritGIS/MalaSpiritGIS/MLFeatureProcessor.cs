@@ -44,7 +44,7 @@ namespace MalaSpiritGIS
     /// </summary>
     public class MLFeatureProcessor
     {
-        string server = "localhost";
+        string server = "182.92.161.171";
         string database = "mala_spirit_gis_db";
         string userId = "root";
         string password = "";
