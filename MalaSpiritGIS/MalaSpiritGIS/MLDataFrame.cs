@@ -139,11 +139,7 @@ namespace MalaSpiritGIS
                         name.Text = "新建面图层";
                         break;
                 }
-                LineWidth = 1;//轮廓宽度为1
-                LineStyle = "Solid";//实线
-                PointSign = "FilledCircle";//初始化默认点符号类型为实心圆
-                PointSize = 2;//点符号大小初始为2
-                featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
+                featureClass = new MLFeatureClass((uint)id, name.Text, type, new double[4]);  //新建一个要素类
                 featureClass.AddAttributeField("ID", typeof(int));
                 featureClass.AddAttributeField("i1", typeof(int));
                 featureClass.AddAttributeField("i2", typeof(int));
@@ -153,7 +149,6 @@ namespace MalaSpiritGIS
                 int y = 25 * index + 30;  //新图层的显示位置可以推算
                 sign.Location = new Point(0, y);
                 name.Location = new Point(12, y);
-                ++id;
             }
             public void moveUp()  //本图层上移
             {

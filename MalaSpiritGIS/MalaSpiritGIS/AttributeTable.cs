@@ -12,14 +12,38 @@ namespace MalaSpiritGIS
 {
     public partial class AttributeTable : Form
     {
+        MLFeatureClass curFeaClass;
+        bool onEditing;
         public AttributeTable()
         {
             InitializeComponent();
+            onEditing = false;
         }
 
-        public void BindData(MLFeatureClass curFeaClass)
+        public void BindData(MLFeatureClass _curFeaClass)
         {
-            dataGridView1.DataSource = curFeaClass.AttributeData;
+            curFeaClass = _curFeaClass;
+            attributeView.DataSource = curFeaClass.AttributeData;
         }
+
+        private void 增加字段ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddFieldForm addFieldForm = new AddFieldForm();
+            if (DialogResult.OK == addFieldForm.ShowDialog(this))
+            {
+                curFeaClass.AddAttributeField(addFieldForm.FieldName, addFieldForm.FieldType);
+                attributeView.Refresh();
+            }
+            addFieldForm.Dispose();
+        }
+
+        #region 事件
+
+        //通过属性表选择的要素发生改变时
+        public delegate void SelectingFeatureChangedHandle(object sender, int[] indexes);
+        public event SelectingFeatureChangedHandle SelectingFeatureChanged;
+
+
+        #endregion
     }
 }

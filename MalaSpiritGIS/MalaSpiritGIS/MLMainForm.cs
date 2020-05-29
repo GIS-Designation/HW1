@@ -10,12 +10,14 @@ using static MalaSpiritGIS.MLDataFrame;
 
 namespace MalaSpiritGIS
 {
+    
     public partial class MLMainForm : Form
     {
+        public static MLFeatureProcessor FeatureProcessor;
         public MLMainForm()
         {
             InitializeComponent();
-            MLFeatureProcessor fp = new MLFeatureProcessor();
+            FeatureProcessor = new MLFeatureProcessor();
             ShowScale();
         }
         Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性
@@ -54,12 +56,8 @@ namespace MalaSpiritGIS
         }
         private void mlMap_TrackingFinished(object sender, MLFeature feature)  //追踪结束的事件，由MLMap里双击事件触发
         {
-            object[] v = new object[4];  //这里为了实现效果先随便填写的属性，到时候应该弹出一张表来填写属性
-            v[0] = 1;
-            v[1] = 1;
-            v[2] = 1;
-            v[3] = 1;
-            dataFrame.layers[dataFrame.index].featureClass.AddFeaure(feature, v);  //将新的要素添加到要素类中
+            
+            dataFrame.layers[dataFrame.index].featureClass.AddFeaure(feature);  //将新的要素添加到要素类中
             mlMap.Refresh();
         }
 

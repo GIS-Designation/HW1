@@ -56,8 +56,11 @@ namespace MalaSpiritGIS
 
         List<MLRecord> records;
 
+        uint nextFeaClassId;
+
         public MLFeatureProcessor()
         {
+            nextFeaClassId = 0;
             string connstr = "server=" + server + ";database=" + database +
                 ";uid=" + userId + ";charset=" + charset + ";port=" + port;
             connection = new MySqlConnection(connstr);
@@ -74,6 +77,10 @@ namespace MalaSpiritGIS
                     string name = reader.GetString(2);
                     MLRecord curRecord = new MLRecord(id, name, featureTypeStr);
                     records.Add(curRecord);
+                    if (id > nextFeaClassId)
+                    {
+                        nextFeaClassId = id;
+                    }
                 }
             }
         }
@@ -235,5 +242,10 @@ namespace MalaSpiritGIS
                 }
             }
         }
+
+        public uint NextFeaClassId { get { return ++nextFeaClassId; } }
+
+
+        public List<MLRecord> Records { get { return records; } }
     }
 }
