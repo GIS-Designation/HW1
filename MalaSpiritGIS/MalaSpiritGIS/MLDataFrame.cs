@@ -139,6 +139,10 @@ namespace MalaSpiritGIS
                         name.Text = "新建面图层";
                         break;
                 }
+                LineWidth = 1;//轮廓宽度为1
+                LineStyle = "Solid";//实线
+                PointSign = "FilledCircle";//初始化默认点符号类型为实心圆
+                PointSize = 2;//点符号大小初始为2
                 featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
                 sign.Width = 12;  //长宽固定
                 name.Width = 78;
