@@ -42,6 +42,10 @@ namespace MalaSpiritGIS
         {
             mlMap.Pan();
         }
+        private void zoomToLayer_Click(object sender, EventArgs e)  //点击“缩放至图层”
+        {
+            mlMap.zoomToLayer();
+        }
         private void mlMap_MouseMove(object sender, MouseEventArgs e)  //鼠标移动，改变状态栏的坐标
         {
             PointF sMouseLocation = new PointF(e.Location.X, e.Location.Y);
@@ -73,6 +77,5 @@ namespace MalaSpiritGIS
         {
             toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");
         }
-
     }
 }
