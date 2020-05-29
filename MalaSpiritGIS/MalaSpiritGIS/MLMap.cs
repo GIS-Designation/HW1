@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
 using static MalaSpiritGIS.MLDataFrame;
+using System.Drawing.Drawing2D;
 
 namespace MalaSpiritGIS
 {
@@ -22,6 +23,9 @@ namespace MalaSpiritGIS
         private Dataframe dataFrame;  //记录数据
         //设计时属性变量
         public Color[] colors = { Color.Red, Color.Orange, Color.Yellow, Color.Blue, Color.DarkBlue, Color.Violet, Color.Pink };  //线条、填充色
+        //这里枚举一下点符号类型，以便绘制点要素
+        public string[] PointSigns = { "HollowCircle", "FilledCircle", "HollowSquare", "FilledSquare", "HollowTriangle", "FilledTriangle", "HollowConcentricCircles", "FilledConcentricCircles" };
+        public string[] LineStyles = { "Solid", "Dash" };//线条类型，实线或虚线
         private Color trackingColor = Color.DarkGreen;  //追踪中要素的颜色
 
         //运行时属性变量
@@ -250,23 +254,118 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private void PaintPoint(MLFeature feature,Brush brush,Graphics g)  //绘制点要素
+        private void PaintPoint(MLFeature feature,Brush brush,Pen pen,Graphics g,string PointSign,float size)  //绘制点要素
         {
             PointD point = ((MLPoint)feature).Point;
             PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
-            g.FillRectangle(brush, sScreenPoint.X - 1, sScreenPoint.Y - 1, 3, 3);
+            
+            if(PointSign == PointSigns[0])//空心圆
+            {
+                g.DrawEllipse(pen, sScreenPoint.X - size, sScreenPoint.Y - size, size*2, size*2);
+            }
+            else if(PointSign == PointSigns[1])//实心圆
+            {
+                g.FillEllipse(brush, sScreenPoint.X - size, sScreenPoint.Y - size, size*2, size*2);
+            }
+            else if(PointSign == PointSigns[2])//空心正方形
+            {
+                g.DrawRectangle(pen, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
+            }
+            else if (PointSign == PointSigns[3])//实心正方形
+            {
+                g.FillRectangle(brush, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
+            }
+            else if (PointSign == PointSigns[4])//空心三角形
+            {
+                PointF p1 = new PointF(sScreenPoint.X, sScreenPoint.Y - size);
+                PointF p2 = new PointF(sScreenPoint.X-size, sScreenPoint.Y + size);
+                PointF p3 = new PointF(sScreenPoint.X+size, sScreenPoint.Y + size);
+                g.DrawLine(pen, p1, p2);
+                g.DrawLine(pen, p3, p2);
+                g.DrawLine(pen, p1, p3);
+            }
+            else if (PointSign == PointSigns[5])//实心三角形
+            {
+                PointF p1 = new PointF(sScreenPoint.X, sScreenPoint.Y - size);
+                PointF p2 = new PointF(sScreenPoint.X - size, sScreenPoint.Y + size);
+                PointF p3 = new PointF(sScreenPoint.X + size, sScreenPoint.Y + size);
+                PointF[] points = { p1, p2, p3 };
+                FillMode newFillMode = FillMode.Winding;
+                g.FillPolygon(brush, points, newFillMode);
+            }
+            else if (PointSign == PointSigns[6])//空心同心圆
+            {
+                g.DrawEllipse(pen, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
+                g.DrawEllipse(pen, sScreenPoint.X - size*2, sScreenPoint.Y - size*2, size * 4, size * 4);
+            }
+            else if (PointSign == PointSigns[7])//实心同心圆
+            {
+                g.FillEllipse(brush, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
+                g.DrawEllipse(pen, sScreenPoint.X - size * 2, sScreenPoint.Y - size * 2, size * 4, size * 4);
+            }
         }
-        private void PaintMultiPoint(MLFeature feature, Brush brush, Graphics g)  //绘制多点要素
+        private void PaintMultiPoint(MLFeature feature, Brush brush, Pen pen,Graphics g, string PointSign, float size)  //绘制多点要素
         {
             PointD[] ps = ((MLMultiPoint)feature).Points;
             for (int k = 0; k != ps.Length; ++k)
             {
                 PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
-                g.FillRectangle(brush, sp.X - 1, sp.Y - 1, 3, 3);
+                if (PointSign == PointSigns[0])//空心圆
+                {
+                    g.DrawEllipse(pen, sp.X - size, sp.Y - size, size * 2, size * 2);
+                }
+                else if (PointSign == PointSigns[1])//实心圆
+                {
+                    g.FillEllipse(brush, sp.X - size, sp.Y - size, size * 2, size * 2);
+                }
+                else if (PointSign == PointSigns[2])//空心正方形
+                {
+                    g.DrawRectangle(pen, sp.X - size, sp.Y - size, size * 2, size * 2);
+                }
+                else if (PointSign == PointSigns[3])//实心正方形
+                {
+                    g.FillRectangle(brush, sp.X - size, sp.Y - size, size * 2, size * 2);
+                }
+                else if (PointSign == PointSigns[4])//空心三角形
+                {
+                    PointF p1 = new PointF(sp.X, sp.Y - size);
+                    PointF p2 = new PointF(sp.X - size, sp.Y + size);
+                    PointF p3 = new PointF(sp.X + size, sp.Y + size);
+                    g.DrawLine(pen, p1, p2);
+                    g.DrawLine(pen, p3, p2);
+                    g.DrawLine(pen, p1, p3);
+                }
+                else if (PointSign == PointSigns[5])//实心三角形
+                {
+                    PointF p1 = new PointF(sp.X, sp.Y - size);
+                    PointF p2 = new PointF(sp.X - size, sp.Y + size);
+                    PointF p3 = new PointF(sp.X + size, sp.Y + size);
+                    PointF[] points = { p1, p2, p3 };
+                    FillMode newFillMode = FillMode.Winding;
+                    g.FillPolygon(brush, points, newFillMode);
+                }
+                else if (PointSign == PointSigns[6])//空心同心圆
+                {
+                    g.DrawEllipse(pen, sp.X - size, sp.Y - size, size * 2, size * 2);
+                    g.DrawEllipse(pen, sp.X - size * 2, sp.Y - size * 2, size * 4, size * 4);
+                }
+                else if (PointSign == PointSigns[7])//实心同心圆
+                {
+                    g.FillEllipse(brush, sp.X - size, sp.Y - size, size * 2, size * 2);
+                    g.DrawEllipse(pen, sp.X - size * 2, sp.Y - size * 2, size * 4, size * 4);
+                }
             }
         }
-        private void PaintPolyline(MLFeature feature, Pen pen, Graphics g)  //绘制线要素
+        private void PaintPolyline(MLFeature feature, Pen pen, Graphics g,string LineStyle)  //绘制线要素
         {
+            if(LineStyle == "Solid")
+            {
+                pen.DashStyle = DashStyle.Solid;
+            }
+            else
+            {
+                pen.DashStyle = DashStyle.Dash;
+            }
             PolylineD[] segs = ((MLPolyline)feature).Segments;
             for (int k = 0; k != segs.Length; ++k)
             {
@@ -317,23 +416,26 @@ namespace MalaSpiritGIS
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 for (int i = dataFrame.layers.Count - 1; i != -1; --i)  //从最后一个图层开始画，越上层的越不会被遮盖
                 {
-                    Brush brush = new SolidBrush(colors[i % 7]);
-                    Pen pen = new Pen(colors[i % 7], boundaryWidth);
+                    Color color = dataFrame.layers[i].CurColor;
+                    Brush brush = new SolidBrush(color);
+                    Pen pen = new Pen(color, boundaryWidth);
                     MLFeatureClass fc = dataFrame.layers[i].featureClass;
                     for (int j = 0; j != fc.Count; ++j)
                     {
                         switch (fc.Type)
                         {
                             case FeatureType.POINT:
-                                PaintPoint(fc.GetFeature(j), brush, g);
+                                PaintPoint(fc.GetFeature(j), brush , pen, g , dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
                                 break;
                             case FeatureType.MULTIPOINT:
-                                PaintMultiPoint(fc.GetFeature(j), brush, g);
+                                PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
                                 break;
                             case FeatureType.POLYLINE:
-                                PaintPolyline(fc.GetFeature(j), pen, g);
+                                pen.Width = dataFrame.layers[i].LineWidth;
+                                PaintPolyline(fc.GetFeature(j), pen, g,dataFrame.layers[i].LineStyle);
                                 break;
                             case FeatureType.POLYGON:
+                                pen.Width = dataFrame.layers[i].LineWidth;
                                 PaintPolygon(fc.GetFeature(j), brush, pen, g);
                                 break;
                         }
@@ -399,15 +501,17 @@ namespace MalaSpiritGIS
                     switch (fc.FeatureType)
                     {
                         case FeatureType.POINT:
-                            PaintPoint(fc, brush, g);
+                            PaintPoint(fc, brush, pen,g, dataFrame.layers[dataFrame.index].PointSign, dataFrame.layers[dataFrame.index].PointSize);
                             break;
                         case FeatureType.MULTIPOINT:
-                            PaintMultiPoint(fc, brush, g);
+                            PaintMultiPoint(fc, brush, pen, g, dataFrame.layers[dataFrame.index].PointSign, dataFrame.layers[dataFrame.index].PointSize);
                             break;
                         case FeatureType.POLYLINE:
-                            PaintPolyline(fc, pen, g);
+                            pen.Width = dataFrame.layers[i].LineWidth + 2;
+                            PaintPolyline(fc, pen, g,dataFrame.layers[dataFrame.index].LineStyle);
                             break;
                         case FeatureType.POLYGON:
+                            pen.Width = dataFrame.layers[i].LineWidth + 2;
                             SelectPolygon(fc, pen, g);
                             break;
                     }

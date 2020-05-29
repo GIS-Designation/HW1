@@ -96,6 +96,12 @@
     <Compile Include="AttributeTable.Designer.cs">
       <DependentUpon>AttributeTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditSign.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditSign.Designer.cs">
+      <DependentUpon>EditSign.cs</DependentUpon>
+    </Compile>
     <Compile Include="InputDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -128,6 +134,9 @@
     <EmbeddedResource Include="AttributeTable.resx">
       <DependentUpon>AttributeTable.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="EditSign.resx">
+      <DependentUpon>EditSign.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="InputDialog.resx">
       <DependentUpon>InputDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -142,20 +151,20 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -167,6 +176,36 @@
     <EmbeddedResource Include="Resources\PanUp.ico" />
     <EmbeddedResource Include="Resources\ZoomIn.ico" />
     <EmbeddedResource Include="Resources\ZoomOut.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HollowCircle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FilledCircle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HollowSquare.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FilledSquare.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HollowTriangle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FilledTriangle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HollowConcentricCircles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FilledConcentricCircles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SolidLine.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\DashedLine.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

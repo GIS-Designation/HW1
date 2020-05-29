@@ -168,3 +168,4 @@ C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.csproj.CopyComplete
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.exe
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.pdb
+C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.EditSign.resources
