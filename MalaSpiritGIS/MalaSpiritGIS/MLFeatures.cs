@@ -281,7 +281,7 @@ namespace MalaSpiritGIS
             else
             {
                 object[] curValues = new object[attributeData.Columns.Count];
-                curValues[0] = attributeData.Rows.Count;
+                curValues[0] = (uint)attributeData.Rows.Count;
                 curValues[1] = featureType;
                 attributeData.LoadDataRow(curValues, true);
             }

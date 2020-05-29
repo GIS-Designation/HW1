@@ -18,6 +18,7 @@ namespace MalaSpiritGIS
         {
             InitializeComponent();
             FeatureProcessor = new MLFeatureProcessor();
+            mlFeatureBox.attributeTable.SelectingFeatureChanged += new AttributeTable.SelectingFeatureChangedHandle(attributeTable_SelectingFeatureChanged);
             ShowScale();
         }
         Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性
@@ -70,7 +71,16 @@ namespace MalaSpiritGIS
             mlMap.selectedFeatures = mlMap.SelectByBox(box);
             mlMap.Refresh();
         }
-
+        private void attributeTable_SelectingFeatureChanged(object sender,int[] selectingIndexes)//属性表进行选择
+        {
+            mlMap.selectedFeatures = new List<MLFeature>();
+            if (selectingIndexes != null)
+            {
+                foreach (int i in selectingIndexes)
+                    mlMap.selectedFeatures.Add(dataFrame.layers[dataFrame.index].featureClass.GetFeature(i));
+            }
+            mlMap.Refresh();
+        }
         private void ShowScale()  //展示比例尺
         {
             toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");

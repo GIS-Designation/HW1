@@ -13,9 +13,11 @@ namespace MalaSpiritGIS
 {
     public partial class MLFeatureBox : UserControl
     {
+        public AttributeTable attributeTable;
         public MLFeatureBox(Dataframe df)  //接收从mainForm传递来的dataFrame
         {
             data = df;
+            attributeTable = new AttributeTable();
             InitializeComponent();
         }
         public Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
@@ -116,8 +118,8 @@ namespace MalaSpiritGIS
 
         private void 打开属性表ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AttributeTable table = new AttributeTable();
-            table.ShowDialog();
+            attributeTable.BindData(data.layers[data.index].featureClass);
+            attributeTable.Show();
         }
     }
 }
