@@ -104,7 +104,7 @@ namespace MalaSpiritGIS
         {
             public Label sign, name;  //图层包括符号（·/—/■）和图层名字
             public MLFeatureClass featureClass;  //以及数据实体的要素类
-            public static int id = 0;  //唯一编号
+            //public static int id = 0;  //唯一编号
             public int index;  //在数据框data中的索引
 
 
@@ -143,7 +143,7 @@ namespace MalaSpiritGIS
                 LineStyle = "Solid";//实线
                 PointSign = "FilledCircle";//初始化默认点符号类型为实心圆
                 PointSize = 2;//点符号大小初始为2
-                featureClass = new MLFeatureClass((uint)id, name.Text, type, new double[4]);  //新建一个要素类
+                featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
                 featureClass.AddAttributeField("ID", typeof(int));
                 featureClass.AddAttributeField("i1", typeof(int));
                 featureClass.AddAttributeField("i2", typeof(int));
