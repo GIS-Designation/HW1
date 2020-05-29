@@ -139,10 +139,7 @@ namespace MalaSpiritGIS
                         name.Text = "新建面图层";
                         break;
                 }
-                featureClass = new MLFeatureClass((uint)id, name.Text, type, new double[4]);  //新建一个要素类
-                featureClass.AddAttributeField("ID", typeof(int));
-                featureClass.AddAttributeField("i1", typeof(int));
-                featureClass.AddAttributeField("i2", typeof(int));
+                featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
                 sign.Width = 12;  //长宽固定
                 name.Width = 78;
 

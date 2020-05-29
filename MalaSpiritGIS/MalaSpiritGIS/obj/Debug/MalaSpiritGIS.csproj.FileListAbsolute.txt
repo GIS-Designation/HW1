@@ -173,3 +173,4 @@ C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\M
 C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.InputDialog.resources
 C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MLFeatureBox.resources
 C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MLMap.resources
+C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.EditSign.resources
