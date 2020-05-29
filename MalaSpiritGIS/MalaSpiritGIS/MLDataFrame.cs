@@ -106,6 +106,15 @@ namespace MalaSpiritGIS
             public MLFeatureClass featureClass;  //以及数据实体的要素类
             //public static int id = 0;  //唯一编号
             public int index;  //在数据框data中的索引
+
+
+            public string PointSign;//点符号类型
+            public float PointSize;//点符号大小
+            public string LineStyle;//线条风格（实线或虚线）
+            public Color CurColor;//图层符号的颜色
+            public float LineWidth;//线符号和面符号的轮廓宽度
+
+
             public Layer(FeatureType type, int _index)
             {
                 index = _index;
@@ -130,7 +139,10 @@ namespace MalaSpiritGIS
                         name.Text = "新建面图层";
                         break;
                 }
-                featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
+                featureClass = new MLFeatureClass((uint)id, name.Text, type, new double[4]);  //新建一个要素类
+                featureClass.AddAttributeField("ID", typeof(int));
+                featureClass.AddAttributeField("i1", typeof(int));
+                featureClass.AddAttributeField("i2", typeof(int));
                 sign.Width = 12;  //长宽固定
                 name.Width = 78;
 

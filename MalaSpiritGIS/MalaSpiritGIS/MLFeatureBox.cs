@@ -20,6 +20,7 @@ namespace MalaSpiritGIS
             attributeTable = new AttributeTable();
             InitializeComponent();
         }
+        public Color[] colors = { Color.Red, Color.Orange, Color.Yellow, Color.Blue, Color.DarkBlue, Color.Violet, Color.Pink };  //线条、填充色
         public Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
         private void showBoxMenu(object sender, MouseEventArgs e)  //右间空白区域打开菜单
         {
@@ -35,9 +36,19 @@ namespace MalaSpiritGIS
             //绑定事件
             layer.sign.MouseClick += new MouseEventHandler(editSign);  //点击符号的操作
             layer.name.MouseClick += new MouseEventHandler(showLayerMenu);  //点击文字的操作
+            layer.CurColor = colors[data.layers.Count];
             void editSign(object sender, MouseEventArgs e)  //点击符号触发的操作，修改符号
             {
-                MessageBox.Show("这里将来会跳出符号修改窗口");
+                EditSign sEditSign = new EditSign();
+                sEditSign.CurLayer = layer;
+                sEditSign.color = layer.CurColor;
+                sEditSign.size = layer.LineWidth;
+                if(sEditSign.ShowDialog(this) == DialogResult.OK)
+                {
+                    layer = sEditSign.CurLayer;
+                    layer.CurColor = sEditSign.color;
+                    layer.LineWidth = sEditSign.size;
+                }
             }
 
             void showLayerMenu(object sender, MouseEventArgs e)  //点击文字触发的操作
