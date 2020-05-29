@@ -10,12 +10,13 @@ using static MalaSpiritGIS.MLDataFrame;
 
 namespace MalaSpiritGIS
 {
+    
     public partial class MLMainForm : Form
     {
+        public static MLFeatureProcessor FeatureProcessor;
         public MLMainForm()
         {
-            InitializeComponent();
-            MLFeatureProcessor fp = new MLFeatureProcessor();
+            FeatureProcessor = new MLFeatureProcessor();
             ShowScale();
         }
         Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性

@@ -183,6 +183,7 @@ namespace MalaSpiritGIS
         /// </summary>
         [Browsable(true), Description("显示比例尺发生了变化")]
         public event DisplayScaleChangedHandle DisplayScaleChanged;
+        
 
         public delegate void SelectingFinishiedHandle(object sender, RectangleF box);
         /// <summary>

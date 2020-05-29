@@ -104,7 +104,7 @@ namespace MalaSpiritGIS
         {
             public Label sign, name;  //图层包括符号（·/—/■）和图层名字
             public MLFeatureClass featureClass;  //以及数据实体的要素类
-            public static int id = 0;  //唯一编号
+            //public static int id = 0;  //唯一编号
             public int index;  //在数据框data中的索引
             public Layer(FeatureType type, int _index)
             {
@@ -130,14 +130,13 @@ namespace MalaSpiritGIS
                         name.Text = "新建面图层";
                         break;
                 }
-                featureClass = new MLFeatureClass((uint)id, name.Text, type, new double[4]);  //新建一个要素类
+                featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
                 sign.Width = 12;  //长宽固定
                 name.Width = 78;
 
                 int y = 25 * index + 30;  //新图层的显示位置可以推算
                 sign.Location = new Point(0, y);
                 name.Location = new Point(12, y);
-                ++id;
             }
             public void moveUp()  //本图层上移
             {

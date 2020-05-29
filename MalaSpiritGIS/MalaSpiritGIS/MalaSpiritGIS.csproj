@@ -90,6 +90,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddFieldForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddFieldForm.Designer.cs">
+      <DependentUpon>AddFieldForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="AttributeTable.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -125,6 +131,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddFieldForm.resx">
+      <DependentUpon>AddFieldForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AttributeTable.resx">
       <DependentUpon>AttributeTable.cs</DependentUpon>
     </EmbeddedResource>

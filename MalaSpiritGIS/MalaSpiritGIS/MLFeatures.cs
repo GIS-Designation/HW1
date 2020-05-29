@@ -175,6 +175,29 @@ namespace MalaSpiritGIS
         PointF deviation;           //要素类整体偏移
         #endregion
 
+        
+        /// <summary>
+        /// 界面新建图层时使用
+        /// </summary>
+        /// <param name="fp">要素处理器对象</param>
+        /// <param name="_name">图层名称</param>
+        /// <param name="_type">图层类型</param>
+        public MLFeatureClass(MLFeatureProcessor fp, string _name, FeatureType _type)
+        {
+            id = fp.NextFeaClassId;//自动根据当前数据库状态生成一个合理的id，所有id的最大值+1
+            name = _name;
+            featureType = _type;
+            features = new List<MLFeature>();
+            attributeData = new DataTable();
+        }
+
+        /// <summary>
+        /// 从数据库读取要素类时使用
+        /// </summary>
+        /// <param name="_id">数据库中记录id</param>
+        /// <param name="_name">数据库中记录名称</param>
+        /// <param name="_type"></param>
+        /// <param name="_mbr"></param>
         public MLFeatureClass(uint _id, string _name, FeatureType _type, double[] _mbr)
         {
             id = _id;
@@ -224,7 +247,26 @@ namespace MalaSpiritGIS
         /// <param name="values">要素对应的属性信息</param>
         public void AddFeaure(MLFeature curFea, object[] values)
         {
+            //更新要素列表
             features.Add(curFea);
+            //更新mbr
+            if (mbr != null)//features已经存在
+            {
+                mbr[0] = Math.Min(mbr[0], curFea.XMin);
+                mbr[1] = Math.Min(mbr[1], curFea.XMax);
+                mbr[2] = Math.Min(mbr[2], curFea.YMin);
+                mbr[3] = Math.Min(mbr[3], curFea.YMax);
+            }
+            else//add第一个feature时
+            {
+                mbr = new double[4];
+                mbr[0] = curFea.XMin;
+                mbr[1] = curFea.XMax;
+                mbr[2] = curFea.YMin;
+                mbr[3] = curFea.YMax;
+            }
+
+            //更新属性表
             attributeData.BeginLoadData();
             object[] curValues = new object[values.Length - 1];
             curValues[0] = values[0];
@@ -260,7 +302,7 @@ namespace MalaSpiritGIS
 
         public PointD Point { get { return point; } }
 
-        public MLPoint(double x,double y) : base()
+        public MLPoint(double x, double y) : base()
         {
             point = new PointD(x, y);
             featureType = FeatureType.POINT;
@@ -300,9 +342,9 @@ namespace MalaSpiritGIS
         public override byte[] ToBytes()
         {
             byte[] rslt;
-            using(MemoryStream ms=new MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
-                using(BinaryWriter bw=new BinaryWriter(ms))
+                using (BinaryWriter bw = new BinaryWriter(ms))
                 {
                     bw.Write(1);
                     bw.Write(point.X);
@@ -327,7 +369,7 @@ namespace MalaSpiritGIS
             PolylineD segment = new PolylineD(points);
             mbr[0] = mbr[2] = points[0].X;
             mbr[1] = mbr[3] = points[0].Y;
-            for(int i = 1; i < points.Length; ++i)
+            for (int i = 1; i < points.Length; ++i)
             {
                 if (points[i].X < mbr[0]) mbr[0] = points[i].X;
                 if (points[i].X > mbr[2]) mbr[2] = points[i].X;
@@ -357,7 +399,7 @@ namespace MalaSpiritGIS
         /// 从shp初始化要素
         /// </summary>
         /// <param name="biReader"></param>
-        public MLPolyline(BinaryReader biReader) :base()
+        public MLPolyline(BinaryReader biReader) : base()
         {
             biReader.BaseStream.Seek(12, SeekOrigin.Current);
             mbr[0] = biReader.ReadDouble();
@@ -369,8 +411,8 @@ namespace MalaSpiritGIS
             segments = new PolylineD[partNum];
 
             //将part数组后面多加一个元素pointNum，方便计算每个part的长度
-            int[] parts = new int[partNum+1];
-            for(int i = 0; i < partNum; ++i)
+            int[] parts = new int[partNum + 1];
+            for (int i = 0; i < partNum; ++i)
             {
                 parts[i] = biReader.ReadInt32();
             }
@@ -381,7 +423,7 @@ namespace MalaSpiritGIS
             for (int i = 0; i < partNum; ++i)
             {
                 segPoints = new PointD[parts[i + 1] - parts[i]];
-                for(int j = 0; j < parts[i + 1] - parts[i]; ++j)
+                for (int j = 0; j < parts[i + 1] - parts[i]; ++j)
                 {
                     x = biReader.ReadDouble();
                     y = biReader.ReadDouble();
@@ -406,14 +448,14 @@ namespace MalaSpiritGIS
                     bw.Write(segments.Length);
                     bw.Write(pointNum);
                     int curSum = 0;
-                    for(int i = 0; i < segments.Length; ++i)
+                    for (int i = 0; i < segments.Length; ++i)
                     {
                         bw.Write(curSum);
                         curSum += segments[i].Count;
                     }
-                    for(int i = 0; i < segments.Length; ++i)
+                    for (int i = 0; i < segments.Length; ++i)
                     {
-                        for(int j = 0; j < segments[i].Count; ++j)
+                        for (int j = 0; j < segments[i].Count; ++j)
                         {
                             bw.Write(segments[i].GetPoint(j).X);
                             bw.Write(segments[i].GetPoint(j).Y);
@@ -552,7 +594,7 @@ namespace MalaSpiritGIS
             pointNum = biReader.ReadInt32();
             points = new PointD[pointNum];
             double x, y;
-            for(int i = 0; i < pointNum; ++i)
+            for (int i = 0; i < pointNum; ++i)
             {
                 x = biReader.ReadDouble();
                 y = biReader.ReadDouble();
@@ -573,7 +615,7 @@ namespace MalaSpiritGIS
                     bw.Write(mbr[1]);//xmax
                     bw.Write(mbr[3]);//ymax
                     bw.Write(pointNum);
-                    for(int i = 0; i < points.Length; ++i)
+                    for (int i = 0; i < points.Length; ++i)
                     {
                         bw.Write(points[i].X);
                         bw.Write(points[i].Y);
