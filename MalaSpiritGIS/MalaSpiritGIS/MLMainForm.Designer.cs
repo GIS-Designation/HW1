@@ -28,6 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            dataFrame = new MLDataFrame.Dataframe();
+            this.mlMap = new MLMap(dataFrame);
+            this.mlFeatureBox = new MLFeatureBox(dataFrame);
             this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.文件FToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,6 +49,7 @@
             this.移动图形坐标ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.编辑节点ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.裁剪ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.zoomToLayer = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.featureMenu.SuspendLayout();
@@ -231,11 +235,23 @@
             this.mlFeatureBox.Size = new System.Drawing.Size(90, 373);
             this.mlFeatureBox.TabIndex = 2;
             // 
+            // zoomToLayer
+            // 
+            this.zoomToLayer.Location = new System.Drawing.Point(480, 26);
+            this.zoomToLayer.Margin = new System.Windows.Forms.Padding(2);
+            this.zoomToLayer.Name = "zoomToLayer";
+            this.zoomToLayer.Size = new System.Drawing.Size(75, 25);
+            this.zoomToLayer.TabIndex = 10;
+            this.zoomToLayer.Text = "缩放至图层";
+            this.zoomToLayer.UseVisualStyleBackColor = true;
+            this.zoomToLayer.Click += new System.EventHandler(this.zoomToLayer_Click);
+            // 
             // MLMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.zoomToLayer);
             this.Controls.Add(this.mlMap);
             this.Controls.Add(this.query);
             this.Controls.Add(this.pan);
@@ -280,6 +296,7 @@
         private System.Windows.Forms.ToolStripMenuItem 编辑节点ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 裁剪ToolStripMenuItem;
         private MLMap mlMap;
+        private System.Windows.Forms.Button zoomToLayer;
     }
 }
 
