@@ -14,11 +14,22 @@ namespace MalaSpiritGIS
     public partial class MLFeatureBox : UserControl
     {
         public AttributeTable attributeTable;
-        public MLFeatureBox(Dataframe df)  //接收从mainForm传递来的dataFrame
+        private static int constructCount=0;//第一次调用构造函数是FeatureBox，第二次是RecordBox
+        public MLFeatureBox()  //接收从mainForm传递来的dataFrame
         {
-            data = df;
+            data = MLMainForm.dataFrame;
             attributeTable = new AttributeTable();
             InitializeComponent();
+            if (constructCount == 0)
+            {
+                this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.showBoxMenu);
+                ++constructCount;
+            }
+            else
+            {
+                MLMainForm.FeatureProcessor.RecordsChangedHandle += new MLFeatureProcessor.RecordsChanged(this.RefreshRecords);
+            }
+            
         }
         public Color[] colors = { Color.Red, Color.Orange, Color.Yellow, Color.Blue, Color.DarkBlue, Color.Violet, Color.Pink };  //线条、填充色
         public Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
@@ -30,9 +41,9 @@ namespace MalaSpiritGIS
             }
             data.cancelSelected();  //会变成无图层选中状态
         }
-        private void addLayer(FeatureType type)
+        private void addLayer(FeatureType type,uint id=uint.MaxValue)
         {
-            Layer layer = new Layer(type, data.layers.Count);
+            Layer layer = new Layer(type, data.layers.Count,id);
             //绑定事件
             layer.sign.MouseClick += new MouseEventHandler(editSign);  //点击符号的操作
             layer.name.MouseClick += new MouseEventHandler(showLayerMenu);  //点击文字的操作
@@ -131,6 +142,49 @@ namespace MalaSpiritGIS
         {
             attributeTable.BindData(data.layers[data.index].featureClass);
             attributeTable.Show();
+        }
+
+        private void 加载图层ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            for(int i = 0; i < data.layers.Count; ++i)
+            {
+                if(data.layers[i].featureClass.ID== MLMainForm.FeatureProcessor.Records[curRecordIndex].ID)
+                {
+                    MessageBox.Show("图层已加载", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+            }
+            addLayer(MLMainForm.FeatureProcessor.Records[curRecordIndex].Type, MLMainForm.FeatureProcessor.Records[curRecordIndex].ID);
+        }
+
+        int curRecordIndex;
+        public void RefreshRecords()
+        {
+            for(int i = 0; i < MLMainForm.FeatureProcessor.Records.Count; ++i)
+            {
+                int y = 25 * i + 30;  //新图层的显示位置可以推算
+                if (!Controls.Contains(MLMainForm.FeatureProcessor.Records[i].SignLabel))
+                {
+                    MLMainForm.FeatureProcessor.Records[i].NameLabel.MouseClick += new MouseEventHandler(showRecordMenu);
+                    Controls.Add(MLMainForm.FeatureProcessor.Records[i].SignLabel);
+                    Controls.Add(MLMainForm.FeatureProcessor.Records[i].NameLabel);
+                }
+                MLMainForm.FeatureProcessor.Records[i].SignLabel.SetBounds(0, y, 12, 23);
+                MLMainForm.FeatureProcessor.Records[i].NameLabel.SetBounds(15, y, 78, 23);
+                void showRecordMenu(object sender2, MouseEventArgs e)  //点击文字触发的操作
+                {
+                    if (e.Button == MouseButtons.Right)  //如果是右键，就打开菜单
+                    {
+                        recordMenu.Show(MousePosition.X, MousePosition.Y);
+                    }
+                    curRecordIndex = (int)Math.Floor((decimal)(((Label)sender2).Location.Y - 30) / 25);
+                }
+            }
+        }
+
+        private void 保存图层ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MLMainForm.FeatureProcessor.SaveFeatureClass(data.layers[data.index].featureClass);
         }
     }
 }

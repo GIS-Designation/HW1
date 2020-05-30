@@ -6,6 +6,7 @@ using MySql.Data.MySqlClient;
 using System.IO;
 using System.Data;
 using System.Collections;
+using System.Windows.Forms;
 
 namespace MalaSpiritGIS
 {
@@ -14,30 +15,40 @@ namespace MalaSpiritGIS
         uint id;
         string name;
         FeatureType featureType;
+        Label signLabel, nameLabel;
         public MLRecord(uint _id, string _name, string _typeStr)
         {
             id = _id;
             name = _name;
+            signLabel = new Label();
+            nameLabel = new Label();
             switch (_typeStr)
             {
                 case "POINT":
                     featureType = FeatureType.POINT;
+                    signLabel.Text = "·";
                     break;
                 case "POLYLINE":
                     featureType = FeatureType.POLYLINE;
+                    signLabel.Text = "·";
                     break;
                 case "POLYGON":
                     featureType = FeatureType.POLYGON;
+                    signLabel.Text = "—";
                     break;
                 case "MULTIPOINT":
                     featureType = FeatureType.MULTIPOINT;
+                    signLabel.Text = "■";
                     break;
             }
+            nameLabel.Text = name;
         }
 
         public uint ID { get { return id; } }
         public string Name { get { return name; } }
         public FeatureType Type { get { return featureType; } }
+        public Label SignLabel { get { return signLabel; } }
+        public Label NameLabel { get { return nameLabel; } }
     }
     /// <summary>
     /// 在内存和数据库之间处理要素类
@@ -50,7 +61,7 @@ namespace MalaSpiritGIS
         string password = "";
         string charset = "utf8";
         string port = "3306";
-        string defaultShpPath = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1SHP\";
+        string defaultShpPath = @"C:\\Users\\Kuuhakuj\\Documents\\PKU\\大三下\\GIS设计和应用\\HW1SHP\\";
 
         MySqlConnection connection;
 
@@ -60,29 +71,6 @@ namespace MalaSpiritGIS
 
         public MLFeatureProcessor()
         {
-            nextFeaClassId = 0;
-            string connstr = "server=" + server + ";database=" + database +
-                ";uid=" + userId + ";charset=" + charset + ";port=" + port;
-            connection = new MySqlConnection(connstr);
-            connection.Open();
-            records = new List<MLRecord>();
-            string sql = "select * from header";
-            MySqlCommand cmd = new MySqlCommand(sql, connection);
-            using (MySqlDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    uint id = reader.GetUInt32(0);
-                    string featureTypeStr = reader.GetString(1);
-                    string name = reader.GetString(2);
-                    MLRecord curRecord = new MLRecord(id, name, featureTypeStr);
-                    records.Add(curRecord);
-                    if (id > nextFeaClassId)
-                    {
-                        nextFeaClassId = id;
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -146,8 +134,14 @@ namespace MalaSpiritGIS
                                 curFeature = new MLPoint(br);
                                 break;
                             case FeatureType.POLYLINE:
+                                curFeature = new MLPolyline(br);
+                                break;
                             case FeatureType.POLYGON:
+                                curFeature = new MLPolygon(br);
+                                break;
                             case FeatureType.MULTIPOINT:
+                                curFeature = new MLMultiPoint(br);
+                                break;
                             default:
                                 curFeature = new MLPoint(br);//
                                 break;
@@ -166,37 +160,47 @@ namespace MalaSpiritGIS
             string shpPath;
             string sql = "select * from header where ID=" + curFeaClass.ID.ToString();
             MySqlCommand cmd = new MySqlCommand(sql, connection);
+            bool toUpdate;
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 reader.Read();
                 if (reader.HasRows)
                 {
-                    //update
+                    toUpdate = true;
                     shpPath = reader.GetString("FilePath");
-                    sql = "update header set Name='" + curFeaClass.Name
-                        + "',Count=" + curFeaClass.Count.ToString()
-                        + ",Xmin=" + curFeaClass.XMin.ToString() + ",Xmax=" + curFeaClass.XMax.ToString()
-                        + ",Ymin=" + curFeaClass.YMin.ToString() + ",Ymax=" + curFeaClass.YMax.ToString()
-                        + " where ID=" + curFeaClass.ID.ToString();
-                    MySqlCommand update = new MySqlCommand(sql, connection);
-                    update.ExecuteNonQuery();
-                    sql = "drop table " + curFeaClass.ID.ToString();
-                    update = new MySqlCommand(sql, connection);
-                    update.ExecuteNonQuery();
                 }
                 else
                 {
-                    //insert
+                    toUpdate = false;
                     shpPath = defaultShpPath + curFeaClass.ID.ToString() + ".shp";
-                    sql = "insert into header values(" + curFeaClass.ID.ToString() + ",'"
-                        + curFeaClass.Type.ToString("") + "','" + curFeaClass.Name + "',"
-                        + curFeaClass.Count.ToString() + ",'" + shpPath + "',"
-                        + curFeaClass.XMin.ToString() + "," + curFeaClass.XMax.ToString() + ","
-                        + curFeaClass.YMin.ToString() + "," + curFeaClass.YMax.ToString() + ")";
-                    MySqlCommand insert = new MySqlCommand(sql, connection);
-                    insert.ExecuteNonQuery();
                 }
             }
+            if (toUpdate)
+            {
+                //update
+                sql = "update header set Name='" + curFeaClass.Name
+                    + "',Count=" + curFeaClass.Count.ToString()
+                    + ",Xmin=" + curFeaClass.XMin.ToString() + ",Xmax=" + curFeaClass.XMax.ToString()
+                    + ",Ymin=" + curFeaClass.YMin.ToString() + ",Ymax=" + curFeaClass.YMax.ToString()
+                    + " where ID=" + curFeaClass.ID.ToString();
+                MySqlCommand update = new MySqlCommand(sql, connection);
+                update.ExecuteNonQuery();
+                sql = "drop table " + curFeaClass.ID.ToString();
+                cmd = new MySqlCommand(sql, connection);
+                cmd.ExecuteNonQuery();
+            }
+            else
+            {
+                //insert
+                sql = "insert into header values(" + curFeaClass.ID.ToString() + ",'"
+                    + curFeaClass.Type.ToString("") + "','" + curFeaClass.Name + "',"
+                    + curFeaClass.Count.ToString() + ",'" + shpPath + "',"
+                    + curFeaClass.XMin.ToString() + "," + curFeaClass.XMax.ToString() + ","
+                    + curFeaClass.YMin.ToString() + "," + curFeaClass.YMax.ToString() + ")";
+                MySqlCommand insert = new MySqlCommand(sql, connection);
+                insert.ExecuteNonQuery();
+            }
+            
             sql = "create table `" + curFeaClass.ID.ToString() + "` (ID int,FileBias int,FileLength int";
             for (int i = 2; i < curFeaClass.FieldCount; ++i)
             {
@@ -231,7 +235,7 @@ namespace MalaSpiritGIS
                         long length = bw.BaseStream.Position - bias;
                         sql = "insert into `" + curFeaClass.ID.ToString() + "` values("
                             + i.ToString() + "," + bias.ToString() + "," + length.ToString();
-                        for (int j = 2; i < curFeaClass.FieldCount; ++i)
+                        for (int j = 2; j < curFeaClass.FieldCount; ++j)
                         {
                             sql += "," + curFeaClass.GetAttributeCell(i, j).ToString();
                         }
@@ -241,11 +245,42 @@ namespace MalaSpiritGIS
                     }
                 }
             }
+            RefreshRecords();
         }
 
         public uint NextFeaClassId { get { return ++nextFeaClassId; } }
 
-
         public List<MLRecord> Records { get { return records; } }
+
+        public delegate void RecordsChanged();
+        public event RecordsChanged RecordsChangedHandle;
+        public void RefreshRecords()
+        {
+            nextFeaClassId = 0;
+            string connstr = "server=" + server + ";database=" + database +
+                ";uid=" + userId + ";charset=" + charset + ";port=" + port;
+            connection = new MySqlConnection(connstr);
+            connection.Open();
+            records = new List<MLRecord>();
+            string sql = "select * from header";
+            MySqlCommand cmd = new MySqlCommand(sql, connection);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    uint id = reader.GetUInt32(0);
+                    string featureTypeStr = reader.GetString(1);
+                    string name = reader.GetString(2);
+                    MLRecord curRecord = new MLRecord(id, name, featureTypeStr);
+                    records.Add(curRecord);
+                    if (id > nextFeaClassId)
+                    {
+                        nextFeaClassId = id;
+                    }
+                }
+            }
+            RecordsChangedHandle?.Invoke();
+
+        }
     }
 }

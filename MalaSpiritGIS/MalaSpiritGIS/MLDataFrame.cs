@@ -115,7 +115,7 @@ namespace MalaSpiritGIS
             public float LineWidth;//线符号和面符号的轮廓宽度
 
 
-            public Layer(FeatureType type, int _index)
+            public Layer(FeatureType type, int _index,uint id=uint.MaxValue)
             {
                 index = _index;
                 sign = new Label();
@@ -139,11 +139,19 @@ namespace MalaSpiritGIS
                         name.Text = "新建面图层";
                         break;
                 }
+                
                 LineWidth = 1;//轮廓宽度为1
                 LineStyle = "Solid";//实线
                 PointSign = "FilledCircle";//初始化默认点符号类型为实心圆
                 PointSize = 2;//点符号大小初始为2
-                featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
+                if (id == uint.MaxValue)
+                    featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
+                else
+                {
+                    featureClass = MLMainForm.FeatureProcessor.LoadFeatureClass(id);
+                    name.Text = featureClass.Name;
+                }
+                    
                 sign.Width = 12;  //长宽固定
                 name.Width = 78;
 

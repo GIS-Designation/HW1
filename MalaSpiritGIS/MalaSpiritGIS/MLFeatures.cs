@@ -255,9 +255,9 @@ namespace MalaSpiritGIS
             if (mbr != null)//features已经存在
             {
                 mbr[0] = Math.Min(mbr[0], curFea.XMin);
-                mbr[1] = Math.Min(mbr[1], curFea.XMax);
+                mbr[1] = Math.Max(mbr[1], curFea.XMax);
                 mbr[2] = Math.Min(mbr[2], curFea.YMin);
-                mbr[3] = Math.Min(mbr[3], curFea.YMax);
+                mbr[3] = Math.Max(mbr[3], curFea.YMax);
             }
             else//add第一个feature时
             {

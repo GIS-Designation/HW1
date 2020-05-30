@@ -16,12 +16,14 @@ namespace MalaSpiritGIS
         public static MLFeatureProcessor FeatureProcessor;
         public MLMainForm()
         {
-            InitializeComponent();
+            dataFrame = new MLDataFrame.Dataframe();
             FeatureProcessor = new MLFeatureProcessor();
+            InitializeComponent();
             mlFeatureBox.attributeTable.SelectingFeatureChanged += new AttributeTable.SelectingFeatureChangedHandle(attributeTable_SelectingFeatureChanged);
+            FeatureProcessor.RefreshRecords();
             ShowScale();
         }
-        Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性
+        public static Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性
         private void createFeature_Click(object sender, EventArgs e)  //点击“创建要素”
         {
             mlMap.TrackFeature();  //开始追踪新要素

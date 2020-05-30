@@ -15,9 +15,9 @@ namespace MalaSpiritGIS
 {
     public partial class MLMap : UserControl
     {
-        public MLMap(Dataframe df)  //接收从mainForm传递来的dataFrame
+        public MLMap()  //接收从mainForm传递来的dataFrame
         {
-            dataFrame = df;
+            dataFrame = MLMainForm.dataFrame;
             InitializeComponent();
         }
         private Dataframe dataFrame;  //记录数据
@@ -412,7 +412,7 @@ namespace MalaSpiritGIS
         //绘制要素
         private void DrawFeatureClass(Graphics g)  //画出所有图层中的所有要素
         {
-            if (dataFrame.layers != null)  //必须要有图层才能开始画
+            if (dataFrame!=null&&dataFrame.layers != null)  //必须要有图层才能开始画
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 for (int i = dataFrame.layers.Count - 1; i != -1; --i)  //从最后一个图层开始画，越上层的越不会被遮盖
@@ -748,6 +748,7 @@ namespace MalaSpiritGIS
                     break;
             }
         }
+
 
         //母版重绘
         private void MLPaint(object sender, PaintEventArgs e)

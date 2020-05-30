@@ -28,10 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            dataFrame = new MLDataFrame.Dataframe();
-            this.mlMap = new MLMap(dataFrame);
-            this.mlFeatureBox = new MLFeatureBox(dataFrame);
             this.components = new System.ComponentModel.Container();
+            this.mlMap = new MalaSpiritGIS.MLMap();
+            this.mlFeatureBox = new MalaSpiritGIS.MLFeatureBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.文件FToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -50,10 +49,41 @@
             this.编辑节点ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.裁剪ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomToLayer = new System.Windows.Forms.Button();
+            this.mlRecordBox = new MalaSpiritGIS.MLFeatureBox();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.featureMenu.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // mlMap
+            // 
+            this.mlMap.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mlMap.BackColor = System.Drawing.Color.White;
+            this.mlMap.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.mlMap.Location = new System.Drawing.Point(92, 52);
+            this.mlMap.Margin = new System.Windows.Forms.Padding(2);
+            this.mlMap.Name = "mlMap";
+            this.mlMap.Size = new System.Drawing.Size(644, 373);
+            this.mlMap.TabIndex = 9;
+            this.mlMap.TrackingFinished += new MalaSpiritGIS.MLMap.TrackingFinishedHandle(this.mlMap_TrackingFinished);
+            this.mlMap.DisplayScaleChanged += new MalaSpiritGIS.MLMap.DisplayScaleChangedHandle(this.mlMap_DisplayScaleChanged);
+            this.mlMap.SelectingFinished += new MalaSpiritGIS.MLMap.SelectingFinishiedHandle(this.mlMap_SelectingFinished);
+            this.mlMap.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mlMap_MouseMove);
+            // 
+            // mlFeatureBox
+            // 
+            this.mlFeatureBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.mlFeatureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mlFeatureBox.Location = new System.Drawing.Point(0, 52);
+            this.mlFeatureBox.Margin = new System.Windows.Forms.Padding(4);
+            this.mlFeatureBox.MaximumSize = new System.Drawing.Size(90, 1080);
+            this.mlFeatureBox.MinimumSize = new System.Drawing.Size(90, 2);
+            this.mlFeatureBox.Name = "mlFeatureBox";
+            this.mlFeatureBox.Size = new System.Drawing.Size(90, 373);
+            this.mlFeatureBox.TabIndex = 2;
             // 
             // menuStrip1
             // 
@@ -64,7 +94,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(800, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(836, 25);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -82,7 +112,7 @@
             this.toolStripStatusLabel2});
             this.statusStrip1.Location = new System.Drawing.Point(0, 428);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(800, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(836, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -101,7 +131,7 @@
             // createFeature
             // 
             this.createFeature.Location = new System.Drawing.Point(0, 26);
-            this.createFeature.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.createFeature.Margin = new System.Windows.Forms.Padding(2);
             this.createFeature.Name = "createFeature";
             this.createFeature.Size = new System.Drawing.Size(75, 25);
             this.createFeature.TabIndex = 3;
@@ -112,7 +142,7 @@
             // selectFeature
             // 
             this.selectFeature.Location = new System.Drawing.Point(80, 26);
-            this.selectFeature.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.selectFeature.Margin = new System.Windows.Forms.Padding(2);
             this.selectFeature.Name = "selectFeature";
             this.selectFeature.Size = new System.Drawing.Size(75, 25);
             this.selectFeature.TabIndex = 4;
@@ -123,7 +153,7 @@
             // zoomIn
             // 
             this.zoomIn.Location = new System.Drawing.Point(160, 26);
-            this.zoomIn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.zoomIn.Margin = new System.Windows.Forms.Padding(2);
             this.zoomIn.Name = "zoomIn";
             this.zoomIn.Size = new System.Drawing.Size(75, 25);
             this.zoomIn.TabIndex = 5;
@@ -134,7 +164,7 @@
             // zoomOut
             // 
             this.zoomOut.Location = new System.Drawing.Point(240, 26);
-            this.zoomOut.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.zoomOut.Margin = new System.Windows.Forms.Padding(2);
             this.zoomOut.Name = "zoomOut";
             this.zoomOut.Size = new System.Drawing.Size(75, 25);
             this.zoomOut.TabIndex = 6;
@@ -145,7 +175,7 @@
             // pan
             // 
             this.pan.Location = new System.Drawing.Point(320, 26);
-            this.pan.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pan.Margin = new System.Windows.Forms.Padding(2);
             this.pan.Name = "pan";
             this.pan.Size = new System.Drawing.Size(75, 25);
             this.pan.TabIndex = 7;
@@ -156,7 +186,7 @@
             // query
             // 
             this.query.Location = new System.Drawing.Point(400, 26);
-            this.query.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.query.Margin = new System.Windows.Forms.Padding(2);
             this.query.Name = "query";
             this.query.Size = new System.Drawing.Size(75, 25);
             this.query.TabIndex = 8;
@@ -205,36 +235,6 @@
             this.裁剪ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.裁剪ToolStripMenuItem.Text = "裁剪";
             // 
-            // mlMap
-            // 
-            this.mlMap.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mlMap.BackColor = System.Drawing.Color.White;
-            this.mlMap.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.mlMap.Location = new System.Drawing.Point(95, 52);
-            this.mlMap.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.mlMap.Name = "mlMap";
-            this.mlMap.Size = new System.Drawing.Size(697, 374);
-            this.mlMap.TabIndex = 9;
-            this.mlMap.TrackingFinished += new MalaSpiritGIS.MLMap.TrackingFinishedHandle(this.mlMap_TrackingFinished);
-            this.mlMap.DisplayScaleChanged += new MalaSpiritGIS.MLMap.DisplayScaleChangedHandle(this.mlMap_DisplayScaleChanged);
-            this.mlMap.SelectingFinished += new MalaSpiritGIS.MLMap.SelectingFinishiedHandle(this.mlMap_SelectingFinished);
-            this.mlMap.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mlMap_MouseMove);
-            // 
-            // mlFeatureBox
-            // 
-            this.mlFeatureBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.mlFeatureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mlFeatureBox.Location = new System.Drawing.Point(0, 52);
-            this.mlFeatureBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.mlFeatureBox.MaximumSize = new System.Drawing.Size(90, 1080);
-            this.mlFeatureBox.MinimumSize = new System.Drawing.Size(90, 2);
-            this.mlFeatureBox.Name = "mlFeatureBox";
-            this.mlFeatureBox.Size = new System.Drawing.Size(90, 373);
-            this.mlFeatureBox.TabIndex = 2;
-            // 
             // zoomToLayer
             // 
             this.zoomToLayer.Location = new System.Drawing.Point(480, 26);
@@ -246,11 +246,25 @@
             this.zoomToLayer.UseVisualStyleBackColor = true;
             this.zoomToLayer.Click += new System.EventHandler(this.zoomToLayer_Click);
             // 
+            // mlRecordBox
+            // 
+            this.mlRecordBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.mlRecordBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mlRecordBox.Location = new System.Drawing.Point(742, 52);
+            this.mlRecordBox.Margin = new System.Windows.Forms.Padding(4);
+            this.mlRecordBox.MaximumSize = new System.Drawing.Size(90, 1080);
+            this.mlRecordBox.MinimumSize = new System.Drawing.Size(90, 2);
+            this.mlRecordBox.Name = "mlRecordBox";
+            this.mlRecordBox.Size = new System.Drawing.Size(90, 373);
+            this.mlRecordBox.TabIndex = 11;
+            // 
             // MLMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(836, 450);
+            this.Controls.Add(this.mlRecordBox);
             this.Controls.Add(this.zoomToLayer);
             this.Controls.Add(this.mlMap);
             this.Controls.Add(this.query);
@@ -297,6 +311,7 @@
         private System.Windows.Forms.ToolStripMenuItem 裁剪ToolStripMenuItem;
         private MLMap mlMap;
         private System.Windows.Forms.Button zoomToLayer;
+        private MLFeatureBox mlRecordBox;
     }
 }
 
