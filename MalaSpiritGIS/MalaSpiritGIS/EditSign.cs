@@ -69,7 +69,7 @@ namespace MalaSpiritGIS
                 ShowColor();
             }
             sDialog.Dispose();
-            //groupBox1.Refresh();
+            groupBox1.Refresh();
         }
 
         //修改符号大小
@@ -86,7 +86,7 @@ namespace MalaSpiritGIS
                 _size = (float)npdSize.Value;
                 _CurLayer.LineWidth = _size;
             }
-            //groupBox1.Refresh();
+            groupBox1.Refresh();
         }
 
         //确定按钮
@@ -179,7 +179,7 @@ namespace MalaSpiritGIS
                 g.FillRectangle(brush, -10, 10, 20, 20);
                 g.DrawRectangle(pen, -10, 10, 20, 20);
             }
-            this.Refresh();
+            //this.Refresh();
             pen.Dispose();
             brush.Dispose();
             g.Dispose();
@@ -243,41 +243,49 @@ namespace MalaSpiritGIS
         private void btnHollowCircle_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "HollowCircle";
+            groupBox1.Refresh();
         }
         //实心圆
         private void btnFilledCircle_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "FilledCircle";
+            groupBox1.Refresh();
         }
         //空心正方形
         private void btnHollowSquare_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "HollowSquare";
+            groupBox1.Refresh();
         }
         //实心正方形
         private void btnFilledSquare_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "FilledSquare";
+            groupBox1.Refresh();
         }
         //空心三角形
         private void btnHollowTriangle_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "HollowTriangle";
+            groupBox1.Refresh();
         }
         //实心三角形
         private void btnFilledTriangle_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "FilledTriangle";
+            groupBox1.Refresh();
         }
         //空心同心圆
         private void btnHollowConcentricCircles_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "HollowConcentricCircles";
+            groupBox1.Refresh();
         }
         //实心同心圆
         private void btnFilledConcentricCircles_Click(object sender, EventArgs e)
         {
             _CurLayer.PointSign = "FilledConcentricCircles";
+            groupBox1.Refresh();
         }
 
 
@@ -287,11 +295,13 @@ namespace MalaSpiritGIS
         private void btnSolidLine_Click(object sender, EventArgs e)
         {
             _CurLayer.LineStyle = "Solid";
+            groupBox1.Refresh();
         }
 
         private void btnDashedLine_Click(object sender, EventArgs e)
         {
             _CurLayer.LineStyle = "Dash";
+            groupBox1.Refresh();
         }
         #endregion
 
