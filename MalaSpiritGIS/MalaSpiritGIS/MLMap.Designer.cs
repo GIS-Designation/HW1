@@ -28,7 +28,56 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.featureMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.删除图形ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.拖动图形ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.移动图形坐标ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.编辑节点ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.裁剪ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.featureMenu.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // featureMenu
+            // 
+            this.featureMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.删除图形ToolStripMenuItem,
+            this.拖动图形ToolStripMenuItem,
+            this.移动图形坐标ToolStripMenuItem,
+            this.编辑节点ToolStripMenuItem,
+            this.裁剪ToolStripMenuItem});
+            this.featureMenu.Name = "contextMenuStrip1";
+            this.featureMenu.Size = new System.Drawing.Size(181, 136);
+            // 
+            // 删除图形ToolStripMenuItem
+            // 
+            this.删除图形ToolStripMenuItem.Name = "删除图形ToolStripMenuItem";
+            this.删除图形ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.删除图形ToolStripMenuItem.Text = "删除图形";
+            // 
+            // 拖动图形ToolStripMenuItem
+            // 
+            this.拖动图形ToolStripMenuItem.Name = "拖动图形ToolStripMenuItem";
+            this.拖动图形ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.拖动图形ToolStripMenuItem.Text = "拖动图形";
+            // 
+            // 移动图形坐标ToolStripMenuItem
+            // 
+            this.移动图形坐标ToolStripMenuItem.Name = "移动图形坐标ToolStripMenuItem";
+            this.移动图形坐标ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.移动图形坐标ToolStripMenuItem.Text = "移动图形(坐标)";
+            // 
+            // 编辑节点ToolStripMenuItem
+            // 
+            this.编辑节点ToolStripMenuItem.Name = "编辑节点ToolStripMenuItem";
+            this.编辑节点ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.编辑节点ToolStripMenuItem.Text = "编辑节点";
+            // 
+            // 裁剪ToolStripMenuItem
+            // 
+            this.裁剪ToolStripMenuItem.Name = "裁剪ToolStripMenuItem";
+            this.裁剪ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.裁剪ToolStripMenuItem.Text = "裁剪";
             // 
             // MLMap
             // 
@@ -40,10 +89,18 @@
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MLMouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MLMouseUp);
             this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MLMouseWheel);
+            this.featureMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.ContextMenuStrip featureMenu;
+        private System.Windows.Forms.ToolStripMenuItem 删除图形ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 拖动图形ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 移动图形坐标ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 编辑节点ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 裁剪ToolStripMenuItem;
     }
 }
