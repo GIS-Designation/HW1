@@ -20,6 +20,7 @@ namespace MalaSpiritGIS
             FeatureProcessor = new MLFeatureProcessor();
             InitializeComponent();
             mlFeatureBox.attributeTable.SelectingFeatureChanged += new AttributeTable.SelectingFeatureChangedHandle(attributeTable_SelectingFeatureChanged);
+            FeatureProcessor.RecordsChangedHandle += new MLFeatureProcessor.RecordsChanged(mlRecordBox.RefreshRecords);
             FeatureProcessor.RefreshRecords();
             ShowScale();
         }

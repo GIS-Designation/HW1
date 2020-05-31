@@ -25,10 +25,10 @@ namespace MalaSpiritGIS
                 this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.showBoxMenu);
                 ++constructCount;
             }
-            else
-            {
-                MLMainForm.FeatureProcessor.RecordsChangedHandle += new MLFeatureProcessor.RecordsChanged(this.RefreshRecords);
-            }
+            //else
+            //{
+            //    MLMainForm.FeatureProcessor.RecordsChangedHandle += new MLFeatureProcessor.RecordsChanged(this.RefreshRecords);
+            //}
             
         }
         public Color[] colors = { Color.Red, Color.Orange, Color.Yellow, Color.Blue, Color.DarkBlue, Color.Violet, Color.Pink };  //线条、填充色

@@ -155,8 +155,8 @@ namespace MalaSpiritGIS
         }
 
         public double XMin { get { return mbr[0]; } }
-        public double XMax { get { return mbr[1]; } }
-        public double YMin { get { return mbr[2]; } }
+        public double XMax { get { return mbr[2]; } }
+        public double YMin { get { return mbr[1]; } }
         public double YMax { get { return mbr[3]; } }
     }
 
@@ -388,7 +388,7 @@ namespace MalaSpiritGIS
                 if (points[i].X < mbr[0]) mbr[0] = points[i].X;
                 if (points[i].X > mbr[2]) mbr[2] = points[i].X;
                 if (points[i].Y < mbr[1]) mbr[1] = points[i].Y;
-                if (points[i].Y < mbr[3]) mbr[3] = points[i].Y;
+                if (points[i].Y > mbr[3]) mbr[3] = points[i].Y;
             }
             pointNum = points.Length;
             segments = new PolylineD[] { segment };
@@ -404,7 +404,7 @@ namespace MalaSpiritGIS
                 if (segment.GetPoint(i).X < mbr[0]) mbr[0] = segment.GetPoint(i).X;
                 if (segment.GetPoint(i).X > mbr[2]) mbr[2] = segment.GetPoint(i).X;
                 if (segment.GetPoint(i).Y < mbr[1]) mbr[1] = segment.GetPoint(i).Y;
-                if (segment.GetPoint(i).Y < mbr[3]) mbr[3] = segment.GetPoint(i).Y;
+                if (segment.GetPoint(i).Y > mbr[3]) mbr[3] = segment.GetPoint(i).Y;
             }
             pointNum = segment.Count;
             segments = new PolylineD[] { segment };
@@ -504,7 +504,7 @@ namespace MalaSpiritGIS
                 if (ring.GetPoint(i).X < mbr[0]) mbr[0] = ring.GetPoint(i).X;
                 if (ring.GetPoint(i).X > mbr[2]) mbr[2] = ring.GetPoint(i).X;
                 if (ring.GetPoint(i).Y < mbr[1]) mbr[1] = ring.GetPoint(i).Y;
-                if (ring.GetPoint(i).Y < mbr[3]) mbr[3] = ring.GetPoint(i).Y;
+                if (ring.GetPoint(i).Y > mbr[3]) mbr[3] = ring.GetPoint(i).Y;
             }
             pointNum = ring.Count;
             polygon = new PolygonD(new PolylineD[] { ring });
@@ -599,7 +599,7 @@ namespace MalaSpiritGIS
                 if (points[i].X < mbr[0]) mbr[0] = points[i].X;
                 if (points[i].X > mbr[2]) mbr[2] = points[i].X;
                 if (points[i].Y < mbr[1]) mbr[1] = points[i].Y;
-                if (points[i].Y < mbr[3]) mbr[3] = points[i].Y;
+                if (points[i].Y > mbr[3]) mbr[3] = points[i].Y;
             }
             pointNum = points.Length;
         }

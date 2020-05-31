@@ -169,9 +169,10 @@ namespace MalaSpiritGIS
         {
             MLFeatureClass fc = dataFrame.layers[dataFrame.index].featureClass;
             displayScale = (float)Math.Max((fc.XMax - fc.XMin) / this.Width, (fc.YMax - fc.YMin) / this.Height);
-            offsetX = (float)fc.XMin / displayScale;
-            offsetY = (float)fc.YMin / displayScale;
+            offsetX = (float)fc.XMin;
+            offsetY = (float)fc.YMin;
             Refresh();
+            DisplayScaleChanged?.Invoke(this);
         }
 
         #endregion
@@ -388,7 +389,7 @@ namespace MalaSpiritGIS
                 PolylineD ring = polygon.GetRing(k);
                 PointF[] ps = new PointF[ring.Count];
                 for(int i = 0;i != ps.Length; ++i)
-                    ps[i] = new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y);
+                    ps[i] = FromMapPoint(new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y));
                 g.FillPolygon(brush, ps);
                 g.DrawPolygon(pen, ps);
             }
