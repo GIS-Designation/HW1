@@ -153,20 +153,20 @@ namespace MalaSpiritGIS
     public abstract class MLFeature
     {
         #region 属性
-        //protected int id;                     //要素编号
+        protected int id;                     //要素编号
         protected FeatureType featureType;    //要素类型
         protected double[] mbr;               //要素最小外包矩形，xmin，xmax，ymin，ymax
         protected int pointNum;               //要素包含点的数量
         #endregion
 
-        //static int count=0;
+        static int count=0;
         public FeatureType FeatureType { get { return featureType; } }
         public MLFeature()
         {
-            //id = ++count;   //id自动+1
+            id = count++;   //id自动+1
             mbr = new double[4];
         }
-
+        public int ID { get { return id; } }
 
         //用于剪切，复制，粘贴等操作；结果为shp文件中要素记录字段，去掉编号和字段长度，见P8-P9记录格式
         public abstract byte[] ToBytes();
@@ -321,6 +321,16 @@ namespace MalaSpiritGIS
                 mbr = null;
             }
             attributeData.Rows.RemoveAt(index);
+        }
+        public void RemoveFeaure(MLFeature feature)
+        {
+            //更新要素列表
+            for(int i = 0;i != features.Count; ++i)
+            {
+                if (feature.ID == features[i].ID)
+                    RemoveFeaure(i);
+                return;
+            }
         }
 
         public MLFeature GetFeature(int index)
@@ -590,6 +600,14 @@ namespace MalaSpiritGIS
             for (int i = 0; i != segments.Length; ++i)
                 segments[i].Move(x, y);
         }
+        public void AddLine(PolylineD pd)
+        {
+            PolylineD[] ori = segments;
+            segments = new PolylineD[ori.Length + 1];
+            for (int i = 0; i != ori.Length; ++i)
+                segments[i] = ori[i];
+            segments[ori.Length] = pd;
+        }
     }
 
     public class MLPolygon : MLFeature
@@ -736,6 +754,10 @@ namespace MalaSpiritGIS
         {
             polygon.Move(x, y);
         }
+        public void AddPolygon(PolylineD pd)
+        {
+            polygon.AddRing(pd);
+        }
     }
 
     public class MLMultiPoint : MLFeature
@@ -831,6 +853,14 @@ namespace MalaSpiritGIS
         {
             for (int i = 0; i != points.Length; ++i)
                 points[i].Move(x, y);
+        }
+        public void AddPoint(PointD p)
+        {
+            PointD[] ori = points;
+            points = new PointD[ori.Length + 1];
+            for (int i = 0; i != ori.Length; ++i)
+                points[i] = ori[i];
+            points[ori.Length] = p;
         }
     }
 }
