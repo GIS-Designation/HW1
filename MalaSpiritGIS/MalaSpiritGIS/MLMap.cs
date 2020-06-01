@@ -27,6 +27,7 @@ namespace MalaSpiritGIS
         public string[] PointSigns = { "HollowCircle", "FilledCircle", "HollowSquare", "FilledSquare", "HollowTriangle", "FilledTriangle", "HollowConcentricCircles", "FilledConcentricCircles" };
         public string[] LineStyles = { "Solid", "Dash" };//线条类型，实线或虚线
         private Color trackingColor = Color.DarkGreen;  //追踪中要素的颜色
+        public Image image;
 
         //运行时属性变量
         private float displayScale = 1F;  //显示比例尺的倒数
@@ -191,6 +192,13 @@ namespace MalaSpiritGIS
             offsetY = (float)fc.YMin;
             Refresh();
             DisplayScaleChanged?.Invoke(this);
+        }
+
+        public Image Output()
+        {
+            Bitmap bmp=new Bitmap(Width,Height);
+            DrawToBitmap(bmp, new Rectangle(0, 0, Width, Height));
+            return bmp;
         }
 
         #endregion
@@ -1132,6 +1140,13 @@ namespace MalaSpiritGIS
         //母版重绘
         private void MLPaint(object sender, PaintEventArgs e)
         {
+            if (image != null)
+            {
+                Graphics g = e.Graphics;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                float scale = Math.Min((float)Height / image.Height, (float)Width / image.Width);
+                g.DrawImage(image, new RectangleF((- scale * image.Width+Width)/2, (-scale * image.Height+Height)/2, scale*image.Width, scale*image.Height));
+            }
             //绘制所有多边形
             DrawFeatureClass(e.Graphics);
 
