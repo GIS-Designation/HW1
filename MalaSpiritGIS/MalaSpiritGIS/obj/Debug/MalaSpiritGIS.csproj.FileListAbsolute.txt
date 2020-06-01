@@ -220,3 +220,5 @@ C:\Users\mahancong\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\
 D:\RiHousyouNoData\GIS设计与应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.AddFieldForm.resources
 D:\RiHousyouNoData\GIS设计与应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.EditSign.resources
 D:\RiHousyouNoData\GIS设计与应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.Query.resources
+C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MapRender.resources
+C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.Query.resources

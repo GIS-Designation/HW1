@@ -114,6 +114,12 @@
     <Compile Include="InputDialog.Designer.cs">
       <DependentUpon>InputDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="MapRender.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MapRender.Designer.cs">
+      <DependentUpon>MapRender.cs</DependentUpon>
+    </Compile>
     <Compile Include="MLDataFrame.cs" />
     <Compile Include="MLFeatureBox.cs">
       <SubType>UserControl</SubType>
@@ -154,6 +160,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="InputDialog.resx">
       <DependentUpon>InputDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MapRender.resx">
+      <DependentUpon>MapRender.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MLFeatureBox.resx">
       <DependentUpon>MLFeatureBox.cs</DependentUpon>

@@ -192,5 +192,10 @@ namespace MalaSpiritGIS
         {
             MLMainForm.FeatureProcessor.SaveFeatureClass(data.layers[data.index].featureClass);
         }
+
+        private void 渲染ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("这里会跳出渲染窗口");
+        }
     }
 }
