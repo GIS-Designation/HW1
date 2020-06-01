@@ -176,8 +176,8 @@ namespace MalaSpiritGIS
             else if(_CurLayer.featureClass.featureType == FeatureType.POLYGON)
             {
                 //如果是多边形要素
-                g.FillRectangle(brush, -10, 10, 20, 20);
-                g.DrawRectangle(pen, -10, 10, 20, 20);
+                g.FillRectangle(brush, -10, -10, 20, 20);
+                g.DrawRectangle(pen, -10, -10, 20, 20);
             }
             //this.Refresh();
             pen.Dispose();
