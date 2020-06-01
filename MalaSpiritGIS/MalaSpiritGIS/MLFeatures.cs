@@ -192,7 +192,6 @@ namespace MalaSpiritGIS
         double[] mbr;               //要素类最小外包矩形
         List<MLFeature> features;       //要素数组
         DataTable attributeData;    //要素属性表
-        PointF deviation;           //要素类整体偏移
         #endregion
 
         

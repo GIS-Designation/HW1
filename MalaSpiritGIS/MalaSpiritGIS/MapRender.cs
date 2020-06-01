@@ -17,12 +17,27 @@ namespace MalaSpiritGIS
         public MapRender()
         {
             InitializeComponent();
+            //fillList();
         }
 
         #region 字段
         private Layer _CurLayer;//当前处理的图层
         private Color _color;//要素符号的颜色
         private int _renderMethod;//渲染方法，0：单一符号法；1：唯一值法；2：分级法
+        private ColorRamp _colorRamp;//当前选择的色带
+        private string _selectedValue;//值字段；
+
+
+
+        private List<ColorRamp> myColorRamps = new List<ColorRamp>();//渐变色带列表
+        /// <summary>
+        /// 色带类
+        /// </summary>
+        public class ColorRamp
+        {
+            public Color fromColor { get; set; }
+            public Color toColor { get; set; }
+        }
         #endregion
 
 
@@ -51,10 +66,18 @@ namespace MalaSpiritGIS
             get { return _renderMethod; }
             set { _renderMethod = value; }
         }
+        /// <summary>
+        /// 获取或设置当前渐变色带
+        /// </summary>
+        public ColorRamp colorRamp
+        {
+            get { return _colorRamp; }
+            set { _colorRamp = value; }
+        }
 
         #endregion
 
-        
+
         #region  私有函数
         //显示当前颜色
         private void ShowSimpleColor()
@@ -151,20 +174,303 @@ namespace MalaSpiritGIS
                     pen.DashStyle = DashStyle.Dash;
                 }
                 pen.Width = CurLayer.LineWidth;//笔的粗细等于此时的轮廓宽度
-                g.DrawLine(pen, -10, 0, 10, 0);
+                g.DrawLine(pen, -100, 0, 100, 0);
             }
             else if (_CurLayer.featureClass.featureType == FeatureType.POLYGON)
             {
                 //如果是多边形要素
-                g.FillRectangle(brush, -10, 10, 20, 20);
-                g.DrawRectangle(pen, -10, 10, 20, 20);
+                g.FillRectangle(brush, -100, -10, 200, 20);
+                g.DrawRectangle(pen, -100, -10, 200, 20);
             }
             pen.Dispose();
             brush.Dispose();
         }
 
+
         #endregion
 
 
+        #region 确定和取消按钮
+        //确定
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
+        }
+        //取消
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+        }
+        #endregion
+
+        #region 窗体加载
+
+        private void MapRender_Load(object sender, EventArgs e)
+        {
+            ShowSimpleColor();
+            fillList();
+
+            UniqueValueList.Items.Clear();
+            for (int i = 0; i < CurLayer.featureClass.AttributeData.Columns.Count; i++)
+                UniqueValueList.Items.Add(CurLayer.featureClass.AttributeData.Columns[i].ColumnName);
+
+            ColorBar1.DrawMode = DrawMode.OwnerDrawFixed;
+            ColorBar1.DropDownStyle = ComboBoxStyle.DropDownList;
+            ColorBar1.ItemHeight = 18;
+            ColorBar1.BeginUpdate();
+            ColorBar1.Items.Clear();
+            for (int i = 0; i < myColorRamps.Count; i++)
+            {
+                ColorBar1.Items.Add(myColorRamps[i].fromColor.Name);
+            }
+            ColorBar1.EndUpdate();
+
+            rangeValueList.Items.Clear();
+            for (int i = 0; i < CurLayer.featureClass.AttributeData.Columns.Count; i++)
+                rangeValueList.Items.Add(CurLayer.featureClass.AttributeData.Columns[i].ColumnName);
+
+            ColorBar2.DrawMode = DrawMode.OwnerDrawFixed;
+            ColorBar2.DropDownStyle = ComboBoxStyle.DropDownList;
+            ColorBar2.ItemHeight = 18;
+            ColorBar2.BeginUpdate();
+            ColorBar2.Items.Clear();
+            for (int i = 0; i < myColorRamps.Count; i++)
+            {
+                ColorBar2.Items.Add(myColorRamps[i].fromColor.Name);
+            }
+            ColorBar2.EndUpdate();
+        }
+
+
+        #endregion
+
+        #region 唯一值法
+
+        //选择唯一值字段
+        private void UniqueValueList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selectedValue = UniqueValueList.SelectedItem.ToString();
+        }
+
+        //显示渐变色带
+        private void ColorBar1_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            if (e.Index < 0)
+                return;
+
+            Rectangle rect = e.Bounds;
+            Color fc = myColorRamps[e.Index].fromColor;
+            Color tc = myColorRamps[e.Index].toColor;
+            //选择线性渐变刷子
+            LinearGradientBrush brush = new LinearGradientBrush(rect, fc, tc, 0, false);
+
+            rect.Inflate(-1, -1);
+            // 填充颜色
+            g.FillRectangle(brush, rect);
+            // 绘制边框
+            g.DrawRectangle(Pens.Black, rect);
+
+        }
+
+        //选择色带
+        private void ColorBar1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _colorRamp = myColorRamps[ColorBar1.SelectedIndex];
+            Graphics g = this.CreateGraphics();
+            Pen p = new Pen(Color.Black, 1);
+            SolidBrush brush = new SolidBrush(_color);
+            int i;
+            for(i = 0;i<CurLayer.featureClass.Count;i++)
+            {
+                Random rd = new Random();
+                int r = rd.Next(_colorRamp.fromColor.R, 255);
+                Color c = Color.FromArgb(r, _colorRamp.fromColor.G,_colorRamp.fromColor.B);
+                Font f = new Font("宋体", 9.0f, FontStyle.Bold);
+                if(CurLayer.featureClass.featureType == FeatureType.POINT || CurLayer.featureClass.featureType == FeatureType.MULTIPOINT)
+                {
+                    string str = "·             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue]+ "                               1";
+                    listBox1.Items.Add(str);
+                }
+                else if(CurLayer.featureClass.featureType == FeatureType.POLYLINE)
+                {
+                    string str = "—             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "                               1";
+                    listBox1.Items.Add(str);
+                }
+                else
+                {
+                    string str = "■             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "                               1";
+                    listBox1.Items.Add(str);
+                }
+            }
+        }
+        #endregion
+
+        #region 分级法
+
+        //选择分级字段
+        private void rangeValueList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selectedValue = rangeValueList.SelectedItem.ToString();
+        }
+
+        //绘制色带
+        private void ColorBar2_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            if (e.Index < 0)
+                return;
+
+            Rectangle rect = e.Bounds;
+            Color fc = myColorRamps[e.Index].fromColor;
+            Color tc = myColorRamps[e.Index].toColor;
+            //选择线性渐变刷子
+            LinearGradientBrush brush = new LinearGradientBrush(rect, fc, tc, 0, false);
+
+            rect.Inflate(-1, -1);
+            // 填充颜色
+            g.FillRectangle(brush, rect);
+            // 绘制边框
+            g.DrawRectangle(Pens.Black, rect);
+        }
+
+        //选择色带
+        private void ColorBar2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _colorRamp = myColorRamps[ColorBar2.SelectedIndex];
+            _selectedValue = rangeValueList.SelectedItem.ToString();
+            Graphics g = this.CreateGraphics();
+            Pen p = new Pen(Color.Black, 1);
+            SolidBrush brush = new SolidBrush(_color);
+            int i;
+            if(CurLayer.featureClass.Count > 5)
+            {
+                float max = (float)Convert.ToDouble(CurLayer.featureClass.AttributeData.Rows[0][_selectedValue]);
+                float min = (float)Convert.ToDouble(CurLayer.featureClass.AttributeData.Rows[0][_selectedValue]);
+                for (i = 0; i < CurLayer.featureClass.Count; i++)
+                {
+                    if (max < (float)Convert.ToDouble(CurLayer.featureClass.AttributeData.Rows[i][_selectedValue]))
+                    {
+                        max = (float)Convert.ToDouble(CurLayer.featureClass.AttributeData.Rows[i][_selectedValue]);
+                    }
+                    if (min > (float)Convert.ToDouble(CurLayer.featureClass.AttributeData.Rows[i][_selectedValue]))
+                    {
+                        min = (float)Convert.ToDouble(CurLayer.featureClass.AttributeData.Rows[i][_selectedValue]);
+                    }
+                }
+                float step = (max - min) / 5;
+                for (i = 0; i < 5; i++)
+                {
+                    float smax = min + step * i;
+                    string str = min + "——" + smax + "             " + min + "——" + smax;
+                    listBox2.Items.Add(str);
+                }
+            }
+            else
+            {
+                for (i = 0; i < CurLayer.featureClass.Count; i++)
+                {
+                    string str = CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "——"+ "             "+ CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] ;
+                    listBox2.Items.Add(str);
+                }
+            }
+
+        }
+        #endregion
+
+        #region 渐变色带列表初始化
+        private void fillList()//渐变色带初始化
+        {
+            ColorRamp colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(176, 176, 176);
+            colorRamp.toColor = Color.FromArgb(255, 0, 0);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(0, 0, 0);
+            colorRamp.toColor = Color.FromArgb(255, 255, 255);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(204, 204, 255);
+            colorRamp.toColor = Color.FromArgb(0, 0, 224);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(211, 229, 232);
+            colorRamp.toColor = Color.FromArgb(46, 100, 140);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(203, 245, 234);
+            colorRamp.toColor = Color.FromArgb(48, 207, 146);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(216, 242, 237);
+            colorRamp.toColor = Color.FromArgb(21, 79, 74);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(240, 236, 170);
+            colorRamp.toColor = Color.FromArgb(102, 72, 48);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(156, 85, 31);
+            colorRamp.toColor = Color.FromArgb(33, 130, 145);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(48, 100, 102);
+            colorRamp.toColor = Color.FromArgb(110, 70, 45);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(214, 47, 39);
+            colorRamp.toColor = Color.FromArgb(69, 117, 181);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(245, 0, 245);
+            colorRamp.toColor = Color.FromArgb(0, 245, 245);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(182, 237, 240);
+            colorRamp.toColor = Color.FromArgb(9, 9, 145);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(175, 240, 233);
+            colorRamp.toColor = Color.FromArgb(255, 252, 255);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(118, 219, 211);
+            colorRamp.toColor = Color.FromArgb(255, 252, 255);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(219, 219, 219);
+            colorRamp.toColor = Color.FromArgb(69, 69, 69);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(204, 255, 204);
+            colorRamp.toColor = Color.FromArgb(14, 204, 14);
+            myColorRamps.Add(colorRamp);
+
+            colorRamp = new ColorRamp();
+            colorRamp.fromColor = Color.FromArgb(220, 245, 233);
+            colorRamp.toColor = Color.FromArgb(34, 102, 51);
+            myColorRamps.Add(colorRamp);
+        }
+
+
+
+        #endregion
+
+        
     }
 }
