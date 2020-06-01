@@ -33,6 +33,9 @@
             this.mlFeatureBox = new MalaSpiritGIS.MLFeatureBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.文件FToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.导入Shapefile文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.加载栅格底图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.导出当前地图至图片ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -50,7 +53,6 @@
             this.裁剪ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomToLayer = new System.Windows.Forms.Button();
             this.mlRecordBox = new MalaSpiritGIS.MLFeatureBox();
-            this.导入Shapefile文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.featureMenu.SuspendLayout();
@@ -63,10 +65,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.mlMap.BackColor = System.Drawing.Color.White;
             this.mlMap.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.mlMap.Location = new System.Drawing.Point(184, 104);
-            this.mlMap.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.mlMap.Location = new System.Drawing.Point(92, 52);
+            this.mlMap.Margin = new System.Windows.Forms.Padding(2);
             this.mlMap.Name = "mlMap";
-            this.mlMap.Size = new System.Drawing.Size(1284, 742);
+            this.mlMap.Size = new System.Drawing.Size(644, 373);
             this.mlMap.TabIndex = 9;
             this.mlMap.TrackingFinished += new MalaSpiritGIS.MLMap.TrackingFinishedHandle(this.mlMap_TrackingFinished);
             this.mlMap.DisplayScaleChanged += new MalaSpiritGIS.MLMap.DisplayScaleChangedHandle(this.mlMap_DisplayScaleChanged);
@@ -78,35 +80,57 @@
             this.mlFeatureBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.mlFeatureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mlFeatureBox.Location = new System.Drawing.Point(0, 104);
-            this.mlFeatureBox.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
-            this.mlFeatureBox.MaximumSize = new System.Drawing.Size(178, 2158);
-            this.mlFeatureBox.MinimumSize = new System.Drawing.Size(178, 2);
+            this.mlFeatureBox.Location = new System.Drawing.Point(0, 52);
+            this.mlFeatureBox.Margin = new System.Windows.Forms.Padding(4);
+            this.mlFeatureBox.MaximumSize = new System.Drawing.Size(90, 1080);
+            this.mlFeatureBox.MinimumSize = new System.Drawing.Size(90, 2);
             this.mlFeatureBox.Name = "mlFeatureBox";
-            this.mlFeatureBox.Size = new System.Drawing.Size(178, 744);
+            this.mlFeatureBox.Size = new System.Drawing.Size(90, 373);
             this.mlFeatureBox.TabIndex = 2;
             // 
             // menuStrip1
             // 
             this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.文件FToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 4, 0, 4);
-            this.menuStrip1.Size = new System.Drawing.Size(1672, 43);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(836, 25);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // 文件FToolStripMenuItem
             // 
             this.文件FToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.导入Shapefile文件ToolStripMenuItem});
+            this.导入Shapefile文件ToolStripMenuItem,
+            this.加载栅格底图ToolStripMenuItem,
+            this.导出当前地图至图片ToolStripMenuItem});
             this.文件FToolStripMenuItem.Name = "文件FToolStripMenuItem";
-            this.文件FToolStripMenuItem.Size = new System.Drawing.Size(111, 35);
+            this.文件FToolStripMenuItem.Size = new System.Drawing.Size(58, 21);
             this.文件FToolStripMenuItem.Text = "文件(&F)";
+            // 
+            // 导入Shapefile文件ToolStripMenuItem
+            // 
+            this.导入Shapefile文件ToolStripMenuItem.Name = "导入Shapefile文件ToolStripMenuItem";
+            this.导入Shapefile文件ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.导入Shapefile文件ToolStripMenuItem.Text = "导入Shapefile文件";
+            this.导入Shapefile文件ToolStripMenuItem.Click += new System.EventHandler(this.导入Shapefile文件ToolStripMenuItem_Click);
+            // 
+            // 加载栅格底图ToolStripMenuItem
+            // 
+            this.加载栅格底图ToolStripMenuItem.Name = "加载栅格底图ToolStripMenuItem";
+            this.加载栅格底图ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.加载栅格底图ToolStripMenuItem.Text = "加载栅格底图";
+            this.加载栅格底图ToolStripMenuItem.Click += new System.EventHandler(this.加载栅格底图ToolStripMenuItem_Click);
+            // 
+            // 导出当前地图至图片ToolStripMenuItem
+            // 
+            this.导出当前地图至图片ToolStripMenuItem.Name = "导出当前地图至图片ToolStripMenuItem";
+            this.导出当前地图至图片ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.导出当前地图至图片ToolStripMenuItem.Text = "导出当前地图至图片";
+            this.导出当前地图至图片ToolStripMenuItem.Click += new System.EventHandler(this.导出当前地图至图片ToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -114,31 +138,30 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 859);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 28, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1672, 41);
+            this.statusStrip1.Size = new System.Drawing.Size(836, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(257, 31);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(257, 31);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             // 
             // createFeature
             // 
-            this.createFeature.Location = new System.Drawing.Point(0, 52);
-            this.createFeature.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.createFeature.Location = new System.Drawing.Point(0, 26);
+            this.createFeature.Margin = new System.Windows.Forms.Padding(2);
             this.createFeature.Name = "createFeature";
-            this.createFeature.Size = new System.Drawing.Size(150, 50);
+            this.createFeature.Size = new System.Drawing.Size(75, 25);
             this.createFeature.TabIndex = 3;
             this.createFeature.Text = "创建要素";
             this.createFeature.UseVisualStyleBackColor = true;
@@ -146,10 +169,10 @@
             // 
             // selectFeature
             // 
-            this.selectFeature.Location = new System.Drawing.Point(160, 52);
-            this.selectFeature.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.selectFeature.Location = new System.Drawing.Point(80, 26);
+            this.selectFeature.Margin = new System.Windows.Forms.Padding(2);
             this.selectFeature.Name = "selectFeature";
-            this.selectFeature.Size = new System.Drawing.Size(150, 50);
+            this.selectFeature.Size = new System.Drawing.Size(75, 25);
             this.selectFeature.TabIndex = 4;
             this.selectFeature.Text = "选择要素";
             this.selectFeature.UseVisualStyleBackColor = true;
@@ -157,10 +180,10 @@
             // 
             // zoomIn
             // 
-            this.zoomIn.Location = new System.Drawing.Point(320, 52);
-            this.zoomIn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.zoomIn.Location = new System.Drawing.Point(160, 26);
+            this.zoomIn.Margin = new System.Windows.Forms.Padding(2);
             this.zoomIn.Name = "zoomIn";
-            this.zoomIn.Size = new System.Drawing.Size(150, 50);
+            this.zoomIn.Size = new System.Drawing.Size(75, 25);
             this.zoomIn.TabIndex = 5;
             this.zoomIn.Text = "放大";
             this.zoomIn.UseVisualStyleBackColor = true;
@@ -168,10 +191,10 @@
             // 
             // zoomOut
             // 
-            this.zoomOut.Location = new System.Drawing.Point(480, 52);
-            this.zoomOut.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.zoomOut.Location = new System.Drawing.Point(240, 26);
+            this.zoomOut.Margin = new System.Windows.Forms.Padding(2);
             this.zoomOut.Name = "zoomOut";
-            this.zoomOut.Size = new System.Drawing.Size(150, 50);
+            this.zoomOut.Size = new System.Drawing.Size(75, 25);
             this.zoomOut.TabIndex = 6;
             this.zoomOut.Text = "缩小";
             this.zoomOut.UseVisualStyleBackColor = true;
@@ -179,10 +202,10 @@
             // 
             // pan
             // 
-            this.pan.Location = new System.Drawing.Point(640, 52);
-            this.pan.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pan.Location = new System.Drawing.Point(320, 26);
+            this.pan.Margin = new System.Windows.Forms.Padding(2);
             this.pan.Name = "pan";
-            this.pan.Size = new System.Drawing.Size(150, 50);
+            this.pan.Size = new System.Drawing.Size(75, 25);
             this.pan.TabIndex = 7;
             this.pan.Text = "漫游";
             this.pan.UseVisualStyleBackColor = true;
@@ -190,10 +213,10 @@
             // 
             // query
             // 
-            this.query.Location = new System.Drawing.Point(800, 52);
-            this.query.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.query.Location = new System.Drawing.Point(400, 26);
+            this.query.Margin = new System.Windows.Forms.Padding(2);
             this.query.Name = "query";
-            this.query.Size = new System.Drawing.Size(150, 50);
+            this.query.Size = new System.Drawing.Size(75, 25);
             this.query.TabIndex = 8;
             this.query.Text = "条件查询";
             this.query.UseVisualStyleBackColor = true;
@@ -209,44 +232,44 @@
             this.编辑节点ToolStripMenuItem,
             this.裁剪ToolStripMenuItem});
             this.featureMenu.Name = "featureMenu";
-            this.featureMenu.Size = new System.Drawing.Size(249, 194);
+            this.featureMenu.Size = new System.Drawing.Size(157, 114);
             // 
             // 删除图形ToolStripMenuItem
             // 
             this.删除图形ToolStripMenuItem.Name = "删除图形ToolStripMenuItem";
-            this.删除图形ToolStripMenuItem.Size = new System.Drawing.Size(248, 38);
+            this.删除图形ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.删除图形ToolStripMenuItem.Text = "删除图形";
             // 
             // 拖动图形ToolStripMenuItem
             // 
             this.拖动图形ToolStripMenuItem.Name = "拖动图形ToolStripMenuItem";
-            this.拖动图形ToolStripMenuItem.Size = new System.Drawing.Size(248, 38);
+            this.拖动图形ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.拖动图形ToolStripMenuItem.Text = "拖动图形";
             // 
             // 移动图形坐标ToolStripMenuItem
             // 
             this.移动图形坐标ToolStripMenuItem.Name = "移动图形坐标ToolStripMenuItem";
-            this.移动图形坐标ToolStripMenuItem.Size = new System.Drawing.Size(248, 38);
+            this.移动图形坐标ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.移动图形坐标ToolStripMenuItem.Text = "移动图形(坐标)";
             // 
             // 编辑节点ToolStripMenuItem
             // 
             this.编辑节点ToolStripMenuItem.Name = "编辑节点ToolStripMenuItem";
-            this.编辑节点ToolStripMenuItem.Size = new System.Drawing.Size(248, 38);
+            this.编辑节点ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.编辑节点ToolStripMenuItem.Text = "编辑节点";
             // 
             // 裁剪ToolStripMenuItem
             // 
             this.裁剪ToolStripMenuItem.Name = "裁剪ToolStripMenuItem";
-            this.裁剪ToolStripMenuItem.Size = new System.Drawing.Size(248, 38);
+            this.裁剪ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.裁剪ToolStripMenuItem.Text = "裁剪";
             // 
             // zoomToLayer
             // 
-            this.zoomToLayer.Location = new System.Drawing.Point(960, 52);
-            this.zoomToLayer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.zoomToLayer.Location = new System.Drawing.Point(480, 26);
+            this.zoomToLayer.Margin = new System.Windows.Forms.Padding(2);
             this.zoomToLayer.Name = "zoomToLayer";
-            this.zoomToLayer.Size = new System.Drawing.Size(150, 50);
+            this.zoomToLayer.Size = new System.Drawing.Size(75, 25);
             this.zoomToLayer.TabIndex = 10;
             this.zoomToLayer.Text = "缩放至图层";
             this.zoomToLayer.UseVisualStyleBackColor = true;
@@ -257,26 +280,19 @@
             this.mlRecordBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.mlRecordBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mlRecordBox.Location = new System.Drawing.Point(1484, 104);
-            this.mlRecordBox.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
-            this.mlRecordBox.MaximumSize = new System.Drawing.Size(178, 2158);
-            this.mlRecordBox.MinimumSize = new System.Drawing.Size(178, 2);
+            this.mlRecordBox.Location = new System.Drawing.Point(742, 52);
+            this.mlRecordBox.Margin = new System.Windows.Forms.Padding(4);
+            this.mlRecordBox.MaximumSize = new System.Drawing.Size(90, 1080);
+            this.mlRecordBox.MinimumSize = new System.Drawing.Size(90, 2);
             this.mlRecordBox.Name = "mlRecordBox";
-            this.mlRecordBox.Size = new System.Drawing.Size(178, 744);
+            this.mlRecordBox.Size = new System.Drawing.Size(90, 373);
             this.mlRecordBox.TabIndex = 11;
-            // 
-            // 导入Shapefile文件ToolStripMenuItem
-            // 
-            this.导入Shapefile文件ToolStripMenuItem.Name = "导入Shapefile文件ToolStripMenuItem";
-            this.导入Shapefile文件ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.导入Shapefile文件ToolStripMenuItem.Text = "导入Shapefile文件";
-            this.导入Shapefile文件ToolStripMenuItem.Click += new System.EventHandler(this.导入Shapefile文件ToolStripMenuItem_Click);
             // 
             // MLMainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1672, 900);
+            this.ClientSize = new System.Drawing.Size(836, 450);
             this.Controls.Add(this.mlRecordBox);
             this.Controls.Add(this.zoomToLayer);
             this.Controls.Add(this.mlMap);
@@ -290,7 +306,6 @@
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "MLMainForm";
             this.Text = "麻辣精灵GIS";
             this.menuStrip1.ResumeLayout(false);
@@ -327,6 +342,8 @@
         private System.Windows.Forms.Button zoomToLayer;
         private MLFeatureBox mlRecordBox;
         private System.Windows.Forms.ToolStripMenuItem 导入Shapefile文件ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 加载栅格底图ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 导出当前地图至图片ToolStripMenuItem;
     }
 }
 
