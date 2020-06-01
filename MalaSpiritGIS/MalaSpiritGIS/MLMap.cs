@@ -892,14 +892,20 @@ namespace MalaSpiritGIS
         private void 移动图形坐标ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MoveByCoor bc = new MoveByCoor();
-            bc.ShowDialog();
             bc.MoveByDeltaCoor += new MoveByCoor.MoveByDeltaCoorHandle(MoveByDeltaCoorFunction);
+            bc.ShowDialog();
         }
         private void MoveByDeltaCoorFunction(object sender, float dx, float dy)
         {
             dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature).Move(dx, dy);
-            MessageBox.Show(dx.ToString() + "|" + dy.ToString());
+            Refresh();
         }
+
+        private void 编辑节点ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
         //母版重绘
         private void MLPaint(object sender, PaintEventArgs e)
         {
