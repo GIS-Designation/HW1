@@ -39,6 +39,7 @@ namespace MalaSpiritGIS
         {
             FieldList.Items.Clear();
             _index = LayerList.SelectedIndex;
+            MLMainForm.dataFrame.index = _index;
             label4.Text = "Select * From " + LayerList.SelectedItem.ToString() + " Where";
             for (int j = 0; j < MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Columns.Count; j++)
                 FieldList.Items.Add(MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Columns[j].ColumnName);
@@ -121,26 +122,27 @@ namespace MalaSpiritGIS
         }
         #endregion
 
+        #region 事件
 
+        //通过属性表选择的要素发生改变时
+        public delegate void SearchingFinishedHandle(object sender, int[] indexes);
+        public event SearchingFinishedHandle SearchingFinished;
+
+
+        #endregion
         private void Bt_OK_Click(object sender, EventArgs e)
         {
             DataRow[] dr = MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Select(SQLTextBox.Text.ToString());//筛选结果
             if (dr.Length > 0) //存在符合条件的要素
             {
-                AttributeTable at = new AttributeTable();
-                at.BindData(MLMainForm.dataFrame.layers[_index].featureClass);
-                at.Show();
-                int _count = 0;
-                foreach (DataRow drN in dr)
-                    _count++;
-                at.selectingFeatureIndexes = new int[_count]; //需要高亮的要素序号数组
+                int[] selectingFeatureIndexes = new int[dr.Length]; //需要高亮的要素序号数组
                 int _temp = 0;
                 foreach (DataRow drN in dr)
                 {
-                    at.selectingFeatureIndexes[_temp] = (int)(uint)drN[0];
+                    selectingFeatureIndexes[_temp] = (int)(uint)drN[0];
                     _temp++;
                 }
-                //at.SelectingFeatureChanged?.Invoke(this, selectingFeatureIndexes); ！！！这里要改！！！
+                SearchingFinished?.Invoke(this, selectingFeatureIndexes);
             }
             else
                 MessageBox.Show("未找到符合条件的要素");

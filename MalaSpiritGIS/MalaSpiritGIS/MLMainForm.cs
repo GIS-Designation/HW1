@@ -116,6 +116,7 @@ namespace MalaSpiritGIS
         private void Query_Click(object sender, EventArgs e)
         {
             Query q = new Query();
+            q.SearchingFinished += new Query.SearchingFinishedHandle(attributeTable_SelectingFeatureChanged);
             q.Show();
         }
     }
