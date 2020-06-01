@@ -30,11 +30,22 @@ namespace MalaSpiritGIS
 
         //运行时属性变量
         private float displayScale = 1F;  //显示比例尺的倒数
-        public List<MLFeature> selectedFeatures = new List<MLFeature>();  //选中要素集合
-
+        public class Selected
+        {
+            public int numLayer, numFeature;
+            public Selected(int _numLayer,int _numFeature)
+            {
+                numLayer = _numLayer;
+                numFeature = _numFeature;
+            }
+        }
+        private List<Selected> selectedFeatures = new List<Selected>();  //选中要素集合
+        public void SetSelectedFeatures(List<Selected> s) { selectedFeatures = s;}
+        public void ClearSelectedFeatures() { selectedFeatures = new List<Selected>();Refresh();}
+        public void AddSelectedFeatures(int numLayer,int numFeature) { selectedFeatures.Add(new Selected(numLayer, numFeature));}
         //内部变量
         private float offsetX = 0, offsetY = 0;  //窗口左上点的地图坐标
-        private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素
+        private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素,6移动要素
         private List<PointD> trackingFeature = new List<PointD>();  //用户正在描绘的要素
         private PointF mouseLocation = new PointF();  //鼠标当前的位置，用于漫游、拉框等
         private PointF startPoint = new PointF();  //记录鼠标按下时的位置，用于拉框
@@ -134,9 +145,9 @@ namespace MalaSpiritGIS
             mapOpStyle = 5;
             this.Cursor = Cursors.Arrow;
         }
-        public List<MLFeature> SelectByBox(RectangleF box)  //返回完全位于box中的要素
+        public List<Selected> SelectByBox(RectangleF box)  //返回完全位于box中的要素
         {
-            List<MLFeature> result = new List<MLFeature>();
+            List<Selected> result = new List<Selected>();
             for (int i = 0; i < dataFrame.layers.Count; ++i)  //遍历图层
             {
                 MLFeatureClass layer = dataFrame.layers[i].featureClass;
@@ -146,19 +157,19 @@ namespace MalaSpiritGIS
                     {
                         case FeatureType.POINT:
                             if (MLPointInBox((MLPoint)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i,j));
                             break;
                         case FeatureType.MULTIPOINT:
                             if (MLMultiPointInBox((MLMultiPoint)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i, j));
                             break;
                         case FeatureType.POLYLINE:
                             if (MLPolylineInBox((MLPolyline)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i, j));
                             break;
                         case FeatureType.POLYGON:
                             if (MLPolygonInBox((MLPolygon)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i, j));
                             break;
                     }
                 }
@@ -334,7 +345,7 @@ namespace MalaSpiritGIS
         private void PaintPoint(MLFeature feature,Brush brush,Pen pen,Graphics g,string PointSign,float size)  //绘制点要素
         {
             PointD point = ((MLPoint)feature).Point;
-            PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
+            PointF sScreenPoint = FromMapPoint(new PointF((float)point.X + feature.Dx, (float)point.Y + feature.Dy));
             
             if(PointSign == PointSigns[0])//空心圆
             {
@@ -386,7 +397,7 @@ namespace MalaSpiritGIS
             PointD[] ps = ((MLMultiPoint)feature).Points;
             for (int k = 0; k != ps.Length; ++k)
             {
-                PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
+                PointF sp = FromMapPoint(new PointF((float)ps[k].X + feature.Dx, (float)ps[k].Y + feature.Dy));
                 if (PointSign == PointSigns[0])//空心圆
                 {
                     g.DrawEllipse(pen, sp.X - size, sp.Y - size, size * 2, size * 2);
@@ -450,8 +461,8 @@ namespace MalaSpiritGIS
                 {
                     PointD p1 = segs[k].GetPoint(h - 1);
                     PointD p2 = segs[k].GetPoint(h);
-                    PointF sp1 = FromMapPoint(new PointF((float)p1.X, (float)p1.Y));
-                    PointF sp2 = FromMapPoint(new PointF((float)p2.X, (float)p2.Y));
+                    PointF sp1 = FromMapPoint(new PointF((float)p1.X + feature.Dx, (float)p1.Y + feature.Dy));
+                    PointF sp2 = FromMapPoint(new PointF((float)p2.X + feature.Dx, (float)p2.Y + feature.Dy));
                     g.DrawLine(pen, sp1, sp2);
                 }
             }
@@ -464,7 +475,7 @@ namespace MalaSpiritGIS
                 PolylineD ring = polygon.GetRing(k);
                 PointF[] ps = new PointF[ring.Count];
                 for(int i = 0;i != ps.Length; ++i)
-                    ps[i] = FromMapPoint(new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y));
+                    ps[i] = FromMapPoint(new PointF((float)ring.GetPoint(i).X + feature.Dx, (float)ring.GetPoint(i).Y + feature.Dy));
                 g.FillPolygon(brush, ps);
                 g.DrawPolygon(pen, ps);
             }
@@ -574,21 +585,22 @@ namespace MalaSpiritGIS
                 SolidBrush brush = new SolidBrush(selectedColor);
                 for (int i = selectedFeatures.Count - 1; i != -1; --i)
                 {
-                    MLFeature fc = selectedFeatures[i];
+                    //MessageBox.Show(selectedFeatures[i].numLayer.ToString()+'|'+ selectedFeatures[i].numFeature.ToString());
+                    MLFeature fc = dataFrame.layers[selectedFeatures[i].numLayer].featureClass.GetFeature(selectedFeatures[i].numFeature);
                     switch (fc.FeatureType)
                     {
                         case FeatureType.POINT:
-                            PaintPoint(fc, brush, pen,g, dataFrame.layers[dataFrame.index].PointSign, dataFrame.layers[dataFrame.index].PointSize);
+                            PaintPoint(fc, brush, pen,g, dataFrame.layers[selectedFeatures[i].numLayer].PointSign, dataFrame.layers[selectedFeatures[i].numLayer].PointSize);
                             break;
                         case FeatureType.MULTIPOINT:
-                            PaintMultiPoint(fc, brush, pen, g, dataFrame.layers[dataFrame.index].PointSign, dataFrame.layers[dataFrame.index].PointSize);
+                            PaintMultiPoint(fc, brush, pen, g, dataFrame.layers[selectedFeatures[i].numLayer].PointSign, dataFrame.layers[selectedFeatures[i].numLayer].PointSize);
                             break;
                         case FeatureType.POLYLINE:
-                            pen.Width = dataFrame.layers[dataFrame.index].LineWidth + 2;
-                            PaintPolyline(fc, pen, g,dataFrame.layers[dataFrame.index].LineStyle);
+                            pen.Width = dataFrame.layers[selectedFeatures[i].numLayer].LineWidth + 2;
+                            PaintPolyline(fc, pen, g,dataFrame.layers[selectedFeatures[i].numLayer].LineStyle);
                             break;
                         case FeatureType.POLYGON:
-                            pen.Width = dataFrame.layers[dataFrame.index].LineWidth + 2;
+                            pen.Width = dataFrame.layers[selectedFeatures[i].numLayer].LineWidth + 2;
                             SelectPolygon(fc, pen, g);
                             break;
                     }
@@ -650,28 +662,29 @@ namespace MalaSpiritGIS
                 for (int i = 0; i != selectedFeatures.Count; ++i)
                 {
                     bool selected = false;
-                    switch (selectedFeatures[i].FeatureType)
+                    MLFeature fc = dataFrame.layers[selectedFeatures[i].numLayer].featureClass.GetFeature(selectedFeatures[i].numFeature);
+                    switch (fc.FeatureType)
                     {
                         case FeatureType.POINT:
-                            if (PointInMLPoint(e.Location, (MLPoint)selectedFeatures[i]))
+                            if (PointInMLPoint(e.Location, (MLPoint)fc))
                                 selected = true;
                             break;
                         case FeatureType.MULTIPOINT:
-                            if (PointInMLMultiPoint(e.Location, (MLMultiPoint)selectedFeatures[i]))
+                            if (PointInMLMultiPoint(e.Location, (MLMultiPoint)fc))
                                 selected = true;
                             break;
                         case FeatureType.POLYLINE:
-                            if (PointInMLPolyline(e.Location, (MLPolyline)selectedFeatures[i]))
+                            if (PointInMLPolyline(e.Location, (MLPolyline)fc))
                                 selected = true;
                             break;
                         case FeatureType.POLYGON:
-                            if (PointInMLPolygon(e.Location, (MLPolygon)selectedFeatures[i]))
+                            if (PointInMLPolygon(e.Location, (MLPolygon)fc))
                                 selected = true;
                             break;
                     }
                     if(selected)
                     {
-                        selectedFeatures = new List<MLFeature>() { selectedFeatures[i] };
+                        selectedFeatures = new List<Selected>() { selectedFeatures[i] };
                         Refresh();
                         featureMenu.Show(MousePosition.X, MousePosition.Y);
                         return;
@@ -843,6 +856,13 @@ namespace MalaSpiritGIS
                     }
                     break;
             }
+        }
+
+        private void 删除图形ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            dataFrame.layers[selectedFeatures[0].numLayer].featureClass.RemoveFeaure(selectedFeatures[0].numFeature);
+            selectedFeatures.Clear();
+            Refresh();
         }
 
         //母版重绘

@@ -54,6 +54,7 @@
             this.删除图形ToolStripMenuItem.Name = "删除图形ToolStripMenuItem";
             this.删除图形ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.删除图形ToolStripMenuItem.Text = "删除图形";
+            this.删除图形ToolStripMenuItem.Click += new System.EventHandler(this.删除图形ToolStripMenuItem_Click);
             // 
             // 拖动图形ToolStripMenuItem
             // 
