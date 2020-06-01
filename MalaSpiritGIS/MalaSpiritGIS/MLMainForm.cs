@@ -119,5 +119,39 @@ namespace MalaSpiritGIS
             q.SearchingFinished += new Query.SearchingFinishedHandle(attributeTable_SelectingFeatureChanged);
             q.Show();
         }
+
+        private void 加载栅格底图ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog imageFileDialog = new OpenFileDialog();
+            imageFileDialog.Title = "加载栅格底图";
+            imageFileDialog.InitialDirectory = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\china_shp\Province_9";
+            imageFileDialog.Filter = "JPG文件(*.jpg)|*.jpg|BMP文件(*.bmp)|*.bmp|PNG文件(*.png)|*.png|所有文件(*.*)|*.*";
+            imageFileDialog.RestoreDirectory = true;
+            if (DialogResult.OK == imageFileDialog.ShowDialog())
+            {
+                mlmap.image = Image.FromFile(imageFileDialog.FileName);
+                mlmap.Refresh();
+            }
+        }
+
+        private void 导出当前地图至图片ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfg = new SaveFileDialog();
+            sfg.Title = "导出图片";
+            sfg.Filter = "JPG文件(*.jpg)|*.jpg|BMP文件(*.bmp)|*.bmp|PNG文件(*.png)|*.png|所有文件(*.*)|*.*";
+            sfg.InitialDirectory = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\china_shp\Province_9";
+            sfg.RestoreDirectory = true;
+            if (sfg.ShowDialog() == DialogResult.OK)
+            {
+                Image image = mlmap.Output();
+                string fileType = sfg.FileName.Substring(sfg.FileName.LastIndexOf(".") + 1);
+                switch (fileType)
+                {
+
+                }
+                image.Save(sfg.FileName, System.Drawing.Imaging.ImageFormat.Png);
+            }
+
+        }
     }
 }

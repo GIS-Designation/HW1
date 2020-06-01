@@ -31,15 +31,15 @@ namespace MalaSpiritGIS
                     break;
                 case "POLYLINE":
                     featureType = FeatureType.POLYLINE;
-                    signLabel.Text = "·";
+                    signLabel.Text = "—";
                     break;
                 case "POLYGON":
                     featureType = FeatureType.POLYGON;
-                    signLabel.Text = "—";
+                    signLabel.Text = "■";
                     break;
                 case "MULTIPOINT":
                     featureType = FeatureType.MULTIPOINT;
-                    signLabel.Text = "■";
+                    signLabel.Text = "·";
                     break;
             }
             nameLabel.Text = name;
@@ -62,7 +62,7 @@ namespace MalaSpiritGIS
         string password = "";
         string charset = "utf8";
         string port = "3306";
-        public string defaultShpPath = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1SHP\";
+        public string defaultShpPath = @"C:\\Users\\Kuuhakuj\\Documents\\PKU\\大三下\\GIS设计和应用\\HW1SHP\\";
 
         MySqlConnection connection;
 
@@ -231,7 +231,7 @@ namespace MalaSpiritGIS
                             for (int i = 0; i < attributeCount; ++i)
                             {
                                 br_dbf.BaseStream.Seek(i * 32 + 32, SeekOrigin.Begin);
-                                fieldName = Encoding.UTF8.GetString(br_dbf.ReadBytes(11)).Trim();
+                                fieldName = Encoding.UTF8.GetString(br_dbf.ReadBytes(11)).Trim('\0');
                                 switch (br_dbf.ReadChar())
                                 {
                                     case 'N':
@@ -280,7 +280,7 @@ namespace MalaSpiritGIS
                                 br_dbf.BaseStream.Seek(1, SeekOrigin.Current);
                                 for (int j = 0; j < attributeCount; ++j)
                                 {
-                                    temp = Encoding.UTF8.GetString(br_dbf.ReadBytes(fieldLength[j])).Trim((char)0x20);
+                                    temp = Encoding.GetEncoding("GBK").GetString(br_dbf.ReadBytes(fieldLength[j])).Trim((char)0x20);
                                     if (fieldTypes[j] == typeof(int))
                                     {
                                         if (temp.Equals("")) values[j + 2] = 0;
@@ -355,7 +355,18 @@ namespace MalaSpiritGIS
             sql = "create table `" + curFeaClass.ID.ToString() + "` (ID int,FileBias int,FileLength int";
             for (int i = 2; i < curFeaClass.FieldCount; ++i)
             {
-                sql += "," + curFeaClass.GetFieldName(i) + " " + curFeaClass.GetFieldType(i).Name;
+                switch (curFeaClass.GetFieldType(i).Name)
+                {
+                    case "Int32":
+                        sql += "," + curFeaClass.GetFieldName(i) + " int";
+                        break;
+                    case "Double":
+                        sql += "," + curFeaClass.GetFieldName(i) + " double";
+                        break;
+                    default:
+sql += "," + curFeaClass.GetFieldName(i) + " varchar(100)";
+                        break;
+                }
             }
             sql += ")";
             cmd = new MySqlCommand(sql, connection);
@@ -386,11 +397,11 @@ namespace MalaSpiritGIS
                         long length = bw.BaseStream.Position - bias;
                         sql = "insert into `" + curFeaClass.ID.ToString() + "` values("
                             + i.ToString() + "," + bias.ToString() + "," + length.ToString();
-                        for (int j = 2; j < curFeaClass.FieldCount; ++j)
+                        for (int j = 2; j < curFeaClass.FieldCount-1; ++j)
                         {
                             sql += "," + curFeaClass.GetAttributeCell(i, j).ToString();
                         }
-                        sql += ")";
+                        sql += ",'" + curFeaClass.GetAttributeCell(i, curFeaClass.FieldCount - 1).ToString()+"')";
                         MySqlCommand insert = new MySqlCommand(sql, connection);
                         insert.ExecuteNonQuery();
                     }
