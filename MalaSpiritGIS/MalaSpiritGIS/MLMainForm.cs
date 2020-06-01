@@ -92,7 +92,6 @@ namespace MalaSpiritGIS
             {
                 foreach (int i in selectingIndexes)
                 {
-                    MessageBox.Show(i.ToString());
                     mlMap.AddSelectedFeatures(dataFrame.index, i);
                 }
             }
