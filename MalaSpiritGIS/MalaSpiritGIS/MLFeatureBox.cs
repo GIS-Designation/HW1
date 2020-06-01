@@ -199,13 +199,20 @@ namespace MalaSpiritGIS
 
         private void 渲染ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Graphics g = this.CreateGraphics();
             MapRender sMapRender = new MapRender();
             sMapRender.CurLayer = data.layers[data.index];
             sMapRender.color = data.layers[data.index].CurColor;
+            sMapRender.renderMethod = data.layers[data.index].renderMethod;
+            sMapRender.selectedValue = data.layers[data.index]._selectedValue;
+            sMapRender.colors = data.layers[data.index].RenderColors;
             if (sMapRender.ShowDialog(this) == DialogResult.OK)
             {
                 data.layers[data.index] = sMapRender.CurLayer;
                 data.layers[data.index].CurColor = sMapRender.color;
+                data.layers[data.index].renderMethod = sMapRender.renderMethod;
+                data.layers[data.index]._selectedValue = sMapRender.selectedValue;
+                data.layers[data.index].RenderColors = sMapRender.colors;
             }
         }
     }
