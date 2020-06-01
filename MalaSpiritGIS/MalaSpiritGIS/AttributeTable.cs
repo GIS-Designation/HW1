@@ -15,12 +15,15 @@ namespace MalaSpiritGIS
         MLFeatureClass curFeaClass;
         public int[] selectingFeatureIndexes;
         bool onEditing;
+        DataTable a;
+        
         public AttributeTable()
         {
             InitializeComponent();
             onEditing = false;
             停止编辑ToolStripMenuItem.Enabled = false;
             selectingFeatureIndexes = null;
+            
         }
 
         public void BindData(MLFeatureClass _curFeaClass)

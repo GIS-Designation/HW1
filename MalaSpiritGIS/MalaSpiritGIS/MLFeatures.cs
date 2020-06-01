@@ -91,7 +91,10 @@ namespace MalaSpiritGIS
             }
             return res;
         }
-
+        public void RemoveLastOne()
+        {
+            points.RemoveAt(points.Count - 1);
+        }
         public void AddPoint(PointD point)
         {
             points.Add(point);
@@ -189,7 +192,6 @@ namespace MalaSpiritGIS
         double[] mbr;               //要素类最小外包矩形
         List<MLFeature> features;       //要素数组
         DataTable attributeData;    //要素属性表
-        PointF deviation;           //要素类整体偏移
         #endregion
 
         
@@ -233,16 +235,6 @@ namespace MalaSpiritGIS
             attributeData.Columns.Add(fieldName, fieldType);
         }
 
-        //public void AddAttributeRow(object[] values)
-        //{
-        //    attributeData.BeginLoadData();
-        //    object[] curValues = new object[values.Length - 1];
-        //    curValues[0] = values[0];
-        //    curValues[1] = featureType;
-        //    Array.Copy(values, 3, curValues, 2, values.Length - 3);
-        //    attributeData.LoadDataRow(curValues, true);
-        //    attributeData.EndLoadData();
-        //}
 
         public string GetFieldName(int index)
         {
@@ -336,6 +328,11 @@ namespace MalaSpiritGIS
             return features[index];
         }
 
+        public void EditName(string _name)
+        {
+            name = _name;
+        }
+
         public double XMin { get { return mbr[0]; } }
         public double XMax { get { return mbr[1]; } }
         public double YMin { get { return mbr[2]; } }
@@ -392,6 +389,25 @@ namespace MalaSpiritGIS
             mbr[0] = mbr[1] = point.X;
             mbr[2] = mbr[3] = point.Y;
             pointNum = 1;
+        }
+
+        public MLPoint(byte[] feaContent) : base()
+        {
+            using(MemoryStream ms=new MemoryStream(feaContent))
+            {
+                using(BinaryReader br=new BinaryReader(ms))
+                {
+                    br.BaseStream.Seek(4, SeekOrigin.Current);
+                    double x, y;
+                    x = br.ReadDouble();
+                    y = br.ReadDouble();
+                    point = new PointD(x, y);
+                    featureType = FeatureType.POINT;
+                    mbr[0] = mbr[1] = point.X;
+                    mbr[2] = mbr[3] = point.Y;
+                    pointNum = 1;
+                }
+            }
         }
 
         public override byte[] ToBytes()
@@ -496,6 +512,46 @@ namespace MalaSpiritGIS
             }
         }
 
+        public MLPolyline(byte[] feaContent) : base()
+        {
+            using (MemoryStream ms = new MemoryStream(feaContent))
+            {
+                using (BinaryReader br = new BinaryReader(ms))
+                {
+                    featureType = FeatureType.POLYLINE;
+                    br.BaseStream.Seek(4, SeekOrigin.Current);
+                    mbr[0] = br.ReadDouble();
+                    mbr[2] = br.ReadDouble();
+                    mbr[1] = br.ReadDouble();
+                    mbr[3] = br.ReadDouble();
+                    int partNum = br.ReadInt32();
+                    pointNum = br.ReadInt32();
+                    segments = new PolylineD[partNum];
+
+                    //将part数组后面多加一个元素pointNum，方便计算每个part的长度
+                    int[] parts = new int[partNum + 1];
+                    for (int i = 0; i < partNum; ++i)
+                    {
+                        parts[i] = br.ReadInt32();
+                    }
+                    parts[partNum] = pointNum;
+
+                    double x, y;
+                    PointD[] segPoints;
+                    for (int i = 0; i < partNum; ++i)
+                    {
+                        segPoints = new PointD[parts[i + 1] - parts[i]];
+                        for (int j = 0; j < parts[i + 1] - parts[i]; ++j)
+                        {
+                            x = br.ReadDouble();
+                            y = br.ReadDouble();
+                            segPoints[j] = new PointD(x, y);
+                        }
+                        segments[i] = new PolylineD(segPoints);
+                    }
+                }
+            }
+        }
         public override byte[] ToBytes()
         {
             byte[] rslt;
@@ -599,6 +655,49 @@ namespace MalaSpiritGIS
             polygon = new PolygonD(rings);
         }
 
+        public MLPolygon(byte[] feaContent) : base()
+        {
+            using (MemoryStream ms = new MemoryStream(feaContent))
+            {
+                using (BinaryReader br = new BinaryReader(ms))
+                {
+                    featureType = FeatureType.POLYGON;
+                    br.BaseStream.Seek(4, SeekOrigin.Current);
+                    mbr[0] = br.ReadDouble();
+                    mbr[2] = br.ReadDouble();
+                    mbr[1] = br.ReadDouble();
+                    mbr[3] = br.ReadDouble();
+                    int partNum = br.ReadInt32();
+                    pointNum = br.ReadInt32();
+                    PolylineD[] rings = new PolylineD[partNum];
+
+                    //将part数组后面多加一个元素pointNum，方便计算每个part的长度
+                    int[] parts = new int[partNum + 1];
+                    for (int i = 0; i < partNum; ++i)
+                    {
+                        parts[i] = br.ReadInt32();
+                    }
+                    parts[partNum] = pointNum;
+
+                    double x, y;
+                    PointD[] segPoints;
+                    for (int i = 0; i < partNum; ++i)
+                    {
+                        segPoints = new PointD[parts[i + 1] - parts[i]];
+                        for (int j = 0; j < parts[i + 1] - parts[i]; ++j)
+                        {
+                            x = br.ReadDouble();
+                            y = br.ReadDouble();
+                            segPoints[j] = new PointD(x, y);
+                        }
+                        rings[i] = new PolylineD(segPoints);
+                    }
+
+                    polygon = new PolygonD(rings);
+                }
+            }
+        }
+
         public override byte[] ToBytes()
         {
             byte[] rslt;
@@ -676,6 +775,31 @@ namespace MalaSpiritGIS
                 x = biReader.ReadDouble();
                 y = biReader.ReadDouble();
                 points[i] = new PointD(x, y);
+            }
+        }
+
+        public MLMultiPoint(byte[] feaContent) : base()
+        {
+            using (MemoryStream ms = new MemoryStream(feaContent))
+            {
+                using (BinaryReader br = new BinaryReader(ms))
+                {
+                    featureType = FeatureType.MULTIPOINT;
+                    br.BaseStream.Seek(4, SeekOrigin.Current);
+                    mbr[0] = br.ReadDouble();
+                    mbr[2] = br.ReadDouble();
+                    mbr[1] = br.ReadDouble();
+                    mbr[3] = br.ReadDouble();
+                    pointNum = br.ReadInt32();
+                    points = new PointD[pointNum];
+                    double x, y;
+                    for (int i = 0; i < pointNum; ++i)
+                    {
+                        x = br.ReadDouble();
+                        y = br.ReadDouble();
+                        points[i] = new PointD(x, y);
+                    }
+                }
             }
         }
 

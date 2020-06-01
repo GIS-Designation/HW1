@@ -22,38 +22,15 @@ namespace MalaSpiritGIS
 
         private void DSure_Click(object sender, EventArgs e)
         {
-            MoveByDeltaCoor?.Invoke(this, (float)Convert.ToDouble(DX.Text), (float)Convert.ToDouble(DY.Text));
-            this.DialogResult = DialogResult.OK;
-        }
-        private void DX_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            Key_Press(e, DX);
-        }
-        private void DY_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            Key_Press(e, DY);
-        }
-        private void Key_Press(KeyPressEventArgs e,TextBox textBox)
-        {
-            //数字0~9所对应的keychar为48~57，小数点是46，Backspace是8
-            e.Handled = true;
-            //输入0-9和Backspace del 有效
-            if ((e.KeyChar >= 47 && e.KeyChar <= 58) || e.KeyChar == 8)
+            double dx, dy;
+            if(double.TryParse(DX.Text,out dx) &&double.TryParse(DY.Text,out dy))
             {
-                e.Handled = false;
+                MoveByDeltaCoor?.Invoke(this, (float)dx, (float)dy);
+                this.DialogResult = DialogResult.OK;
             }
-            if (e.KeyChar == 46)                       //小数点      
+            else
             {
-                if (textBox.Text.Length <= 0)
-                    e.Handled = true;           //小数点不能在第一位      
-                else
-                {
-                    float f;
-                    if (float.TryParse(textBox.Text + e.KeyChar.ToString(), out f))
-                    {
-                        e.Handled = false;
-                    }
-                }
+                MessageBox.Show("请输入数字");
             }
         }
     }
