@@ -77,6 +77,13 @@ namespace MalaSpiritGIS
         {
             return points[index];
         }
+        public PointD[] GetPoints()
+        {
+            PointD[] ps = new PointD[points.Count];
+            for (int i = 0; i != ps.Length; ++i)
+                ps[i] = points[i];
+            return ps;
+        }
 
         public void AddPoint(PointD point)
         {
