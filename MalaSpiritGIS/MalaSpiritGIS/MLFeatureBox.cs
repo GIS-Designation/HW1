@@ -40,6 +40,7 @@ namespace MalaSpiritGIS
                 boxMenu.Show(MousePosition.X, MousePosition.Y);
             }
             data.cancelSelected();  //会变成无图层选中状态
+            MLMainForm.mlmap.ClearSelectedFeatures();
         }
         private void addLayer(FeatureType type,uint id=uint.MaxValue)
         {
@@ -97,21 +98,25 @@ namespace MalaSpiritGIS
         private void up_Click(object sender, EventArgs e)
         {
             data.moveUp();
+            MLMainForm.mlmap.ClearSelectedFeatures();
         }
 
         private void down_Click(object sender, EventArgs e)
         {
             data.moveDown();
+            MLMainForm.mlmap.ClearSelectedFeatures();
         }
 
         private void top_Click(object sender, EventArgs e)
         {
             data.moveTop();
+            MLMainForm.mlmap.ClearSelectedFeatures();
         }
 
         private void bottom_Click(object sender, EventArgs e)
         {
             data.moveBottom();
+            MLMainForm.mlmap.ClearSelectedFeatures();
         }
 
         private void 修改图层名称ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -136,6 +141,7 @@ namespace MalaSpiritGIS
                 ++data.index;
             }
             data.index = -1;
+            MLMainForm.mlmap.ClearSelectedFeatures();
         }
 
         private void 打开属性表ToolStripMenuItem_Click(object sender, EventArgs e)
