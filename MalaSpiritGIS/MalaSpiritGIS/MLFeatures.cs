@@ -328,8 +328,10 @@ namespace MalaSpiritGIS
             for(int i = 0;i != features.Count; ++i)
             {
                 if (feature.ID == features[i].ID)
+                {
                     RemoveFeaure(i);
-                return;
+                    return;
+                }
             }
         }
 

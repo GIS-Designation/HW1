@@ -913,7 +913,7 @@ namespace MalaSpiritGIS
                     if (e.Button == MouseButtons.Left)
                     {
                         MLFeature fe = dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature);
-                        fe.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                        fe.Move(e.Location.X - startPoint.X, startPoint.Y - e.Location.Y);
                         startPoint = e.Location;
                         Refresh();
                     }
@@ -1005,22 +1005,22 @@ namespace MalaSpiritGIS
                                 case FeatureType.POINT:
                                     break;
                                 case FeatureType.MULTIPOINT:
-                                    MLMultiPoint parent = (MLMultiPoint)fc.GetFeature(0);
-                                    MLMultiPoint child = (MLMultiPoint)fc.GetFeature(i);
+                                    MLMultiPoint parent = (MLMultiPoint)mergeFeatures[0];
+                                    MLMultiPoint child = (MLMultiPoint)mergeFeatures[i];
                                     for (int j = 0; j != child.Points.Length; ++j)
                                         parent.AddPoint(child.Points[j]);
                                     fc.RemoveFeaure(child);
                                     break;
                                 case FeatureType.POLYLINE:
-                                    MLPolyline parent2 = (MLPolyline)fc.GetFeature(0);
-                                    MLPolyline child2 = (MLPolyline)fc.GetFeature(i);
+                                    MLPolyline parent2 = (MLPolyline)mergeFeatures[0];
+                                    MLPolyline child2 = (MLPolyline)mergeFeatures[i];
                                     for (int j = 0; j != child2.Segments.Length; ++j)
                                         parent2.AddLine(child2.Segments[j]);
                                     fc.RemoveFeaure(child2);
                                     break;
                                 case FeatureType.POLYGON:
-                                    MLPolygon parent3 = (MLPolygon)fc.GetFeature(0);
-                                    MLPolygon child3 = (MLPolygon)fc.GetFeature(i);
+                                    MLPolygon parent3 = (MLPolygon)mergeFeatures[0];
+                                    MLPolygon child3 = (MLPolygon)mergeFeatures[i];
                                     for (int j = 0; j != child3.Polygon.Count; ++j)
                                         parent3.AddPolygon(child3.Polygon.GetRing(j));
                                     fc.RemoveFeaure(child3);
@@ -1036,16 +1036,14 @@ namespace MalaSpiritGIS
         {
             if (e.Delta > 0)
             {
-                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
-                    this.ClientSize.Height / 2);  //屏幕中心点
+                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
                 ZoomByCenter(sCenterPointOnMap, zoomRatio);
                 Refresh();
             }
             else
             {
-                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
-                    this.ClientSize.Height / 2);  //屏幕中心点
+                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2, this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
                 ZoomByCenter(sCenterPointOnMap, 1 / zoomRatio);
                 Refresh();
