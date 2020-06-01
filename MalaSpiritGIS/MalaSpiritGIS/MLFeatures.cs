@@ -91,7 +91,10 @@ namespace MalaSpiritGIS
             }
             return res;
         }
-
+        public void RemoveLastOne()
+        {
+            points.RemoveAt(points.Count - 1);
+        }
         public void AddPoint(PointD point)
         {
             points.Add(point);

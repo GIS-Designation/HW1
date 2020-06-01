@@ -82,6 +82,7 @@
             this.裁剪ToolStripMenuItem.Name = "裁剪ToolStripMenuItem";
             this.裁剪ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.裁剪ToolStripMenuItem.Text = "裁剪";
+            this.裁剪ToolStripMenuItem.Click += new System.EventHandler(this.裁剪ToolStripMenuItem_Click);
             // 
             // MLMap
             // 

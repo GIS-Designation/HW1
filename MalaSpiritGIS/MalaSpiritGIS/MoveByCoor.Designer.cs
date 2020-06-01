@@ -68,7 +68,6 @@
             this.DY.Name = "DY";
             this.DY.Size = new System.Drawing.Size(100, 21);
             this.DY.TabIndex = 4;
-            this.DY.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.DY_KeyPress);
             // 
             // label3
             // 
@@ -85,7 +84,6 @@
             this.DX.Name = "DX";
             this.DX.Size = new System.Drawing.Size(100, 21);
             this.DX.TabIndex = 2;
-            this.DX.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.DX_KeyPress);
             // 
             // label2
             // 

@@ -222,3 +222,6 @@ D:\RiHousyouNoData\GIS设计与应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\
 D:\RiHousyouNoData\GIS设计与应用\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.Query.resources
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MapRender.resources
 C:\Users\Lenovo\Source\Repos\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.Query.resources
+C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MapRender.resources
+C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.MoveByCoor.resources
+C:\Users\Housyou\Downloads\GIS-Designation\HW1\MalaSpiritGIS\MalaSpiritGIS\obj\Debug\MalaSpiritGIS.Query.resources
