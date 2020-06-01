@@ -1026,14 +1026,13 @@ namespace MalaSpiritGIS
                             break;
                         case FeatureType.POLYLINE:
                             PolylineD[] segments = ((MLPolyline)feature).Segments;
+                            List<PolylineD> oriSegments = new List<PolylineD>();
                             List<PolylineD> newSegments = new List<PolylineD>();
-                            List<int> parents = new List<int>();
                             for(int i = 0;i != segments.Length; ++i)
                             {
                                 List<PolylineD> res = PolylineCutByPolyline(segments[i], CutFeature.ps);
                                 for (int j = 0; j != res.Count; ++j)
                                 {
-                                    parents.Add(i);
                                     newSegments.Add(res[j]);
                                 }
                             }
