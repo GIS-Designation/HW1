@@ -25,11 +25,7 @@ namespace MalaSpiritGIS
                 this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.showBoxMenu);
                 ++constructCount;
             }
-            else
-            {
-                MLMainForm.FeatureProcessor.RecordsChangedHandle += new MLFeatureProcessor.RecordsChanged(this.RefreshRecords);
-            }
-            
+
         }
         public Color[] colors = { Color.Red, Color.Orange, Color.Yellow, Color.Blue, Color.DarkBlue, Color.Violet, Color.Pink };  //线条、填充色
         public Dataframe data;  //数据框，由于软件只支持一个数据框，因此全局变量只要有一个Dataframe就够了
@@ -41,9 +37,17 @@ namespace MalaSpiritGIS
             }
             data.cancelSelected();  //会变成无图层选中状态
         }
-        private void addLayer(FeatureType type,uint id=uint.MaxValue)
+        public void addLayer(FeatureType type,uint id=uint.MaxValue,string filePath=null)
         {
-            Layer layer = new Layer(type, data.layers.Count,id);
+            Layer layer;
+            if (filePath == null)
+            {
+                layer = new Layer(type, data.layers.Count, id);
+            }
+            else
+            {
+                layer = new Layer(MLMainForm.FeatureProcessor.LoadFeatureClassFromShapefile(filePath), data.layers.Count);
+            }
             //绑定事件
             layer.sign.MouseClick += new MouseEventHandler(editSign);  //点击符号的操作
             layer.name.MouseClick += new MouseEventHandler(showLayerMenu);  //点击文字的操作
@@ -154,7 +158,7 @@ namespace MalaSpiritGIS
                     return;
                 }
             }
-            addLayer(MLMainForm.FeatureProcessor.Records[curRecordIndex].Type, MLMainForm.FeatureProcessor.Records[curRecordIndex].ID);
+            MLMainForm.featureBox.addLayer(MLMainForm.FeatureProcessor.Records[curRecordIndex].Type, MLMainForm.FeatureProcessor.Records[curRecordIndex].ID);
         }
 
         int curRecordIndex;

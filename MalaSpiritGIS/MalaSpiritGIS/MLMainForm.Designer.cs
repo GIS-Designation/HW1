@@ -50,6 +50,7 @@
             this.裁剪ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomToLayer = new System.Windows.Forms.Button();
             this.mlRecordBox = new MalaSpiritGIS.MLFeatureBox();
+            this.导入Shapefile文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.featureMenu.SuspendLayout();
@@ -100,6 +101,8 @@
             // 
             // 文件FToolStripMenuItem
             // 
+            this.文件FToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.导入Shapefile文件ToolStripMenuItem});
             this.文件FToolStripMenuItem.Name = "文件FToolStripMenuItem";
             this.文件FToolStripMenuItem.Size = new System.Drawing.Size(58, 21);
             this.文件FToolStripMenuItem.Text = "文件(&F)";
@@ -259,6 +262,13 @@
             this.mlRecordBox.Size = new System.Drawing.Size(90, 373);
             this.mlRecordBox.TabIndex = 11;
             // 
+            // 导入Shapefile文件ToolStripMenuItem
+            // 
+            this.导入Shapefile文件ToolStripMenuItem.Name = "导入Shapefile文件ToolStripMenuItem";
+            this.导入Shapefile文件ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.导入Shapefile文件ToolStripMenuItem.Text = "导入Shapefile文件";
+            this.导入Shapefile文件ToolStripMenuItem.Click += new System.EventHandler(this.导入Shapefile文件ToolStripMenuItem_Click);
+            // 
             // MLMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -312,6 +322,7 @@
         private MLMap mlMap;
         private System.Windows.Forms.Button zoomToLayer;
         private MLFeatureBox mlRecordBox;
+        private System.Windows.Forms.ToolStripMenuItem 导入Shapefile文件ToolStripMenuItem;
     }
 }
 

@@ -294,6 +294,11 @@ namespace MalaSpiritGIS
             return features[index];
         }
 
+        public void EditName(string _name)
+        {
+            name = _name;
+        }
+
         public double XMin { get { return mbr[0]; } }
         public double XMax { get { return mbr[1]; } }
         public double YMin { get { return mbr[2]; } }
