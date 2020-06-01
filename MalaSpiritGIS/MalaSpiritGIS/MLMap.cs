@@ -1172,6 +1172,7 @@ namespace MalaSpiritGIS
                             }
                         }
                         mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
+                        MessageBox.Show("完成合并");
                     }
                     break;
             }
