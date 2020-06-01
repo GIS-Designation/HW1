@@ -50,12 +50,31 @@ namespace MalaSpiritGIS
             if(MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Columns[FieldList.SelectedIndex].DataType == typeof(string))
             {
                 for (int i = 0; i < MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows.Count; i++)
-                    ValueList.Items.Add("'"+MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows[i][FieldList.SelectedIndex]+"'");
+                {
+                    bool _flag = true;
+                    for(int j = 0; j < ValueList.Items.Count; j ++)
+                    {
+                        if (("'" + MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows[i][FieldList.SelectedIndex] + "'").ToString() == ValueList.Items[j].ToString())
+                            _flag = false;
+                    }
+                    if(_flag)
+                        ValueList.Items.Add("'"+MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows[i][FieldList.SelectedIndex]+"'");
+                }
+                    
             }
             else
             {
                 for (int i = 0; i < MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows.Count; i++)
-                    ValueList.Items.Add(MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows[i][FieldList.SelectedIndex]);
+                {
+                    bool _flag = true;
+                    for (int j = 0; j < ValueList.Items.Count; j++)
+                    {
+                        if (MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows[i][FieldList.SelectedIndex].ToString() == ValueList.Items[j].ToString())
+                            _flag = false;
+                    }
+                    if (_flag)
+                        ValueList.Items.Add(MLMainForm.dataFrame.layers[_index].featureClass.AttributeData.Rows[i][FieldList.SelectedIndex]);
+                }
             }
         }
 
@@ -121,8 +140,7 @@ namespace MalaSpiritGIS
                     at.selectingFeatureIndexes[_temp] = (int)(uint)drN[0];
                     _temp++;
                 }
-                MessageBox.Show(at.selectingFeatureIndexes[0].ToString());
-                //at.SelectingFeatureChanged?.Invoke(this, selectingFeatureIndexes);
+                //at.SelectingFeatureChanged?.Invoke(this, selectingFeatureIndexes); ！！！这里要改！！！
             }
             else
                 MessageBox.Show("未找到符合条件的要素");
