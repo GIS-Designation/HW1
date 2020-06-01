@@ -55,6 +55,7 @@ namespace MalaSpiritGIS
         private Cursor cur_ZoomIn = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomIn.ico"));
         private Cursor cur_ZoomOut = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomOut.ico"));
         private Cursor cur_PanUp = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.PanUp.ico"));
+        private Cursor cur_MoveFeature = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.moveFeature.ico"));
 
         //常量
         private const float boundaryWidth = 1F; //完成追踪的要素边界宽度，单位像素
@@ -289,8 +290,11 @@ namespace MalaSpiritGIS
             }
             return false;
         }
-        private bool PointFInPolygon(PointF p,PointD[] ps)
+        private bool PointFInPolygon(PointF p,PointD[] mapPoints)
         {
+            PointF[] ps = new PointF[mapPoints.Length];
+            for (int i = 0; i != mapPoints.Length; ++i)
+                ps[i] = FromMapPoint(new PointF((float)mapPoints[i].X, (float)mapPoints[i].Y));
             int c = 0;
             for (int i = 1, j = 0; i != ps.Length; j = i++)
             {
@@ -345,7 +349,7 @@ namespace MalaSpiritGIS
         private void PaintPoint(MLFeature feature,Brush brush,Pen pen,Graphics g,string PointSign,float size)  //绘制点要素
         {
             PointD point = ((MLPoint)feature).Point;
-            PointF sScreenPoint = FromMapPoint(new PointF((float)point.X + feature.Dx, (float)point.Y + feature.Dy));
+            PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
             
             if(PointSign == PointSigns[0])//空心圆
             {
@@ -397,7 +401,7 @@ namespace MalaSpiritGIS
             PointD[] ps = ((MLMultiPoint)feature).Points;
             for (int k = 0; k != ps.Length; ++k)
             {
-                PointF sp = FromMapPoint(new PointF((float)ps[k].X + feature.Dx, (float)ps[k].Y + feature.Dy));
+                PointF sp = FromMapPoint(new PointF((float)ps[k].X, (float)ps[k].Y));
                 if (PointSign == PointSigns[0])//空心圆
                 {
                     g.DrawEllipse(pen, sp.X - size, sp.Y - size, size * 2, size * 2);
@@ -461,8 +465,8 @@ namespace MalaSpiritGIS
                 {
                     PointD p1 = segs[k].GetPoint(h - 1);
                     PointD p2 = segs[k].GetPoint(h);
-                    PointF sp1 = FromMapPoint(new PointF((float)p1.X + feature.Dx, (float)p1.Y + feature.Dy));
-                    PointF sp2 = FromMapPoint(new PointF((float)p2.X + feature.Dx, (float)p2.Y + feature.Dy));
+                    PointF sp1 = FromMapPoint(new PointF((float)p1.X, (float)p1.Y));
+                    PointF sp2 = FromMapPoint(new PointF((float)p2.X, (float)p2.Y));
                     g.DrawLine(pen, sp1, sp2);
                 }
             }
@@ -475,7 +479,7 @@ namespace MalaSpiritGIS
                 PolylineD ring = polygon.GetRing(k);
                 PointF[] ps = new PointF[ring.Count];
                 for(int i = 0;i != ps.Length; ++i)
-                    ps[i] = FromMapPoint(new PointF((float)ring.GetPoint(i).X + feature.Dx, (float)ring.GetPoint(i).Y + feature.Dy));
+                    ps[i] = FromMapPoint(new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y));
                 g.FillPolygon(brush, ps);
                 g.DrawPolygon(pen, ps);
             }
@@ -655,6 +659,9 @@ namespace MalaSpiritGIS
                     case 5:  //选择
                         startPoint = e.Location;
                         break;
+                    case 6:  //开始移动图形
+                        startPoint = e.Location;
+                        break;
                 }
             }
             else if(e.Button == MouseButtons.Right)
@@ -737,6 +744,15 @@ namespace MalaSpiritGIS
                         g.Dispose();
                     }
                     break;
+                case 6:  //移动图形
+                    if (e.Button == MouseButtons.Left)
+                    {
+                        MLFeature fe = dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature);
+                        fe.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                        startPoint = e.Location;
+                        Refresh();
+                    }
+                    break;
             }
         }
 
@@ -785,7 +801,7 @@ namespace MalaSpiritGIS
                             case FeatureType.POLYGON:
                                 if (trackingFeature.Count >= 3)
                                 {
-                                    trackingFeature.Add(trackingFeature[0]);
+                                    trackingFeature.Add(new PointD(trackingFeature[0].X, trackingFeature[0].Y));
                                     PointD[] polygonPs = new PointD[trackingFeature.Count];
                                     for (int i = 0; i != polygonPs.Length; ++i)
                                         polygonPs[i] = trackingFeature[i];
@@ -862,7 +878,20 @@ namespace MalaSpiritGIS
         {
             dataFrame.layers[selectedFeatures[0].numLayer].featureClass.RemoveFeaure(selectedFeatures[0].numFeature);
             selectedFeatures.Clear();
+            if (mapOpStyle == 6)
+                mapOpStyle = 0;
             Refresh();
+        }
+
+        private void 拖动图形ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mapOpStyle = 6;
+            this.Cursor = cur_MoveFeature;
+        }
+
+        private void 移动图形坐标ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
 
         //母版重绘

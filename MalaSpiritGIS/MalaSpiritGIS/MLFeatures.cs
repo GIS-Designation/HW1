@@ -51,6 +51,11 @@ namespace MalaSpiritGIS
         {
             return x.GetHashCode() + y.GetHashCode();
         }
+        public void Move(float _x,float _y)
+        {
+            x += _x;
+            y += _y;
+        }
     }
 
     /// <summary>
@@ -94,6 +99,11 @@ namespace MalaSpiritGIS
         {
             return points.Count >= 3 && points[0] == points[points.Count - 1];
         }
+        public void Move(float x,float y)
+        {
+            for (int i = 0; i != points.Count; ++i)
+                points[i].Move(x, y);
+        }
     }
 
     /// <summary>
@@ -125,7 +135,11 @@ namespace MalaSpiritGIS
         {
             rings.Add(ring);
         }
-
+        public void Move(float x,float y)
+        {
+            for (int i = 0; i != rings.Count; ++i)
+                rings[i].Move(x, y);
+        }
     }
 
     /// <summary>
@@ -138,7 +152,6 @@ namespace MalaSpiritGIS
         protected FeatureType featureType;    //要素类型
         protected double[] mbr;               //要素最小外包矩形，xmin，xmax，ymin，ymax
         protected int pointNum;               //要素包含点的数量
-        protected PointF deviation;           //要素在屏幕绘制的偏移值
         #endregion
 
         //static int count=0;
@@ -147,7 +160,6 @@ namespace MalaSpiritGIS
         {
             //id = ++count;   //id自动+1
             mbr = new double[4];
-            deviation = new PointF();
         }
 
 
@@ -155,18 +167,12 @@ namespace MalaSpiritGIS
         public abstract byte[] ToBytes();
 
 
-        public void Move(float x, float y)
-        {
-            deviation.X += x;
-            deviation.Y += y;
-        }
+        public virtual void Move(float x, float y) { }
 
         public double XMin { get { return mbr[0]; } }
         public double XMax { get { return mbr[1]; } }
         public double YMin { get { return mbr[2]; } }
         public double YMax { get { return mbr[3]; } }
-        public float Dx { get { return deviation.X; } }
-        public float Dy { get { return deviation.Y; } }
     }
 
     /// <summary>
@@ -401,6 +407,11 @@ namespace MalaSpiritGIS
             }
             return rslt;
         }
+
+        public override void Move(float x,float y)
+        {
+            point.Move(x, y);
+        }
     }
 
     /// <summary>
@@ -516,6 +527,11 @@ namespace MalaSpiritGIS
             }
             return rslt;
         }
+        public override void Move(float x, float y)
+        {
+            for (int i = 0; i != segments.Length; ++i)
+                segments[i].Move(x, y);
+        }
     }
 
     public class MLPolygon : MLFeature
@@ -614,6 +630,11 @@ namespace MalaSpiritGIS
             }
             return rslt;
         }
+
+        public override void Move(float x, float y)
+        {
+            polygon.Move(x, y);
+        }
     }
 
     public class MLMultiPoint : MLFeature
@@ -678,6 +699,12 @@ namespace MalaSpiritGIS
                 rslt = ms.ToArray();
             }
             return rslt;
+        }
+
+        public override void Move(float x, float y)
+        {
+            for (int i = 0; i != points.Length; ++i)
+                points[i].Move(x, y);
         }
     }
 }

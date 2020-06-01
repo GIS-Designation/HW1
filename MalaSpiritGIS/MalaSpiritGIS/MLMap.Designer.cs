@@ -61,12 +61,14 @@
             this.拖动图形ToolStripMenuItem.Name = "拖动图形ToolStripMenuItem";
             this.拖动图形ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.拖动图形ToolStripMenuItem.Text = "拖动图形";
+            this.拖动图形ToolStripMenuItem.Click += new System.EventHandler(this.拖动图形ToolStripMenuItem_Click);
             // 
             // 移动图形坐标ToolStripMenuItem
             // 
             this.移动图形坐标ToolStripMenuItem.Name = "移动图形坐标ToolStripMenuItem";
             this.移动图形坐标ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.移动图形坐标ToolStripMenuItem.Text = "移动图形(坐标)";
+            this.移动图形坐标ToolStripMenuItem.Click += new System.EventHandler(this.移动图形坐标ToolStripMenuItem_Click);
             // 
             // 编辑节点ToolStripMenuItem
             // 

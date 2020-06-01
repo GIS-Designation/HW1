@@ -225,5 +225,8 @@
   <ItemGroup>
     <None Include="Resources\DashedLine.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\moveFeature.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
