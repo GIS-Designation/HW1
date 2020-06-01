@@ -150,6 +150,10 @@ namespace MalaSpiritGIS
 
         private void 打开属性表ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (attributeTable.IsDisposed)
+            {
+                attributeTable = new AttributeTable();
+            }
             attributeTable.BindData(data.layers[data.index].featureClass);
             attributeTable.Show();
         }
