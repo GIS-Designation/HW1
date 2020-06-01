@@ -137,6 +137,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Query.designer.cs">
+      <DependentUpon>Query.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="AddFieldForm.resx">
       <DependentUpon>AddFieldForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -181,6 +187,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Query.resx">
+      <DependentUpon>Query.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\Cross.ico" />
     <EmbeddedResource Include="Resources\PanUp.ico" />
     <EmbeddedResource Include="Resources\ZoomIn.ico" />

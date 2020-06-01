@@ -97,5 +97,11 @@ namespace MalaSpiritGIS
         {
             toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");
         }
+
+        private void Query_Click(object sender, EventArgs e)
+        {
+            Query q = new Query();
+            q.Show();
+        }
     }
 }
