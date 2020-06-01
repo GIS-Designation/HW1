@@ -13,7 +13,7 @@ namespace MalaSpiritGIS
     public partial class AttributeTable : Form
     {
         MLFeatureClass curFeaClass;
-        int[] selectingFeatureIndexes;
+        public int[] selectingFeatureIndexes;
         bool onEditing;
         public AttributeTable()
         {

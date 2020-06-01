@@ -30,20 +30,37 @@ namespace MalaSpiritGIS
 
         //运行时属性变量
         private float displayScale = 1F;  //显示比例尺的倒数
-        public List<MLFeature> selectedFeatures = new List<MLFeature>();  //选中要素集合
-
+        public class Selected
+        {
+            public int numLayer, numFeature;
+            public Selected(int _numLayer,int _numFeature)
+            {
+                numLayer = _numLayer;
+                numFeature = _numFeature;
+            }
+        }
+        private List<Selected> selectedFeatures = new List<Selected>();  //选中要素集合
+        public void SetSelectedFeatures(List<Selected> s) { selectedFeatures = s;}
+        public void ClearSelectedFeatures() { selectedFeatures = new List<Selected>();Refresh();}
+        public void AddSelectedFeatures(int numLayer,int numFeature) { selectedFeatures.Add(new Selected(numLayer, numFeature));}
         //内部变量
         private float offsetX = 0, offsetY = 0;  //窗口左上点的地图坐标
-        private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素
+        private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素,6移动要素,7编辑节点
         private List<PointD> trackingFeature = new List<PointD>();  //用户正在描绘的要素
         private PointF mouseLocation = new PointF();  //鼠标当前的位置，用于漫游、拉框等
         private PointF startPoint = new PointF();  //记录鼠标按下时的位置，用于拉框
-
+        private static class EditPoint
+        {
+            public static PointD p;
+            public static bool isLinkPoint;
+            public static int numLayer, numPolygon, numRing;
+        }
         //鼠标光标
         private Cursor cur_Cross = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.Cross.ico"));
         private Cursor cur_ZoomIn = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomIn.ico"));
         private Cursor cur_ZoomOut = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.ZoomOut.ico"));
         private Cursor cur_PanUp = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.PanUp.ico"));
+        private Cursor cur_MoveFeature = new Cursor(Assembly.GetExecutingAssembly().GetManifestResourceStream("MalaSpiritGIS.Resources.moveFeature.ico"));
 
         //常量
         private const float boundaryWidth = 1F; //完成追踪的要素边界宽度，单位像素
@@ -134,9 +151,9 @@ namespace MalaSpiritGIS
             mapOpStyle = 5;
             this.Cursor = Cursors.Arrow;
         }
-        public List<MLFeature> SelectByBox(RectangleF box)  //返回完全位于box中的要素
+        public List<Selected> SelectByBox(RectangleF box)  //返回完全位于box中的要素
         {
-            List<MLFeature> result = new List<MLFeature>();
+            List<Selected> result = new List<Selected>();
             for (int i = 0; i < dataFrame.layers.Count; ++i)  //遍历图层
             {
                 MLFeatureClass layer = dataFrame.layers[i].featureClass;
@@ -146,19 +163,19 @@ namespace MalaSpiritGIS
                     {
                         case FeatureType.POINT:
                             if (MLPointInBox((MLPoint)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i,j));
                             break;
                         case FeatureType.MULTIPOINT:
                             if (MLMultiPointInBox((MLMultiPoint)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i, j));
                             break;
                         case FeatureType.POLYLINE:
                             if (MLPolylineInBox((MLPolyline)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i, j));
                             break;
                         case FeatureType.POLYGON:
                             if (MLPolygonInBox((MLPolygon)layer.GetFeature(j), box))
-                                result.Add(layer.GetFeature(j));
+                                result.Add(new Selected(i, j));
                             break;
                     }
                 }
@@ -169,9 +186,10 @@ namespace MalaSpiritGIS
         {
             MLFeatureClass fc = dataFrame.layers[dataFrame.index].featureClass;
             displayScale = (float)Math.Max((fc.XMax - fc.XMin) / this.Width, (fc.YMax - fc.YMin) / this.Height);
-            offsetX = (float)fc.XMin / displayScale;
-            offsetY = (float)fc.YMin / displayScale;
+            offsetX = (float)fc.XMin;
+            offsetY = (float)fc.YMin;
             Refresh();
+            DisplayScaleChanged?.Invoke(this);
         }
 
         #endregion
@@ -254,6 +272,84 @@ namespace MalaSpiritGIS
                 }
             }
             return true;
+        }
+        private bool PointFInPointD(PointF p,PointD pd)
+        {
+            const int LOGICAL_0 = 5;  //像素
+            PointF np = FromMapPoint(new PointF((float)pd.X, (float)pd.Y));
+            float dx = np.X - p.X;
+            float dy = np.Y - p.Y;
+            return dx * dx + dy * dy < LOGICAL_0 * LOGICAL_0;
+        }
+        private bool PointInMLPoint(PointF p,MLPoint m)  //p是显示坐标，不是地图坐标
+        {
+            return PointFInPointD(p, m.Point);
+        }
+        private bool PointInMLMultiPoint(PointF p,MLMultiPoint m)  //p是显示坐标，不是地图坐标
+        {
+            PointD[] ps = m.Points;
+            for(int i = 0;i != ps.Length;++i)
+            {
+                if (PointFInPointD(p, ps[i]))
+                    return true;
+            }
+            return false;
+        }
+        private bool PointFInPolygon(PointF p,PointD[] mapPoints)
+        {
+            PointF[] ps = new PointF[mapPoints.Length];
+            for (int i = 0; i != mapPoints.Length; ++i)
+                ps[i] = FromMapPoint(new PointF((float)mapPoints[i].X, (float)mapPoints[i].Y));
+            int c = 0;
+            for (int i = 1, j = 0; i != ps.Length; j = i++)
+            {
+                if (((ps[i].Y > p.Y) != (ps[j].Y > p.Y)) && (p.X < (ps[j].X - ps[i].X) * (p.Y - ps[i].Y) / (ps[j].Y - ps[i].Y) + ps[i].X))
+                    ++c;
+            }
+            return c % 2 != 0;
+        }
+        private bool PointFInLine(PointF p,PointD p1,PointD p2)
+        {
+            const int LOGICAL_0 = 5;
+            double deltaY = p1.Y - p2.Y;
+            double theta = Math.Abs(deltaY) < 1e-5 ? Math.PI / 2 : Math.Atan(-(p1.X - p2.X) / deltaY);
+            double dx = Math.Cos(theta) * LOGICAL_0;
+            double dy = Math.Sin(theta) * LOGICAL_0;
+            PointD pd1 = new PointD(p1.X - dx, p1.Y - dy);
+            PointD pd2 = new PointD(p1.X + dx, p1.Y + dy);
+            PointD pd3 = new PointD(p2.X + dx, p2.Y + dy);
+            PointD pd4 = new PointD(p2.X - dx, p2.Y - dy);
+            return PointFInPolygon(p, new PointD[] { pd1, pd2, pd3, pd4, pd1 });
+
+        }
+        private bool PointInMLPolyline(PointF p,MLPolyline m)  //p是显示坐标，不是地图坐标
+        {
+            PolylineD[] lines = m.Segments;
+            for(int i = 0;i != lines.Length; ++i)
+            {
+                PolylineD line = lines[i];
+                for(int j = 1;j != line.Count; ++j)
+                {
+                    if (PointFInLine(p, line.GetPoint(j - 1), line.GetPoint(j)))
+                        return true;
+                }
+                for(int j = 0;j != line.Count; ++j)
+                {
+                    if (PointFInPointD(p, line.GetPoint(j)))
+                        return true;
+                }
+            }
+            return false;
+        }
+        private bool PointInMLPolygon(PointF p,MLPolygon m)
+        {
+            PolygonD pd = m.Polygon;
+            for(int i = 0;i != pd.Count; ++i)
+            {
+                if (PointFInPolygon(p, pd.GetRing(i).GetPoints()))
+                    return true;
+            }
+            return false;
         }
         private void PaintPoint(MLFeature feature,Brush brush,Pen pen,Graphics g,string PointSign,float size)  //绘制点要素
         {
@@ -388,7 +484,7 @@ namespace MalaSpiritGIS
                 PolylineD ring = polygon.GetRing(k);
                 PointF[] ps = new PointF[ring.Count];
                 for(int i = 0;i != ps.Length; ++i)
-                    ps[i] = new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y);
+                    ps[i] = FromMapPoint(new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y));
                 g.FillPolygon(brush, ps);
                 g.DrawPolygon(pen, ps);
             }
@@ -498,21 +594,22 @@ namespace MalaSpiritGIS
                 SolidBrush brush = new SolidBrush(selectedColor);
                 for (int i = selectedFeatures.Count - 1; i != -1; --i)
                 {
-                    MLFeature fc = selectedFeatures[i];
+                    //MessageBox.Show(selectedFeatures[i].numLayer.ToString()+'|'+ selectedFeatures[i].numFeature.ToString());
+                    MLFeature fc = dataFrame.layers[selectedFeatures[i].numLayer].featureClass.GetFeature(selectedFeatures[i].numFeature);
                     switch (fc.FeatureType)
                     {
                         case FeatureType.POINT:
-                            PaintPoint(fc, brush, pen,g, dataFrame.layers[dataFrame.index].PointSign, dataFrame.layers[dataFrame.index].PointSize);
+                            PaintPoint(fc, brush, pen,g, dataFrame.layers[selectedFeatures[i].numLayer].PointSign, dataFrame.layers[selectedFeatures[i].numLayer].PointSize);
                             break;
                         case FeatureType.MULTIPOINT:
-                            PaintMultiPoint(fc, brush, pen, g, dataFrame.layers[dataFrame.index].PointSign, dataFrame.layers[dataFrame.index].PointSize);
+                            PaintMultiPoint(fc, brush, pen, g, dataFrame.layers[selectedFeatures[i].numLayer].PointSign, dataFrame.layers[selectedFeatures[i].numLayer].PointSize);
                             break;
                         case FeatureType.POLYLINE:
-                            pen.Width = dataFrame.layers[i].LineWidth + 2;
-                            PaintPolyline(fc, pen, g,dataFrame.layers[dataFrame.index].LineStyle);
+                            pen.Width = dataFrame.layers[selectedFeatures[i].numLayer].LineWidth + 2;
+                            PaintPolyline(fc, pen, g,dataFrame.layers[selectedFeatures[i].numLayer].LineStyle);
                             break;
                         case FeatureType.POLYGON:
-                            pen.Width = dataFrame.layers[i].LineWidth + 2;
+                            pen.Width = dataFrame.layers[selectedFeatures[i].numLayer].LineWidth + 2;
                             SelectPolygon(fc, pen, g);
                             break;
                     }
@@ -526,61 +623,151 @@ namespace MalaSpiritGIS
         #region 母版事件处理
         private void MLMouseDown(object sender, MouseEventArgs e)
         {
-            switch (mapOpStyle)
+            if (e.Button == MouseButtons.Left)
             {
-                case 0:
-                    break;
-                case 1:  //放大
-                    if (e.Button == MouseButtons.Left)
-                    {
-                        PointF sMouseLocation = new PointF(e.Location.X, e.Location.Y);
-                        PointF sPoint = ToMapPoint(sMouseLocation);
-                        ZoomByCenter(sPoint, zoomRatio);
+                switch (mapOpStyle)
+                {
+                    case 0:
+                        break;
+                    case 1:  //放大
+                        ZoomByCenter(ToMapPoint(new PointF(e.Location.X, e.Location.Y)), zoomRatio);
                         Refresh();
-                    }
-                    break;
-                case 2:  //缩小
-                    if (e.Button == MouseButtons.Left)
-                    {
-                        PointF sMouseLocation = new PointF(e.Location.X, e.Location.Y);
-                        PointF sPoint = ToMapPoint(sMouseLocation);
-                        ZoomByCenter(sPoint, 1 / zoomRatio);
+                        break;
+                    case 2:  //缩小
+                        ZoomByCenter(ToMapPoint(new PointF(e.Location.X, e.Location.Y)), 1 / zoomRatio);
                         Refresh();
-                    }
-                    break;
-                case 3:  //漫游
-                    if (e.Button == MouseButtons.Left)
-                    {
+                        break;
+                    case 3:  //漫游
                         mouseLocation.X = e.Location.X;
                         mouseLocation.Y = e.Location.Y;
-                    }
-                    break;
-                case 4:  //输入要素
-                    if (e.Button == MouseButtons.Left && e.Clicks == 1)
-                    {
-                        PointF p = ToMapPoint(new PointF(e.Location.X, e.Location.Y));
-                        switch (dataFrame.layers[dataFrame.index].featureClass.featureType)
+                        break;
+                    case 4:  //输入要素
+                        if (e.Clicks == 1)
                         {
-                            case FeatureType.POINT:  //如果是点要素，那点击即创建
-                                MLPoint point = new MLPoint(new PointD(p.X, p.Y));
-                                if (TrackingFinished != null)
+                            PointF p = ToMapPoint(new PointF(e.Location.X, e.Location.Y));
+                            switch (dataFrame.layers[dataFrame.index].featureClass.featureType)
+                            {
+                                case FeatureType.POINT:  //如果是点要素，那点击即创建
+                                    MLPoint point = new MLPoint(new PointD(p.X, p.Y));
+                                    if (TrackingFinished != null)
+                                    {
+                                        TrackingFinished(this, point);
+                                    }
+                                    break;
+                                default:
+                                    trackingFeature.Add(new PointD(p.X, p.Y));
+                                    Refresh();
+                                    break;
+                            }
+                        }
+                        break;
+                    case 5:  //选择
+                        startPoint = e.Location;
+                        break;
+                    case 6:  //开始移动图形
+                        startPoint = e.Location;
+                        break;
+                    case 7:  //开始编辑节点;
+                        MLFeature fc = dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature);
+                        EditPoint.isLinkPoint = false;
+                        startPoint = e.Location;
+                        switch (fc.FeatureType)
+                        {
+                            case FeatureType.POINT:
+                                if(PointFInPointD(e.Location, ((MLPoint)fc).Point))
                                 {
-                                    TrackingFinished(this, point);
+                                    EditPoint.p = ((MLPoint)fc).Point;
+                                    return;
                                 }
                                 break;
-                            default:
-                                trackingFeature.Add(new PointD(p.X, p.Y));
-                                Refresh();
+                            case FeatureType.MULTIPOINT:
+                                PointD[] ps = ((MLMultiPoint)fc).Points;
+                                for(int i = 0;i != ps.Length; ++i)
+                                {
+                                    if (PointFInPointD(e.Location, ps[i]))
+                                    {
+                                        EditPoint.p = ps[i];
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FeatureType.POLYLINE:
+                                PolylineD[] polylines =((MLPolyline)fc).Segments;
+                                for(int i = 0;i != polylines.Length; ++i)
+                                {
+                                    for(int j = 0;j != polylines[i].Count; ++j)
+                                    {
+                                        if (PointFInPointD(e.Location, polylines[i].GetPoint(j)))
+                                        {
+                                            EditPoint.p = polylines[i].GetPoint(j);
+                                            return;
+                                        }
+                                    }
+                                }
+                                break;
+                            case FeatureType.POLYGON:
+                                PolygonD pd = ((MLPolygon)fc).Polygon;
+                                for(int i = 0;i != pd.Count; ++i)
+                                {
+                                    if(PointFInPointD(e.Location, pd.GetRing(i).GetPoint(0)))
+                                    {
+                                        PolylineD pld = pd.GetRing(i);
+                                        pld.RemoveLastOne();
+                                        pld.AddPoint(pld.GetPoint(0));
+                                        EditPoint.p = pld.GetPoint(0);
+                                        EditPoint.isLinkPoint = true;
+                                        EditPoint.numLayer = selectedFeatures[0].numLayer;
+                                        EditPoint.numPolygon = selectedFeatures[0].numFeature;
+                                        EditPoint.numRing = i;
+                                        return;
+                                    }
+                                    for(int j = 0;j != pd.GetRing(i).Count - 1; ++j)
+                                    {
+                                        if(PointFInPointD(e.Location, pd.GetRing(i).GetPoint(j)))
+                                        {
+                                            EditPoint.p = pd.GetRing(i).GetPoint(j);
+                                            return;
+                                        }
+                                    }
+                                }
                                 break;
                         }
-                    }
-                    break;
-                case 5:  //选择
-                    if (e.Button == MouseButtons.Left)
+                        break;
+                }
+            }
+            else if(e.Button == MouseButtons.Right)
+            {
+                for (int i = 0; i != selectedFeatures.Count; ++i)
+                {
+                    bool selected = false;
+                    MLFeature fc = dataFrame.layers[selectedFeatures[i].numLayer].featureClass.GetFeature(selectedFeatures[i].numFeature);
+                    switch (fc.FeatureType)
                     {
-                        startPoint = e.Location;
+                        case FeatureType.POINT:
+                            if (PointInMLPoint(e.Location, (MLPoint)fc))
+                                selected = true;
+                            break;
+                        case FeatureType.MULTIPOINT:
+                            if (PointInMLMultiPoint(e.Location, (MLMultiPoint)fc))
+                                selected = true;
+                            break;
+                        case FeatureType.POLYLINE:
+                            if (PointInMLPolyline(e.Location, (MLPolyline)fc))
+                                selected = true;
+                            break;
+                        case FeatureType.POLYGON:
+                            if (PointInMLPolygon(e.Location, (MLPolygon)fc))
+                                selected = true;
+                            break;
                     }
-                    break;
+                    if(selected)
+                    {
+                        selectedFeatures = new List<Selected>() { selectedFeatures[i] };
+                        Refresh();
+                        featureMenu.Show(MousePosition.X, MousePosition.Y);
+                        return;
+                    }
+                }
             }
         }
 
@@ -626,6 +813,26 @@ namespace MalaSpiritGIS
                         float sMaxY = Math.Max(startPoint.Y, e.Location.Y);
                         g.DrawRectangle(sBoxPen, sMinX, sMinY, sMaxX - sMinX, sMaxY - sMinY);
                         g.Dispose();
+                    }
+                    break;
+                case 6:  //移动图形
+                    if (e.Button == MouseButtons.Left)
+                    {
+                        MLFeature fe = dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature);
+                        fe.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                        startPoint = e.Location;
+                        Refresh();
+                    }
+                    break;
+                case 7:
+                    if (e.Button == MouseButtons.Left)
+                    {
+                        if(EditPoint.p != null)
+                        {
+                            EditPoint.p.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                            startPoint = e.Location;
+                            Refresh();
+                        }
                     }
                     break;
             }
@@ -676,7 +883,7 @@ namespace MalaSpiritGIS
                             case FeatureType.POLYGON:
                                 if (trackingFeature.Count >= 3)
                                 {
-                                    trackingFeature.Add(trackingFeature[0]);
+                                    trackingFeature.Add(new PointD(trackingFeature[0].X, trackingFeature[0].Y));
                                     PointD[] polygonPs = new PointD[trackingFeature.Count];
                                     for (int i = 0; i != polygonPs.Length; ++i)
                                         polygonPs[i] = trackingFeature[i];
@@ -746,9 +953,58 @@ namespace MalaSpiritGIS
                         SelectingFinished?.Invoke(this, sSelBox);
                     }
                     break;
+                case 6:
+                    break;
+                case 7:
+                    if (EditPoint.isLinkPoint)
+                    {
+                        MLPolygon mp = (MLPolygon)dataFrame.layers[EditPoint.numLayer].featureClass.GetFeature(EditPoint.numPolygon);
+                        PolylineD pd = mp.Polygon.GetRing(EditPoint.numRing);
+                        pd.RemoveLastOne();
+                        pd.AddPoint(new PointD(pd.GetPoint(0).X, pd.GetPoint(0).Y));
+                    }
+                    EditPoint.p = null;
+                    break;
             }
         }
 
+        private void 删除图形ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            dataFrame.layers[selectedFeatures[0].numLayer].featureClass.RemoveFeaure(selectedFeatures[0].numFeature);
+            selectedFeatures.Clear();
+            if (mapOpStyle == 6)
+                mapOpStyle = 0;
+            Refresh();
+        }
+
+        private void 拖动图形ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mapOpStyle = 6;
+            this.Cursor = cur_MoveFeature;
+        }
+
+        private void 移动图形坐标ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MoveByCoor bc = new MoveByCoor();
+            bc.MoveByDeltaCoor += new MoveByCoor.MoveByDeltaCoorHandle(MoveByDeltaCoorFunction);
+            bc.ShowDialog();
+        }
+        private void MoveByDeltaCoorFunction(object sender, float dx, float dy)
+        {
+            dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature).Move(dx, dy);
+            Refresh();
+        }
+
+        private void 编辑节点ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mapOpStyle = 7;
+            this.Cursor = cur_Cross;
+        }
+
+        private void 裁剪ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
+        }
 
         //母版重绘
         private void MLPaint(object sender, PaintEventArgs e)

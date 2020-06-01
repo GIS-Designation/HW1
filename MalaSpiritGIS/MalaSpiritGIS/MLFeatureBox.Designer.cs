@@ -45,9 +45,9 @@
             this.打开属性表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.渲染ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.标注要素ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.保存图层ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.recordMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.加载图层ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.保存图层ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.boxMenu.SuspendLayout();
             this.layerMenu.SuspendLayout();
             this.recordMenu.SuspendLayout();
@@ -179,12 +179,20 @@
             this.渲染ToolStripMenuItem.Name = "渲染ToolStripMenuItem";
             this.渲染ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.渲染ToolStripMenuItem.Text = "渲染";
+            this.渲染ToolStripMenuItem.Click += new System.EventHandler(this.渲染ToolStripMenuItem_Click);
             // 
             // 标注要素ToolStripMenuItem
             // 
             this.标注要素ToolStripMenuItem.Name = "标注要素ToolStripMenuItem";
             this.标注要素ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.标注要素ToolStripMenuItem.Text = "标注要素";
+            // 
+            // 保存图层ToolStripMenuItem
+            // 
+            this.保存图层ToolStripMenuItem.Name = "保存图层ToolStripMenuItem";
+            this.保存图层ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.保存图层ToolStripMenuItem.Text = "保存图层";
+            this.保存图层ToolStripMenuItem.Click += new System.EventHandler(this.保存图层ToolStripMenuItem_Click);
             // 
             // recordMenu
             // 
@@ -199,13 +207,6 @@
             this.加载图层ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.加载图层ToolStripMenuItem.Text = "加载图层";
             this.加载图层ToolStripMenuItem.Click += new System.EventHandler(this.加载图层ToolStripMenuItem_Click);
-            // 
-            // 保存图层ToolStripMenuItem
-            // 
-            this.保存图层ToolStripMenuItem.Name = "保存图层ToolStripMenuItem";
-            this.保存图层ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.保存图层ToolStripMenuItem.Text = "保存图层";
-            this.保存图层ToolStripMenuItem.Click += new System.EventHandler(this.保存图层ToolStripMenuItem_Click);
             // 
             // MLFeatureBox
             // 

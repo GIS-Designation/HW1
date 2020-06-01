@@ -25,7 +25,9 @@ namespace MalaSpiritGIS
             FeatureProcessor.RecordsChangedHandle += new MLFeatureProcessor.RecordsChanged(mlRecordBox.RefreshRecords);
             FeatureProcessor.RefreshRecords();
             ShowScale();
+            mlmap = mlMap;
         }
+        public static MLMap mlmap;
         public static Dataframe dataFrame;  //实例化在InitializeComponent函数的第一行，这样可以保证数据的同步性
         private void createFeature_Click(object sender, EventArgs e)  //点击“创建要素”
         {
@@ -52,7 +54,14 @@ namespace MalaSpiritGIS
         }
         private void zoomToLayer_Click(object sender, EventArgs e)  //点击“缩放至图层”
         {
-            mlMap.zoomToLayer();
+            if (dataFrame.selected())
+            {
+                mlMap.zoomToLayer();
+            }
+            else
+            {
+                MessageBox.Show("请先选中图层");
+            }
         }
         private void mlMap_MouseMove(object sender, MouseEventArgs e)  //鼠标移动，改变状态栏的坐标
         {
@@ -73,16 +82,16 @@ namespace MalaSpiritGIS
         }
         private void mlMap_SelectingFinished(object sender, RectangleF box)  //选择结束，由MLMap中的MouseUp触发，选中要素高亮
         {
-            mlMap.selectedFeatures = mlMap.SelectByBox(box);
+            mlMap.SetSelectedFeatures(mlMap.SelectByBox(box));
             mlMap.Refresh();
         }
         private void attributeTable_SelectingFeatureChanged(object sender,int[] selectingIndexes)//属性表进行选择
         {
-            mlMap.selectedFeatures = new List<MLFeature>();
+            mlMap.ClearSelectedFeatures();
             if (selectingIndexes != null)
             {
                 foreach (int i in selectingIndexes)
-                    mlMap.selectedFeatures.Add(dataFrame.layers[dataFrame.index].featureClass.GetFeature(i));
+                    mlMap.AddSelectedFeatures(dataFrame.index, i);
             }
             mlMap.Refresh();
         }
@@ -102,6 +111,12 @@ namespace MalaSpiritGIS
             {
                 featureBox.addLayer(FeatureType.POINT, 0, shpFileDialog.FileName);
             }
+        }
+
+        private void Query_Click(object sender, EventArgs e)
+        {
+            Query q = new Query();
+            q.Show();
         }
     }
 }

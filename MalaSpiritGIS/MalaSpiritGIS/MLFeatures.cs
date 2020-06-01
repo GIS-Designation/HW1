@@ -51,6 +51,11 @@ namespace MalaSpiritGIS
         {
             return x.GetHashCode() + y.GetHashCode();
         }
+        public void Move(float _x,float _y)
+        {
+            x += _x;
+            y += _y;
+        }
     }
 
     /// <summary>
@@ -77,7 +82,19 @@ namespace MalaSpiritGIS
         {
             return points[index];
         }
-
+        public PointD[] GetPoints()
+        {
+            PointD[] res = new PointD[points.Count];
+            for(int i = 0;i != points.Count; ++i)
+            {
+                res[i] = points[i];
+            }
+            return res;
+        }
+        public void RemoveLastOne()
+        {
+            points.RemoveAt(points.Count - 1);
+        }
         public void AddPoint(PointD point)
         {
             points.Add(point);
@@ -86,6 +103,11 @@ namespace MalaSpiritGIS
         public bool IsClose()
         {
             return points.Count >= 3 && points[0] == points[points.Count - 1];
+        }
+        public void Move(float x,float y)
+        {
+            for (int i = 0; i != points.Count; ++i)
+                points[i].Move(x, y);
         }
     }
 
@@ -118,7 +140,11 @@ namespace MalaSpiritGIS
         {
             rings.Add(ring);
         }
-
+        public void Move(float x,float y)
+        {
+            for (int i = 0; i != rings.Count; ++i)
+                rings[i].Move(x, y);
+        }
     }
 
     /// <summary>
@@ -131,7 +157,6 @@ namespace MalaSpiritGIS
         protected FeatureType featureType;    //要素类型
         protected double[] mbr;               //要素最小外包矩形，xmin，xmax，ymin，ymax
         protected int pointNum;               //要素包含点的数量
-        protected PointF deviation;           //要素在屏幕绘制的偏移值
         #endregion
 
         //static int count=0;
@@ -140,7 +165,6 @@ namespace MalaSpiritGIS
         {
             //id = ++count;   //id自动+1
             mbr = new double[4];
-            deviation = new PointF();
         }
 
 
@@ -148,11 +172,7 @@ namespace MalaSpiritGIS
         public abstract byte[] ToBytes();
 
 
-        public void Move(float x, float y)
-        {
-            deviation.X += x;
-            deviation.Y += y;
-        }
+        public virtual void Move(float x, float y) { }
 
         public double XMin { get { return mbr[0]; } }
         public double XMax { get { return mbr[1]; } }
@@ -288,6 +308,31 @@ namespace MalaSpiritGIS
             
             attributeData.EndLoadData();
         }
+        public void RemoveFeaure(int index)
+        {
+            //更新要素列表
+            features.RemoveAt(index);
+            if(features.Count != 0)
+            {
+                mbr[0] = features[0].XMin;
+                mbr[1] = features[0].XMax;
+                mbr[2] = features[0].YMin;
+                mbr[3] = features[0].YMax;
+                //更新mbr
+                for (int i = 1; i != features.Count; ++i)//add第一个feature时
+                {
+                    mbr[0] = Math.Min(mbr[0], features[i].XMin);
+                    mbr[1] = Math.Max(mbr[1], features[i].XMax);
+                    mbr[2] = Math.Min(mbr[2], features[i].YMin);
+                    mbr[3] = Math.Max(mbr[3], features[i].YMax);
+                }
+            }
+            else
+            {
+                mbr = null;
+            }
+            attributeData.Rows.RemoveAt(index);
+        }
 
         public MLFeature GetFeature(int index)
         {
@@ -372,6 +417,11 @@ namespace MalaSpiritGIS
             }
             return rslt;
         }
+
+        public override void Move(float x,float y)
+        {
+            point.Move(x, y);
+        }
     }
 
     /// <summary>
@@ -386,14 +436,14 @@ namespace MalaSpiritGIS
         {
             PolylineD segment = new PolylineD(points);
             featureType = FeatureType.POLYLINE;
-            mbr[0] = mbr[2] = points[0].X;
-            mbr[1] = mbr[3] = points[0].Y;
+            mbr[0] = mbr[1] = points[0].X;
+            mbr[2] = mbr[3] = points[0].Y;
             for (int i = 1; i < points.Length; ++i)
             {
                 if (points[i].X < mbr[0]) mbr[0] = points[i].X;
-                if (points[i].X > mbr[2]) mbr[2] = points[i].X;
-                if (points[i].Y < mbr[1]) mbr[1] = points[i].Y;
-                if (points[i].Y < mbr[3]) mbr[3] = points[i].Y;
+                if (points[i].X > mbr[1]) mbr[1] = points[i].X;
+                if (points[i].Y < mbr[2]) mbr[2] = points[i].Y;
+                if (points[i].Y > mbr[3]) mbr[3] = points[i].Y;
             }
             pointNum = points.Length;
             segments = new PolylineD[] { segment };
@@ -402,14 +452,14 @@ namespace MalaSpiritGIS
         public MLPolyline(PolylineD segment)
         {
             featureType = FeatureType.POLYLINE;
-            mbr[0] = mbr[2] = segment.GetPoint(0).X;
-            mbr[1] = mbr[3] = segment.GetPoint(0).Y;
+            mbr[0] = mbr[1] = segment.GetPoint(0).X;
+            mbr[2] = mbr[3] = segment.GetPoint(0).Y;
             for (int i = 1; i < segment.Count; ++i)
             {
                 if (segment.GetPoint(i).X < mbr[0]) mbr[0] = segment.GetPoint(i).X;
-                if (segment.GetPoint(i).X > mbr[2]) mbr[2] = segment.GetPoint(i).X;
-                if (segment.GetPoint(i).Y < mbr[1]) mbr[1] = segment.GetPoint(i).Y;
-                if (segment.GetPoint(i).Y < mbr[3]) mbr[3] = segment.GetPoint(i).Y;
+                if (segment.GetPoint(i).X > mbr[1]) mbr[1] = segment.GetPoint(i).X;
+                if (segment.GetPoint(i).Y < mbr[2]) mbr[2] = segment.GetPoint(i).Y;
+                if (segment.GetPoint(i).Y > mbr[3]) mbr[3] = segment.GetPoint(i).Y;
             }
             pointNum = segment.Count;
             segments = new PolylineD[] { segment };
@@ -487,6 +537,11 @@ namespace MalaSpiritGIS
             }
             return rslt;
         }
+        public override void Move(float x, float y)
+        {
+            for (int i = 0; i != segments.Length; ++i)
+                segments[i].Move(x, y);
+        }
     }
 
     public class MLPolygon : MLFeature
@@ -502,14 +557,14 @@ namespace MalaSpiritGIS
         public MLPolygon(PolylineD ring)
         {
             featureType = FeatureType.POLYGON;
-            mbr[0] = mbr[2] = ring.GetPoint(0).X;
-            mbr[1] = mbr[3] = ring.GetPoint(0).Y;
+            mbr[0] = mbr[1] = ring.GetPoint(0).X;
+            mbr[2] = mbr[3] = ring.GetPoint(0).Y;
             for (int i = 1; i < ring.Count; ++i)
             {
                 if (ring.GetPoint(i).X < mbr[0]) mbr[0] = ring.GetPoint(i).X;
-                if (ring.GetPoint(i).X > mbr[2]) mbr[2] = ring.GetPoint(i).X;
-                if (ring.GetPoint(i).Y < mbr[1]) mbr[1] = ring.GetPoint(i).Y;
-                if (ring.GetPoint(i).Y < mbr[3]) mbr[3] = ring.GetPoint(i).Y;
+                if (ring.GetPoint(i).X > mbr[1]) mbr[1] = ring.GetPoint(i).X;
+                if (ring.GetPoint(i).Y < mbr[2]) mbr[2] = ring.GetPoint(i).Y;
+                if (ring.GetPoint(i).Y > mbr[3]) mbr[3] = ring.GetPoint(i).Y;
             }
             pointNum = ring.Count;
             polygon = new PolygonD(new PolylineD[] { ring });
@@ -585,6 +640,11 @@ namespace MalaSpiritGIS
             }
             return rslt;
         }
+
+        public override void Move(float x, float y)
+        {
+            polygon.Move(x, y);
+        }
     }
 
     public class MLMultiPoint : MLFeature
@@ -597,14 +657,14 @@ namespace MalaSpiritGIS
             featureType = FeatureType.MULTIPOINT;
             points = new PointD[_points.Length];
             Array.Copy(_points, points, _points.Length);
-            mbr[0] = mbr[2] = points[0].X;
-            mbr[1] = mbr[3] = points[0].Y;
+            mbr[0] = mbr[1] = points[0].X;
+            mbr[2] = mbr[3] = points[0].Y;
             for (int i = 1; i < points.Length; ++i)
             {
                 if (points[i].X < mbr[0]) mbr[0] = points[i].X;
-                if (points[i].X > mbr[2]) mbr[2] = points[i].X;
-                if (points[i].Y < mbr[1]) mbr[1] = points[i].Y;
-                if (points[i].Y < mbr[3]) mbr[3] = points[i].Y;
+                if (points[i].X > mbr[1]) mbr[1] = points[i].X;
+                if (points[i].Y < mbr[2]) mbr[2] = points[i].Y;
+                if (points[i].Y > mbr[3]) mbr[3] = points[i].Y;
             }
             pointNum = points.Length;
         }
@@ -649,6 +709,12 @@ namespace MalaSpiritGIS
                 rslt = ms.ToArray();
             }
             return rslt;
+        }
+
+        public override void Move(float x, float y)
+        {
+            for (int i = 0; i != points.Length; ++i)
+                points[i].Move(x, y);
         }
     }
 }
