@@ -26,6 +26,7 @@ namespace MalaSpiritGIS
         private int _renderMethod;//渲染方法，0：单一符号法；1：唯一值法；2：分级法
         private ColorRamp _colorRamp;//当前选择的色带
         private string _selectedValue;//值字段；
+        private List<Color> _colors = new List<Color>();//渲染用的颜色
 
 
 
@@ -74,7 +75,20 @@ namespace MalaSpiritGIS
             get { return _colorRamp; }
             set { _colorRamp = value; }
         }
+        /// <summary>
+        /// 获取或设置所选颜色列表
+        /// </summary>
+        public List<Color> colors
+        {
+            get { return _colors; }
+            set { _colors = value; }
+        }
 
+        public string selectedValue
+        {
+            get { return _selectedValue; }
+            set { _selectedValue = value; }
+        }
         #endregion
 
 
@@ -84,6 +98,31 @@ namespace MalaSpiritGIS
         {
             lblSimpleColor.BackColor = _color;
         }
+        //最大值
+        private int Max(int a,int b,int c)
+        {
+            int max = a;
+            if (max < b)
+                max = b;
+            if (max < c)
+                max = c;
+            return max;
+        }
+
+        //最小值
+        private int Min(int a,int b,int c)
+        {
+            int min = a;
+            if (min > b)
+                min = b;
+            if (min > c)
+                min = c;
+            return min;
+        }
+
+        
+
+
         #endregion
 
         #region 单一符号法
@@ -250,6 +289,14 @@ namespace MalaSpiritGIS
         private void UniqueValueList_SelectedIndexChanged(object sender, EventArgs e)
         {
             _selectedValue = UniqueValueList.SelectedItem.ToString();
+            if (_colors != null)
+            {
+                _colors.Clear();
+            }
+            if (listBox1.Items != null)
+            {
+                listBox1.Items.Clear();
+            }
         }
 
         //显示渐变色带
@@ -276,16 +323,26 @@ namespace MalaSpiritGIS
         //选择色带
         private void ColorBar1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if(_colors != null)
+            {
+                _colors.Clear();
+            }
+            _selectedValue = UniqueValueList.SelectedItem.ToString();
             _colorRamp = myColorRamps[ColorBar1.SelectedIndex];
+            if(listBox1.Items != null)
+            {
+                listBox1.Items.Clear();
+            }
             Graphics g = this.CreateGraphics();
             Pen p = new Pen(Color.Black, 1);
             SolidBrush brush = new SolidBrush(_color);
             int i;
-            for(i = 0;i<CurLayer.featureClass.Count;i++)
+            Random rd = new Random();
+            for (i = 0;i<CurLayer.featureClass.Count;i++)
             {
-                Random rd = new Random();
                 int r = rd.Next(_colorRamp.fromColor.R, 255);
                 Color c = Color.FromArgb(r, _colorRamp.fromColor.G,_colorRamp.fromColor.B);
+                _colors.Add(c);
                 Font f = new Font("宋体", 9.0f, FontStyle.Bold);
                 if(CurLayer.featureClass.featureType == FeatureType.POINT || CurLayer.featureClass.featureType == FeatureType.MULTIPOINT)
                 {
@@ -303,6 +360,7 @@ namespace MalaSpiritGIS
                     listBox1.Items.Add(str);
                 }
             }
+            _renderMethod = 1;
         }
         #endregion
 
@@ -312,6 +370,15 @@ namespace MalaSpiritGIS
         private void rangeValueList_SelectedIndexChanged(object sender, EventArgs e)
         {
             _selectedValue = rangeValueList.SelectedItem.ToString();
+            if (_colors != null)
+            {
+                _colors.Clear();
+            }
+            if(listBox2 != null)
+            {
+                listBox2.Items.Clear();
+            }
+            
         }
 
         //绘制色带
@@ -337,8 +404,16 @@ namespace MalaSpiritGIS
         //选择色带
         private void ColorBar2_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_colors != null)
+            {
+                _colors.Clear();
+            }
             _colorRamp = myColorRamps[ColorBar2.SelectedIndex];
             _selectedValue = rangeValueList.SelectedItem.ToString();
+            if (listBox2.Items != null)
+            {
+                listBox2.Items.Clear();
+            }
             Graphics g = this.CreateGraphics();
             Pen p = new Pen(Color.Black, 1);
             SolidBrush brush = new SolidBrush(_color);
@@ -359,8 +434,13 @@ namespace MalaSpiritGIS
                     }
                 }
                 float step = (max - min) / 5;
+                int r = _colorRamp.fromColor.R;
+                //Color c = Color.FromArgb(r, _colorRamp.fromColor.G, _colorRamp.fromColor.B);
                 for (i = 0; i < 5; i++)
                 {
+                    r = r + 10;
+                    Color c = Color.FromArgb(r, _colorRamp.fromColor.G, _colorRamp.fromColor.B);
+                    _colors.Add(c);
                     float smax = min + step * i;
                     string str = min + "——" + smax + "             " + min + "——" + smax;
                     listBox2.Items.Add(str);
@@ -374,6 +454,7 @@ namespace MalaSpiritGIS
                     listBox2.Items.Add(str);
                 }
             }
+            _renderMethod = 2;
 
         }
         #endregion
@@ -392,27 +473,27 @@ namespace MalaSpiritGIS
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(204, 204, 255);
+            colorRamp.fromColor = Color.FromArgb(104, 204, 255);
             colorRamp.toColor = Color.FromArgb(0, 0, 224);
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(211, 229, 232);
+            colorRamp.fromColor = Color.FromArgb(111, 229, 232);
             colorRamp.toColor = Color.FromArgb(46, 100, 140);
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(203, 245, 234);
+            colorRamp.fromColor = Color.FromArgb(103, 245, 234);
             colorRamp.toColor = Color.FromArgb(48, 207, 146);
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(216, 242, 237);
+            colorRamp.fromColor = Color.FromArgb(116, 242, 237);
             colorRamp.toColor = Color.FromArgb(21, 79, 74);
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(240, 236, 170);
+            colorRamp.fromColor = Color.FromArgb(140, 236, 170);
             colorRamp.toColor = Color.FromArgb(102, 72, 48);
             myColorRamps.Add(colorRamp);
 
@@ -427,12 +508,12 @@ namespace MalaSpiritGIS
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(214, 47, 39);
+            colorRamp.fromColor = Color.FromArgb(114, 47, 39);
             colorRamp.toColor = Color.FromArgb(69, 117, 181);
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(245, 0, 245);
+            colorRamp.fromColor = Color.FromArgb(145, 0, 245);
             colorRamp.toColor = Color.FromArgb(0, 245, 245);
             myColorRamps.Add(colorRamp);
 
@@ -452,7 +533,7 @@ namespace MalaSpiritGIS
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(219, 219, 219);
+            colorRamp.fromColor = Color.FromArgb(200, 219, 219);
             colorRamp.toColor = Color.FromArgb(69, 69, 69);
             myColorRamps.Add(colorRamp);
 
@@ -462,7 +543,7 @@ namespace MalaSpiritGIS
             myColorRamps.Add(colorRamp);
 
             colorRamp = new ColorRamp();
-            colorRamp.fromColor = Color.FromArgb(220, 245, 233);
+            colorRamp.fromColor = Color.FromArgb(120, 245, 233);
             colorRamp.toColor = Color.FromArgb(34, 102, 51);
             myColorRamps.Add(colorRamp);
         }

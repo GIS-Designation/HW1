@@ -526,23 +526,164 @@ namespace MalaSpiritGIS
                     Brush brush = new SolidBrush(color);
                     Pen pen = new Pen(color, boundaryWidth);
                     MLFeatureClass fc = dataFrame.layers[i].featureClass;
+                    List<Color> colors = dataFrame.layers[i].RenderColors;
+                    int render = dataFrame.layers[i].renderMethod;
+                    string _selectedValue = dataFrame.layers[i]._selectedValue;
                     for (int j = 0; j != fc.Count; ++j)
                     {
                         switch (fc.Type)
                         {
                             case FeatureType.POINT:
-                                PaintPoint(fc.GetFeature(j), brush , pen, g , dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                if(render == 0)
+                                {
+                                    PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if(render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if(render == 2)
+                                {
+                                    
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+
+                                }
+
                                 break;
                             case FeatureType.MULTIPOINT:
-                                PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                if (render == 0)
+                                {
+                                    PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if (render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if (render == 2)
+                                {
+
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+
+                                }
+                                
                                 break;
                             case FeatureType.POLYLINE:
                                 pen.Width = dataFrame.layers[i].LineWidth;
-                                PaintPolyline(fc.GetFeature(j), pen, g,dataFrame.layers[i].LineStyle);
+                                if (render == 0)
+                                {
+                                    PaintPolyline(fc.GetFeature(j), pen, g, dataFrame.layers[i].LineStyle);
+                                }
+                                else if (render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintPolyline(fc.GetFeature(j), pen, g, dataFrame.layers[i].LineStyle);
+                                }
+                                else if (render == 2)
+                                {
+
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintPolyline(fc.GetFeature(j), pen, g, dataFrame.layers[i].LineStyle);
+                                }
+                                //PaintPolyline(fc.GetFeature(j), pen, g,dataFrame.layers[i].LineStyle);
                                 break;
                             case FeatureType.POLYGON:
                                 pen.Width = dataFrame.layers[i].LineWidth;
-                                PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                if (render == 0)
+                                {
+                                    PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                }
+                                else if (render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                }
+                                else if (render == 2)
+                                {
+
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                }
+                                //PaintPolygon(fc.GetFeature(j), brush, pen, g);
                                 break;
                         }
                     }
@@ -551,6 +692,9 @@ namespace MalaSpiritGIS
                 }
             }
         }
+
+
+        
 
         private void DrawTrackingFeatures(Graphics g)  //描绘正在追踪中的要素
         {
