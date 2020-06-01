@@ -97,6 +97,7 @@ namespace MalaSpiritGIS
             {
                 layers[index].name.Text = newName;
                 //之后要素类的名字也要改
+                layers[index].featureClass.EditName(newName);
             }
         }
 
@@ -152,6 +153,42 @@ namespace MalaSpiritGIS
                     name.Text = featureClass.Name;
                 }
                     
+                sign.Width = 12;  //长宽固定
+                name.Width = 78;
+
+                int y = 25 * index + 30;  //新图层的显示位置可以推算
+                sign.Location = new Point(0, y);
+                name.Location = new Point(12, y);
+            }
+
+            public Layer(MLFeatureClass fc, int _index)
+            {
+                index = _index;
+                sign = new Label();
+                name = new Label();
+                switch (fc.featureType)
+                {
+                    case FeatureType.POINT:
+                        sign.Text = "·";
+                        break;
+                    case FeatureType.MULTIPOINT:
+                        sign.Text = "·";
+                        break;
+                    case FeatureType.POLYLINE:
+                        sign.Text = "—";
+                        break;
+                    case FeatureType.POLYGON:
+                        sign.Text = "■";
+                        break;
+                }
+
+                LineWidth = 1;//轮廓宽度为1
+                LineStyle = "Solid";//实线
+                PointSign = "FilledCircle";//初始化默认点符号类型为实心圆
+                PointSize = 2;//点符号大小初始为2
+                featureClass = fc;
+                name.Text = fc.Name;
+
                 sign.Width = 12;  //长宽固定
                 name.Width = 78;
 

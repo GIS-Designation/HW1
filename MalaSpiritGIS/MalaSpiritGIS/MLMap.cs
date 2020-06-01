@@ -92,7 +92,7 @@ namespace MalaSpiritGIS
         {
             PointF sPoint = new PointF();
             sPoint.X = (point.X - offsetX) / displayScale;
-            sPoint.Y = (point.Y - offsetY) / displayScale;
+            sPoint.Y = -(point.Y - offsetY) / displayScale+Height;
             return sPoint;
         }
 
@@ -100,7 +100,7 @@ namespace MalaSpiritGIS
         {
             PointF sPoint = new PointF();
             sPoint.X = point.X * displayScale + offsetX;
-            sPoint.Y = point.Y * displayScale + offsetY;
+            sPoint.Y = (Height-point.Y) * displayScale + offsetY;
             return sPoint;
         }
 
@@ -110,7 +110,7 @@ namespace MalaSpiritGIS
 
             float sOffsetX, sOffsetY;  //定义新的偏移量
             sOffsetX = offsetX + (1 - 1 / ratio) * (center.X - offsetX);
-            sOffsetY = offsetY + (1 - 1 / ratio) * (center.Y - offsetY);
+            sOffsetY = offsetY - (1 - 1 / ratio) * (center.Y - offsetY);
 
             offsetX = sOffsetX;
             offsetY = sOffsetY;

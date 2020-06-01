@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
 using System.IO;
+using System.Net;
 using System.Data;
 using System.Collections;
 using System.Windows.Forms;
@@ -61,7 +62,7 @@ namespace MalaSpiritGIS
         string password = "";
         string charset = "utf8";
         string port = "3306";
-        string defaultShpPath = @"C:\\Users\\Kuuhakuj\\Documents\\PKU\\大三下\\GIS设计和应用\\HW1SHP\\";
+        public string defaultShpPath = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\HW1SHP\";
 
         MySqlConnection connection;
 
@@ -108,50 +109,200 @@ namespace MalaSpiritGIS
             }
             MLFeatureClass curFeaClass = new MLFeatureClass(id, featureClassName, featureClassType, featureClassMbr);
 
-            FileStream shp = new FileStream(shpFilePath, FileMode.Open, FileAccess.Read);
-            using (BinaryReader br = new BinaryReader(shp))
+            using (FileStream shp = new FileStream(shpFilePath, FileMode.Open, FileAccess.Read))
             {
-                sql = "select * from `" + id.ToString() + "`";
-                cmd = new MySqlCommand(sql, connection);
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (BinaryReader br = new BinaryReader(shp))
                 {
-                    curFeaClass.AddAttributeField("ID", typeof(uint));
-                    curFeaClass.AddAttributeField("Geometry", typeof(FeatureType));
-                    for (int i = 3; i < reader.FieldCount; ++i)
+                    sql = "select * from `" + id.ToString() + "`";
+                    cmd = new MySqlCommand(sql, connection);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
-                        curFeaClass.AddAttributeField(reader.GetName(i), reader.GetFieldType(i));
-                    }
-                    for (int i = 0; i < featureCount; ++i)
-                    {
-                        reader.Read();
-                        object[] curRow = new object[reader.FieldCount];
-                        reader.GetValues(curRow);
-                        br.BaseStream.Seek((long)reader.GetUInt32("FileBias"), SeekOrigin.Begin);
-                        MLFeature curFeature;
-                        switch (featureClassType)
+                        curFeaClass.AddAttributeField("ID", typeof(uint));
+                        curFeaClass.AddAttributeField("Geometry", typeof(FeatureType));
+                        for (int i = 3; i < reader.FieldCount; ++i)
                         {
-                            case FeatureType.POINT:
-                                curFeature = new MLPoint(br);
-                                break;
-                            case FeatureType.POLYLINE:
-                                curFeature = new MLPolyline(br);
-                                break;
-                            case FeatureType.POLYGON:
-                                curFeature = new MLPolygon(br);
-                                break;
-                            case FeatureType.MULTIPOINT:
-                                curFeature = new MLMultiPoint(br);
-                                break;
-                            default:
-                                curFeature = new MLPoint(br);//
-                                break;
+                            curFeaClass.AddAttributeField(reader.GetName(i), reader.GetFieldType(i));
                         }
-                        curFeaClass.AddFeaure(curFeature, curRow);
+                        for (int i = 0; i < featureCount; ++i)
+                        {
+                            reader.Read();
+                            object[] curRow = new object[reader.FieldCount];
+                            reader.GetValues(curRow);
+                            br.BaseStream.Seek((long)reader.GetUInt32("FileBias"), SeekOrigin.Begin);
+                            MLFeature curFeature;
+                            switch (featureClassType)
+                            {
+                                case FeatureType.POINT:
+                                    curFeature = new MLPoint(br);
+                                    break;
+                                case FeatureType.POLYLINE:
+                                    curFeature = new MLPolyline(br);
+                                    break;
+                                case FeatureType.POLYGON:
+                                    curFeature = new MLPolygon(br);
+                                    break;
+                                case FeatureType.MULTIPOINT:
+                                    curFeature = new MLMultiPoint(br);
+                                    break;
+                                default:
+                                    curFeature = new MLPoint(br);//
+                                    break;
+                            }
+                            curFeaClass.AddFeaure(curFeature, curRow);
+                        }
                     }
                 }
             }
-            shp.Close();
 
+            return curFeaClass;
+        }
+
+        public MLFeatureClass LoadFeatureClassFromShapefile(string filePath)
+        {
+            string shpName = filePath.Substring(filePath.LastIndexOf(@"\") + 1);
+            shpName = shpName.Substring(0, shpName.IndexOf(".shp"));
+
+            MLFeatureClass curFeaClass;
+            int[] feaBias;
+            int[] feaLength;
+            using (FileStream shx = new FileStream(filePath.Substring(0, filePath.IndexOf(".shp")) + ".shx", FileMode.Open, FileAccess.Read))
+            {
+                using (BinaryReader br = new BinaryReader(shx))
+                {
+                    br.BaseStream.Seek(100, SeekOrigin.Begin);
+                    long count = (br.BaseStream.Length - 100) / 8;
+                    feaBias = new int[count];
+                    feaLength = new int[count];
+                    byte[] temp;
+                    for (long i = 0; i < count; ++i)
+                    {
+                        temp = br.ReadBytes(8).Reverse().ToArray();
+                        feaBias[i] = 2*BitConverter.ToInt32(temp,4);
+                        feaLength[i] = 2*BitConverter.ToInt32(temp, 0);
+                    }
+                }
+            }
+            using (FileStream shp = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (BinaryReader br = new BinaryReader(shp))
+                {
+                    using (FileStream dbf = new FileStream(filePath.Substring(0, filePath.IndexOf(".shp")) + ".dbf", FileMode.Open, FileAccess.Read))
+                    {
+                        using (BinaryReader br_dbf = new BinaryReader(dbf))
+                        {
+                            br.BaseStream.Seek(32, SeekOrigin.Begin);
+                            int typeInt = br.ReadInt32();
+                            FeatureType fcType;
+                            switch (typeInt)
+                            {
+                                case 1:
+                                    fcType = FeatureType.POINT;
+                                    break;
+                                case 3:
+                                    fcType = FeatureType.POLYLINE;
+                                    break;
+                                case 5:
+                                    fcType = FeatureType.POLYGON;
+                                    break;
+                                case 8:
+                                    fcType = FeatureType.MULTIPOINT;
+                                    break;
+                                default:
+                                    fcType = FeatureType.POINT;
+                                    break;
+                            }
+                            double[] mbr = new double[4];
+                            mbr[0] = br.ReadDouble();
+                            mbr[2] = br.ReadDouble();
+                            mbr[1] = br.ReadDouble();
+                            mbr[3] = br.ReadDouble();
+                            curFeaClass = new MLFeatureClass(NextFeaClassId, shpName, fcType, mbr);
+                            curFeaClass.AddAttributeField("ID", typeof(uint));
+                            curFeaClass.AddAttributeField("Geometry", typeof(FeatureType));
+                            br_dbf.BaseStream.Seek(4, SeekOrigin.Begin);
+                            int rowCount = br_dbf.ReadInt32();
+                            short firstRow = br_dbf.ReadInt16();
+                            short rowLength = br_dbf.ReadInt16();
+                            int attributeCount = (firstRow - 33) / 32;
+                            byte[] fieldLength = new byte[attributeCount];
+                            string fieldName;
+                            Type[] fieldTypes;
+                            fieldTypes = new Type[attributeCount];
+                            for (int i = 0; i < attributeCount; ++i)
+                            {
+                                br_dbf.BaseStream.Seek(i * 32 + 32, SeekOrigin.Begin);
+                                fieldName = Encoding.UTF8.GetString(br_dbf.ReadBytes(11)).Trim();
+                                switch (br_dbf.ReadChar())
+                                {
+                                    case 'N':
+                                    case 'I':
+                                    case 'L':
+                                        fieldTypes[i] = typeof(int);
+                                        break;
+                                    case 'F':
+                                    case 'B':
+                                        fieldTypes[i] = typeof(double);
+                                        break;
+                                    default:
+                                        fieldTypes[i] = typeof(string);
+                                        break;
+                                }
+                                br_dbf.BaseStream.Seek(4, SeekOrigin.Current);
+                                fieldLength[i] = br_dbf.ReadByte();
+                                curFeaClass.AddAttributeField(fieldName, fieldTypes[i]);
+                            }
+                            br_dbf.BaseStream.Seek(firstRow, SeekOrigin.Begin);
+                            for (int i = 0; i < rowCount; ++i)
+                            {
+                                br.BaseStream.Seek(feaBias[i], SeekOrigin.Begin);
+                                MLFeature curFeature;
+                                switch (fcType)
+                                {
+                                    case FeatureType.POINT:
+                                        curFeature = new MLPoint(br);
+                                        break;
+                                    case FeatureType.POLYLINE:
+                                        curFeature = new MLPolyline(br);
+                                        break;
+                                    case FeatureType.POLYGON:
+                                        curFeature = new MLPolygon(br);
+                                        break;
+                                    case FeatureType.MULTIPOINT:
+                                        curFeature = new MLMultiPoint(br);
+                                        break;
+                                    default:
+                                        curFeature = new MLPoint(br);//
+                                        break;
+                                }
+                                object[] values = new object[attributeCount + 3];
+                                values[0] = (uint)i;
+                                string temp;
+                                br_dbf.BaseStream.Seek(1, SeekOrigin.Current);
+                                for (int j = 0; j < attributeCount; ++j)
+                                {
+                                    temp = Encoding.UTF8.GetString(br_dbf.ReadBytes(fieldLength[j])).Trim((char)0x20);
+                                    if (fieldTypes[j] == typeof(int))
+                                    {
+                                        if (temp.Equals("")) values[j + 2] = 0;
+                                        else values[j + 3] = int.Parse(temp);
+                                    }
+                                    if (fieldTypes[j] == typeof(double))
+                                    {
+                                        if (temp.Equals("")) values[j + 2] = 0;
+                                        else values[j + 3] = double.Parse(temp);
+                                    }
+                                    if (fieldTypes[j] == typeof(string))
+                                    {
+                                        values[j + 3] = temp;
+                                    }
+                                }
+                                curFeaClass.AddFeaure(curFeature, values);
+                            }
+                        }
+                    }
+
+                }
+            }
             return curFeaClass;
         }
 
@@ -200,7 +351,7 @@ namespace MalaSpiritGIS
                 MySqlCommand insert = new MySqlCommand(sql, connection);
                 insert.ExecuteNonQuery();
             }
-            
+
             sql = "create table `" + curFeaClass.ID.ToString() + "` (ID int,FileBias int,FileLength int";
             for (int i = 2; i < curFeaClass.FieldCount; ++i)
             {
@@ -209,7 +360,7 @@ namespace MalaSpiritGIS
             sql += ")";
             cmd = new MySqlCommand(sql, connection);
             cmd.ExecuteNonQuery();
-            using (FileStream shp = new FileStream(shpPath, FileMode.Create, FileAccess.Write))
+            using (FileStream shp=new FileStream(shpPath,FileMode.Create,FileAccess.Write))
             {
                 using (BinaryWriter bw = new BinaryWriter(shp))
                 {
@@ -282,5 +433,310 @@ namespace MalaSpiritGIS
             RecordsChangedHandle?.Invoke();
 
         }
+
+    }
+
+    public class FtpHelper
+    {
+        //基本设置
+        private static string ftppath = @"ftp://" + "brynhild.top" + "/";
+        private static string username = "mlshp";
+        private static string password = "mlshp";
+
+        //获取FTP上面的文件夹和文件
+        public static string[] GetFolderAndFileList(string s)
+        {
+            string[] getfolderandfilelist;
+            FtpWebRequest request;
+            StringBuilder sb = new StringBuilder();
+            try
+            {
+                request = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftppath));
+                request.UseBinary = true;
+                request.Credentials = new NetworkCredential(username, password);
+                request.Method = WebRequestMethods.Ftp.ListDirectory;
+                request.UseBinary = true;
+                WebResponse response = request.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    sb.Append(line);
+                    sb.Append("\n");
+                    Console.WriteLine(line);
+                    line = reader.ReadLine();
+                }
+                sb.Remove(sb.ToString().LastIndexOf('\n'), 1);
+                reader.Close();
+                response.Close();
+                return sb.ToString().Split('\n');
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("获取FTP上面的文件夹和文件：" + ex.Message);
+                getfolderandfilelist = null;
+                return getfolderandfilelist;
+            }
+        }
+
+        //获取FTP上面的文件大小
+        public static int GetFileSize(string fileName)
+        {
+            FtpWebRequest request;
+            try
+            {
+                request = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftppath + fileName));
+                request.UseBinary = true;
+                request.Credentials = new NetworkCredential(username, password);
+                request.Method = WebRequestMethods.Ftp.GetFileSize;
+                int n = (int)request.GetResponse().ContentLength;
+                return n;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("获取FTP上面的文件大小：" + ex.Message);
+                return -1;
+            }
+        }
+
+        //FTP上传文件
+        public static void FileUpLoad(string filePath, string objPath = "")
+        {
+            try
+            {
+                string url = ftppath;
+                if (objPath != "")
+                    url += objPath + "/";
+                try
+                {
+                    FtpWebRequest request = null;
+                    try
+                    {
+                        FileInfo fi = new FileInfo(filePath);
+                        using (FileStream fs = fi.OpenRead())
+                        {
+                            request = (FtpWebRequest)FtpWebRequest.Create(new Uri(url + fi.Name));
+                            request.Credentials = new NetworkCredential(username, password);
+                            request.KeepAlive = false;
+                            request.Method = WebRequestMethods.Ftp.UploadFile;
+                            request.UseBinary = true;
+                            using (Stream stream = request.GetRequestStream())
+                            {
+                                int bufferLength = 5120;
+                                byte[] buffer = new byte[bufferLength];
+                                int i;
+                                while ((i = fs.Read(buffer, 0, bufferLength)) > 0)
+                                {
+                                    stream.Write(buffer, 0, i);
+                                }
+                                MessageBox.Show("FTP上传文件succesful");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("FTP上传文件：" + ex.Message);
+                    }
+                    finally
+                    {
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("FTP上传文件：" + ex.Message);
+                }
+                finally
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("FTP上传文件：" + ex.Message);
+            }
+        }
+
+        public static void FileWrite(string filePath, byte[] fileContent)
+        {
+            try
+            {
+                string url = ftppath;
+                try
+                {
+                    FtpWebRequest request = null;
+                    try
+                    {
+                        FileInfo fi = new FileInfo(filePath);
+                        request = (FtpWebRequest)FtpWebRequest.Create(new Uri(url + fi.Name));
+                        request.Credentials = new NetworkCredential(username, password);
+                        request.KeepAlive = false;
+                        request.Method = WebRequestMethods.Ftp.UploadFile;
+                        request.UseBinary = true;
+                        using (Stream stream = request.GetRequestStream())
+                        {
+                            int bufferLength = 5120;
+                            byte[] buffer = new byte[bufferLength];
+                            int i;
+                            using (MemoryStream ms = new MemoryStream(fileContent))
+                            {
+                                while ((i = ms.Read(buffer, 0, bufferLength)) > 0)
+                                {
+                                    stream.Write(buffer, 0, i);
+                                }
+                            }
+                            MessageBox.Show("FTP写入文件succesful");
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("FTP写入文件：" + ex.Message);
+                    }
+                    finally
+                    {
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("FTP写入文件：" + ex.Message);
+                }
+                finally
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("FTP写入文件：" + ex.Message);
+            }
+        }
+
+        //FTP下载文件 
+        public static void FileDownLoad(string fileName)
+        {
+            FtpWebRequest request;
+            try
+            {
+                string downloadPath = @"D:";
+                FileStream fs = new FileStream(downloadPath + "\\" + fileName, FileMode.Create);
+                request = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftppath + fileName));
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                request.UseBinary = true;
+                request.Credentials = new NetworkCredential(username, password);
+                request.UsePassive = false;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream stream = response.GetResponseStream();
+                int bufferLength = 5120;
+                int i;
+                byte[] buffer = new byte[bufferLength];
+                i = stream.Read(buffer, 0, bufferLength);
+                while (i > 0)
+                {
+                    fs.Write(buffer, 0, i);
+                    i = stream.Read(buffer, 0, bufferLength);
+                }
+                stream.Close();
+                fs.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("FTP下载文件：" + ex.Message);
+            }
+        }
+
+        //FTP删除文件
+        public static void FileDelete(string fileName)
+        {
+            try
+            {
+                string uri = ftppath + fileName;
+                FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+                request.UseBinary = true;
+                request.Credentials = new NetworkCredential(username, password);
+                request.KeepAlive = false;
+                request.Method = WebRequestMethods.Ftp.DeleteFile;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("FTP删除文件：" + ex.Message);
+            }
+        }
+
+        //FTP新建目录，上一级须先存在
+        public static void MakeDir(string dirName)
+        {
+            try
+            {
+                string uri = ftppath + dirName;
+                FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+                request.UseBinary = true;
+                request.Credentials = new NetworkCredential(username, password);
+                request.Method = WebRequestMethods.Ftp.MakeDirectory;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("FTP新建目录：" + ex.Message);
+            }
+        }
+
+        //FTP删除目录，上一级须先存在
+        public static void DelDir(string dirName)
+        {
+            try
+            {
+                string uri = ftppath + dirName;
+                FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+                reqFTP.Credentials = new NetworkCredential(username, password);
+                reqFTP.Method = WebRequestMethods.Ftp.RemoveDirectory;
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("FTP删除目录：" + ex.Message);
+            }
+        }
+
+        public static byte[] GetCloudFile(string fileName)
+        {
+            FtpWebRequest request;
+            MemoryStream ms = new MemoryStream();
+            try
+            {
+                request = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftppath + fileName));
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                request.KeepAlive = true;
+                request.UseBinary = true;
+                request.Credentials = new NetworkCredential(username, password);
+                request.UsePassive = false;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream stream = response.GetResponseStream();
+                int bufferLength = 5120;
+                int i;
+                byte[] buffer = new byte[bufferLength];
+                i = stream.Read(buffer, 0, bufferLength);
+                while (i > 0)
+                {
+                    ms.Write(buffer, 0, i);
+                    i = stream.Read(buffer, 0, bufferLength);
+                }
+                stream.Close();
+                response.Close();
+                return ms.ToArray();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("FTP获取文件：" + ex.Message);
+                return ms.ToArray();
+            }
+        }
     }
 }
+

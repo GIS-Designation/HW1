@@ -14,11 +14,13 @@ namespace MalaSpiritGIS
     public partial class MLMainForm : Form
     {
         public static MLFeatureProcessor FeatureProcessor;
+        public static MLFeatureBox featureBox;
         public MLMainForm()
         {
             dataFrame = new MLDataFrame.Dataframe();
             FeatureProcessor = new MLFeatureProcessor();
             InitializeComponent();
+            featureBox = mlFeatureBox;
             mlFeatureBox.attributeTable.SelectingFeatureChanged += new AttributeTable.SelectingFeatureChangedHandle(attributeTable_SelectingFeatureChanged);
             FeatureProcessor.RecordsChangedHandle += new MLFeatureProcessor.RecordsChanged(mlRecordBox.RefreshRecords);
             FeatureProcessor.RefreshRecords();
@@ -98,9 +100,23 @@ namespace MalaSpiritGIS
             toolStripStatusLabel2.Text = "1:" + mlMap.DisplayScale.ToString("0.00");
         }
 
+        private void 导入Shapefile文件ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog shpFileDialog = new OpenFileDialog();
+            shpFileDialog.Title = "打开Shapefile文件";
+            shpFileDialog.InitialDirectory = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\china_shp\Province_9";
+            shpFileDialog.Filter = "SHP文件(*.shp)|*.shp";
+            shpFileDialog.RestoreDirectory = true;
+            if (DialogResult.OK == shpFileDialog.ShowDialog())
+            {
+                featureBox.addLayer(FeatureType.POINT, 0, shpFileDialog.FileName);
+            }
+        }
+
         private void Query_Click(object sender, EventArgs e)
         {
             Query q = new Query();
+            q.SearchingFinished += new Query.SearchingFinishedHandle(attributeTable_SelectingFeatureChanged);
             q.Show();
         }
     }
