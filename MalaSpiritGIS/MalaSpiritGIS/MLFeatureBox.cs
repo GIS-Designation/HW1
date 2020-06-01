@@ -203,14 +203,7 @@ namespace MalaSpiritGIS
 
         private void 渲染ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MapRender sMapRender = new MapRender();
-            sMapRender.CurLayer = data.layers[data.index];
-            sMapRender.color = data.layers[data.index].CurColor;
-            if (sMapRender.ShowDialog(this) == DialogResult.OK)
-            {
-                data.layers[data.index] = sMapRender.CurLayer;
-                data.layers[data.index].CurColor = sMapRender.color;
-            }
+            MessageBox.Show("这里会跳出渲染窗口");
         }
     }
 }
