@@ -1066,7 +1066,7 @@ namespace MalaSpiritGIS
                     {
                         if(EditPoint.p != null)
                         {
-                            EditPoint.p.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                            EditPoint.p.Move(e.Location.X - startPoint.X,startPoint.Y - e.Location.Y);
                             startPoint = e.Location;
                             Refresh();
                         }
