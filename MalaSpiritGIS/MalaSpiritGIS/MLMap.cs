@@ -1170,7 +1170,11 @@ namespace MalaSpiritGIS
                                     break;
                             }
                         }
-                        mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
+                        selectedFeatures.Clear();
+                        mergeFeatures.Clear();
+                        mapOpStyle = 0;
+                        Refresh();
+                        //mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
                         MessageBox.Show("完成合并");
                     }
                     break;
