@@ -64,6 +64,7 @@ namespace MalaSpiritGIS
                     layer = sEditSign.CurLayer;
                     layer.CurColor = sEditSign.color;
                     layer.LineWidth = sEditSign.size;
+                    MLMainForm.mlmap.Refresh();
                 }
             }
 
@@ -169,6 +170,7 @@ namespace MalaSpiritGIS
                 }
             }
             MLMainForm.featureBox.addLayer(MLMainForm.FeatureProcessor.Records[curRecordIndex].Type, MLMainForm.FeatureProcessor.Records[curRecordIndex].ID);
+            MLMainForm.mlmap.Refresh();
         }
 
         int curRecordIndex;

@@ -31,7 +31,7 @@ namespace MalaSpiritGIS
             UniqueValueList.Items.Add("无");
             for (int i = 0; i < CurLayer.featureClass.AttributeData.Columns.Count; i++)
                 UniqueValueList.Items.Add(CurLayer.featureClass.AttributeData.Columns[i].ColumnName);
-            UniqueValueList.SelectedIndex = CurLayer.annotateIndex;
+            UniqueValueList.SelectedIndex = Math.Max(0, CurLayer.annotateIndex);
 
             lblColor.BackColor = CurLayer.annotateColor;
             labelFont.Text = CurLayer.annotateFontStyle;

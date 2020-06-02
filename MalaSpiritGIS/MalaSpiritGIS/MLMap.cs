@@ -520,7 +520,7 @@ namespace MalaSpiritGIS
             if (dataFrame != null && dataFrame.layers != null)  //必须要有图层才能开始画
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                for (int i = dataFrame.layers.Count - 1; i != -1; --i)  //从最后一个图层开始画，越上层的越不会被遮盖
+                for (int i = 0; i <dataFrame.layers.Count; ++i)  //从最后一个图层开始画，越上层的越不会被遮盖
                 {
                     Color color = dataFrame.layers[i].CurColor;
                     Brush brush = new SolidBrush(color);
@@ -564,6 +564,7 @@ namespace MalaSpiritGIS
                                     float step = (max - min) / 5;
                                     float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
                                     int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    index = Math.Min(colors.Count - 1, index);
                                     brush = new SolidBrush(colors[index]);
                                     pen = new Pen(colors[index], boundaryWidth);
                                     PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
@@ -602,6 +603,7 @@ namespace MalaSpiritGIS
                                     float step = (max - min) / 5;
                                     float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
                                     int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    index = Math.Min(colors.Count - 1, index);
                                     brush = new SolidBrush(colors[index]);
                                     pen = new Pen(colors[index], boundaryWidth);
                                     PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
@@ -641,6 +643,7 @@ namespace MalaSpiritGIS
                                     float step = (max - min) / 5;
                                     float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
                                     int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    index = Math.Min(colors.Count - 1, index);
                                     brush = new SolidBrush(colors[index]);
                                     pen = new Pen(colors[index], boundaryWidth);
                                     PaintPolyline(fc.GetFeature(j), pen, g, dataFrame.layers[i].LineStyle);
@@ -679,6 +682,7 @@ namespace MalaSpiritGIS
                                     float step = (max - min) / 5;
                                     float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
                                     int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    index = Math.Min(colors.Count - 1, index);
                                     brush = new SolidBrush(colors[index]);
                                     pen = new Pen(colors[index], boundaryWidth);
                                     PaintPolygon(fc.GetFeature(j), brush, pen, g);
@@ -1085,7 +1089,7 @@ namespace MalaSpiritGIS
                     if (e.Button == MouseButtons.Left)
                     {
                         MLFeature fe = dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature);
-                        fe.Move(e.Location.X - startPoint.X, startPoint.Y - e.Location.Y);
+                        fe.Move(displayScale*( e.Location.X - startPoint.X),displayScale*( startPoint.Y - e.Location.Y));
                         startPoint = e.Location;
                         Refresh();
                     }
@@ -1095,7 +1099,7 @@ namespace MalaSpiritGIS
                     {
                         if (EditPoint.p != null)
                         {
-                            EditPoint.p.Move(e.Location.X - startPoint.X,startPoint.Y - e.Location.Y);
+                            EditPoint.p.Move(displayScale * (e.Location.X - startPoint.X), displayScale * (startPoint.Y - e.Location.Y));
                             startPoint = e.Location;
                             Refresh();
                         }

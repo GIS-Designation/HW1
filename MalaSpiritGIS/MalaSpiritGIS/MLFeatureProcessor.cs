@@ -397,11 +397,14 @@ sql += "," + curFeaClass.GetFieldName(i) + " varchar(100)";
                         long length = bw.BaseStream.Position - bias;
                         sql = "insert into `" + curFeaClass.ID.ToString() + "` values("
                             + i.ToString() + "," + bias.ToString() + "," + length.ToString();
-                        for (int j = 2; j < curFeaClass.FieldCount-1; ++j)
+                        string temp;
+                        for (int j = 2; j < curFeaClass.FieldCount; ++j)
                         {
-                            sql += "," + curFeaClass.GetAttributeCell(i, j).ToString();
+                            temp = curFeaClass.GetAttributeCell(i, j).ToString();
+                            if (curFeaClass.GetFieldType(j)==typeof(string)) temp = "'"+temp+"'";
+                            sql += "," + temp;
                         }
-                        sql += ",'" + curFeaClass.GetAttributeCell(i, curFeaClass.FieldCount - 1).ToString()+"')";
+                        sql += ")";
                         MySqlCommand insert = new MySqlCommand(sql, connection);
                         insert.ExecuteNonQuery();
                     }
