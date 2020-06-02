@@ -321,6 +321,10 @@ namespace MalaSpiritGIS
                 mbr = null;
             }
             attributeData.Rows.RemoveAt(index);
+            for(int i = index;i != attributeData.Rows.Count; ++i)
+            {
+                attributeData.Rows[i][0] = (uint)i;
+            }
         }
         public void RemoveFeaure(MLFeature feature)
         {
@@ -328,8 +332,10 @@ namespace MalaSpiritGIS
             for(int i = 0;i != features.Count; ++i)
             {
                 if (feature.ID == features[i].ID)
+                {
                     RemoveFeaure(i);
-                return;
+                    return;
+                }
             }
         }
 

@@ -91,7 +91,9 @@ namespace MalaSpiritGIS
             if (selectingIndexes != null)
             {
                 foreach (int i in selectingIndexes)
+                {
                     mlMap.AddSelectedFeatures(dataFrame.index, i);
+                }
             }
             mlMap.Refresh();
         }

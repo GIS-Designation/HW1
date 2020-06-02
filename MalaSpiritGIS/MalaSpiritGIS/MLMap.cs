@@ -89,7 +89,7 @@ namespace MalaSpiritGIS
         {
             PointF sPoint = new PointF();
             sPoint.X = (point.X - offsetX) / displayScale;
-            sPoint.Y = -(point.Y - offsetY) / displayScale+Height;
+            sPoint.Y = -(point.Y - offsetY) / displayScale + Height;
             return sPoint;
         }
 
@@ -107,7 +107,7 @@ namespace MalaSpiritGIS
 
             float sOffsetX, sOffsetY;  //定义新的偏移量
             sOffsetX = offsetX + (1 - 1 / ratio) * (center.X - offsetX);
-            sOffsetY = offsetY - (1 - 1 / ratio) * (center.Y - offsetY);
+            sOffsetY = offsetY - (1 - 1 / ratio) * (offsetY - center.Y);
 
             offsetX = sOffsetX;
             offsetY = sOffsetY;
@@ -747,7 +747,6 @@ namespace MalaSpiritGIS
                 SolidBrush brush = new SolidBrush(selectedColor);
                 for (int i = selectedFeatures.Count - 1; i != -1; --i)
                 {
-                    //MessageBox.Show(selectedFeatures[i].numLayer.ToString()+'|'+ selectedFeatures[i].numFeature.ToString());
                     MLFeature fc = dataFrame.layers[selectedFeatures[i].numLayer].featureClass.GetFeature(selectedFeatures[i].numFeature);
                     switch (fc.FeatureType)
                     {
@@ -1057,7 +1056,7 @@ namespace MalaSpiritGIS
                     if (e.Button == MouseButtons.Left)
                     {
                         MLFeature fe = dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature);
-                        fe.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                        fe.Move(e.Location.X - startPoint.X, startPoint.Y - e.Location.Y);
                         startPoint = e.Location;
                         Refresh();
                     }
@@ -1067,7 +1066,7 @@ namespace MalaSpiritGIS
                     {
                         if(EditPoint.p != null)
                         {
-                            EditPoint.p.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                            EditPoint.p.Move(e.Location.X - startPoint.X,startPoint.Y - e.Location.Y);
                             startPoint = e.Location;
                             Refresh();
                         }
@@ -1149,29 +1148,34 @@ namespace MalaSpiritGIS
                                 case FeatureType.POINT:
                                     break;
                                 case FeatureType.MULTIPOINT:
-                                    MLMultiPoint parent = (MLMultiPoint)fc.GetFeature(0);
-                                    MLMultiPoint child = (MLMultiPoint)fc.GetFeature(i);
+                                    MLMultiPoint parent = (MLMultiPoint)mergeFeatures[0];
+                                    MLMultiPoint child = (MLMultiPoint)mergeFeatures[i];
                                     for (int j = 0; j != child.Points.Length; ++j)
                                         parent.AddPoint(child.Points[j]);
                                     fc.RemoveFeaure(child);
                                     break;
                                 case FeatureType.POLYLINE:
-                                    MLPolyline parent2 = (MLPolyline)fc.GetFeature(0);
-                                    MLPolyline child2 = (MLPolyline)fc.GetFeature(i);
+                                    MLPolyline parent2 = (MLPolyline)mergeFeatures[0];
+                                    MLPolyline child2 = (MLPolyline)mergeFeatures[i];
                                     for (int j = 0; j != child2.Segments.Length; ++j)
                                         parent2.AddLine(child2.Segments[j]);
                                     fc.RemoveFeaure(child2);
                                     break;
                                 case FeatureType.POLYGON:
-                                    MLPolygon parent3 = (MLPolygon)fc.GetFeature(0);
-                                    MLPolygon child3 = (MLPolygon)fc.GetFeature(i);
+                                    MLPolygon parent3 = (MLPolygon)mergeFeatures[0];
+                                    MLPolygon child3 = (MLPolygon)mergeFeatures[i];
                                     for (int j = 0; j != child3.Polygon.Count; ++j)
                                         parent3.AddPolygon(child3.Polygon.GetRing(j));
                                     fc.RemoveFeaure(child3);
                                     break;
                             }
                         }
-                        mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
+                        selectedFeatures.Clear();
+                        mergeFeatures.Clear();
+                        mapOpStyle = 0;
+                        Refresh();
+                        //mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
+                        MessageBox.Show("完成合并");
                     }
                     break;
             }
@@ -1180,16 +1184,14 @@ namespace MalaSpiritGIS
         {
             if (e.Delta > 0)
             {
-                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
-                    this.ClientSize.Height / 2);  //屏幕中心点
+                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
                 ZoomByCenter(sCenterPointOnMap, zoomRatio);
                 Refresh();
             }
             else
             {
-                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
-                    this.ClientSize.Height / 2);  //屏幕中心点
+                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2, this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
                 ZoomByCenter(sCenterPointOnMap, 1 / zoomRatio);
                 Refresh();
