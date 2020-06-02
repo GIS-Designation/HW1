@@ -747,7 +747,6 @@ namespace MalaSpiritGIS
                 SolidBrush brush = new SolidBrush(selectedColor);
                 for (int i = selectedFeatures.Count - 1; i != -1; --i)
                 {
-                    //MessageBox.Show(selectedFeatures[i].numLayer.ToString()+'|'+ selectedFeatures[i].numFeature.ToString());
                     MLFeature fc = dataFrame.layers[selectedFeatures[i].numLayer].featureClass.GetFeature(selectedFeatures[i].numFeature);
                     switch (fc.FeatureType)
                     {
