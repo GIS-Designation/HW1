@@ -107,7 +107,7 @@ namespace MalaSpiritGIS
 
             float sOffsetX, sOffsetY;  //定义新的偏移量
             sOffsetX = offsetX + (1 - 1 / ratio) * (center.X - offsetX);
-            sOffsetY = offsetY - (1 - 1 / ratio) * (center.Y - offsetY);
+            sOffsetY = offsetY - (1 - 1 / ratio) * (offsetY - center.Y);
 
             offsetX = sOffsetX;
             offsetY = sOffsetY;
@@ -776,7 +776,6 @@ namespace MalaSpiritGIS
                 SolidBrush brush = new SolidBrush(selectedColor);
                 for (int i = selectedFeatures.Count - 1; i != -1; --i)
                 {
-                    //MessageBox.Show(selectedFeatures[i].numLayer.ToString()+'|'+ selectedFeatures[i].numFeature.ToString());
                     MLFeature fc = dataFrame.layers[selectedFeatures[i].numLayer].featureClass.GetFeature(selectedFeatures[i].numFeature);
                     switch (fc.FeatureType)
                     {
@@ -1096,7 +1095,7 @@ namespace MalaSpiritGIS
                     {
                         if (EditPoint.p != null)
                         {
-                            EditPoint.p.Move(e.Location.X - startPoint.X, startPoint.Y - e.Location.Y);
+                            EditPoint.p.Move(e.Location.X - startPoint.X,startPoint.Y - e.Location.Y);
                             startPoint = e.Location;
                             Refresh();
                         }
@@ -1200,7 +1199,11 @@ namespace MalaSpiritGIS
                                     break;
                             }
                         }
-                        mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
+                        selectedFeatures.Clear();
+                        mergeFeatures.Clear();
+                        mapOpStyle = 0;
+                        Refresh();
+                        //mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
                         MessageBox.Show("完成合并");
                     }
                     break;
