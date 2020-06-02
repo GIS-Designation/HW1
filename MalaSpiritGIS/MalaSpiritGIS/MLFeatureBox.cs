@@ -209,7 +209,7 @@ namespace MalaSpiritGIS
             sMapRender.color = data.layers[data.index].CurColor;
             sMapRender.renderMethod = data.layers[data.index].renderMethod;
             sMapRender.selectedValue = data.layers[data.index]._selectedValue;
-            sMapRender.colors = data.layers[data.index].RenderColors;
+            //sMapRender.colors = data.layers[data.index].RenderColors;
             if (sMapRender.ShowDialog(this) == DialogResult.OK)
             {
                 data.layers[data.index] = sMapRender.CurLayer;
@@ -217,6 +217,20 @@ namespace MalaSpiritGIS
                 data.layers[data.index].renderMethod = sMapRender.renderMethod;
                 data.layers[data.index]._selectedValue = sMapRender.selectedValue;
                 data.layers[data.index].RenderColors = sMapRender.colors;
+                MLMainForm.mlmap.Refresh();
+            }
+        }
+
+        private void 标注要素ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Annotation anno = new Annotation();
+            if (DialogResult.OK == anno.ShowDialog(this))
+            {
+                data.layers[data.index].annotateIndex = anno.annoIndex;
+                data.layers[data.index].annotateColor = anno.annoColor;
+                data.layers[data.index].annotateFontStyle = anno.annoString;
+                data.layers[data.index].annotateFontSize = anno.annoSize;
+                MLMainForm.mlmap.Refresh();
             }
         }
     }

@@ -34,7 +34,7 @@ namespace MalaSpiritGIS
         public class Selected
         {
             public int numLayer, numFeature;
-            public Selected(int _numLayer,int _numFeature)
+            public Selected(int _numLayer, int _numFeature)
             {
                 numLayer = _numLayer;
                 numFeature = _numFeature;
@@ -42,9 +42,9 @@ namespace MalaSpiritGIS
         }
         private List<Selected> selectedFeatures = new List<Selected>();  //选中要素集合
         private List<MLFeature> mergeFeatures = new List<MLFeature>();
-        public void SetSelectedFeatures(List<Selected> s) { selectedFeatures = s;}
-        public void ClearSelectedFeatures() { selectedFeatures = new List<Selected>();Refresh();}
-        public void AddSelectedFeatures(int numLayer,int numFeature) { selectedFeatures.Add(new Selected(numLayer, numFeature));}
+        public void SetSelectedFeatures(List<Selected> s) { selectedFeatures = s; }
+        public void ClearSelectedFeatures() { selectedFeatures = new List<Selected>(); Refresh(); }
+        public void AddSelectedFeatures(int numLayer, int numFeature) { selectedFeatures.Add(new Selected(numLayer, numFeature)); }
         //内部变量
         private float offsetX = 0, offsetY = 0;  //窗口左上点的地图坐标
         private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素,6移动要素,7编辑节点,8裁剪图形
@@ -89,7 +89,7 @@ namespace MalaSpiritGIS
         {
             PointF sPoint = new PointF();
             sPoint.X = (point.X - offsetX) / displayScale;
-            sPoint.Y = -(point.Y - offsetY) / displayScale+Height;
+            sPoint.Y = -(point.Y - offsetY) / displayScale + Height;
             return sPoint;
         }
 
@@ -97,7 +97,7 @@ namespace MalaSpiritGIS
         {
             PointF sPoint = new PointF();
             sPoint.X = point.X * displayScale + offsetX;
-            sPoint.Y = (Height-point.Y) * displayScale + offsetY;
+            sPoint.Y = (Height - point.Y) * displayScale + offsetY;
             return sPoint;
         }
 
@@ -165,7 +165,7 @@ namespace MalaSpiritGIS
                     {
                         case FeatureType.POINT:
                             if (MLPointInBox((MLPoint)layer.GetFeature(j), box))
-                                result.Add(new Selected(i,j));
+                                result.Add(new Selected(i, j));
                             break;
                         case FeatureType.MULTIPOINT:
                             if (MLMultiPointInBox((MLMultiPoint)layer.GetFeature(j), box))
@@ -196,7 +196,7 @@ namespace MalaSpiritGIS
 
         public Image Output()
         {
-            Bitmap bmp=new Bitmap(Width,Height);
+            Bitmap bmp = new Bitmap(Width, Height);
             DrawToBitmap(bmp, new Rectangle(0, 0, Width, Height));
             return bmp;
         }
@@ -218,7 +218,7 @@ namespace MalaSpiritGIS
         /// </summary>
         [Browsable(true), Description("显示比例尺发生了变化")]
         public event DisplayScaleChangedHandle DisplayScaleChanged;
-        
+
 
         public delegate void SelectingFinishiedHandle(object sender, RectangleF box);
         /// <summary>
@@ -230,7 +230,7 @@ namespace MalaSpiritGIS
         #endregion
 
         #region 私有函数
-        private bool PointDInBox(PointD p,RectangleF rec)  //点p完全位于rec中
+        private bool PointDInBox(PointD p, RectangleF rec)  //点p完全位于rec中
         {
             return (p.X > rec.X && p.X < rec.X + rec.Width && p.Y > rec.Y && p.Y < rec.Y + rec.Height);
         }
@@ -238,10 +238,10 @@ namespace MalaSpiritGIS
         {
             return PointDInBox(p.Point, rec);
         }
-        private bool MLMultiPointInBox(MLMultiPoint m,RectangleF rec)  //多点要素m完全位于rec中
+        private bool MLMultiPointInBox(MLMultiPoint m, RectangleF rec)  //多点要素m完全位于rec中
         {
             PointD[] ps = m.Points;
-            for(int i = 0;i != ps.Length; ++i)
+            for (int i = 0; i != ps.Length; ++i)
             {
                 if (!PointDInBox(ps[i], rec))
                 {
@@ -250,13 +250,13 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private bool MLPolylineInBox(MLPolyline p,RectangleF rec)  //线要素p完全位于rec中
+        private bool MLPolylineInBox(MLPolyline p, RectangleF rec)  //线要素p完全位于rec中
         {
             PolylineD[] polylines = p.Segments;
-            for(int i = 0;i != polylines.Length; ++i)
+            for (int i = 0; i != polylines.Length; ++i)
             {
                 PolylineD polyline = polylines[i];
-                for(int j = 0;j != polyline.Count; ++j)
+                for (int j = 0; j != polyline.Count; ++j)
                 {
                     if (!PointDInBox(polyline.GetPoint(j), rec))
                     {
@@ -266,13 +266,13 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private bool MLPolygonInBox(MLPolygon p,RectangleF rec)  //面要素p完全位于rec中
+        private bool MLPolygonInBox(MLPolygon p, RectangleF rec)  //面要素p完全位于rec中
         {
             PolygonD polygon = p.Polygon;
-            for(int i = 0;i != polygon.Count; ++i)
+            for (int i = 0; i != polygon.Count; ++i)
             {
                 PolylineD polyline = polygon.GetRing(i);
-                for(int j = 0;j != polyline.Count; ++j)
+                for (int j = 0; j != polyline.Count; ++j)
                 {
                     if (!PointDInBox(polyline.GetPoint(j), rec))
                     {
@@ -282,7 +282,7 @@ namespace MalaSpiritGIS
             }
             return true;
         }
-        private bool PointFInPointD(PointF p,PointD pd)
+        private bool PointFInPointD(PointF p, PointD pd)
         {
             const int LOGICAL_0 = 5;  //像素
             PointF np = FromMapPoint(new PointF((float)pd.X, (float)pd.Y));
@@ -290,21 +290,21 @@ namespace MalaSpiritGIS
             float dy = np.Y - p.Y;
             return dx * dx + dy * dy < LOGICAL_0 * LOGICAL_0;
         }
-        private bool PointInMLPoint(PointF p,MLPoint m)  //p是显示坐标，不是地图坐标
+        private bool PointInMLPoint(PointF p, MLPoint m)  //p是显示坐标，不是地图坐标
         {
             return PointFInPointD(p, m.Point);
         }
-        private bool PointInMLMultiPoint(PointF p,MLMultiPoint m)  //p是显示坐标，不是地图坐标
+        private bool PointInMLMultiPoint(PointF p, MLMultiPoint m)  //p是显示坐标，不是地图坐标
         {
             PointD[] ps = m.Points;
-            for(int i = 0;i != ps.Length;++i)
+            for (int i = 0; i != ps.Length; ++i)
             {
                 if (PointFInPointD(p, ps[i]))
                     return true;
             }
             return false;
         }
-        private bool PointFInPolygon(PointF p,PointD[] mapPoints)
+        private bool PointFInPolygon(PointF p, PointD[] mapPoints)
         {
             PointF[] ps = new PointF[mapPoints.Length];
             for (int i = 0; i != mapPoints.Length; ++i)
@@ -317,7 +317,7 @@ namespace MalaSpiritGIS
             }
             return c % 2 != 0;
         }
-        private bool PointFInLine(PointF p,PointD p1,PointD p2)
+        private bool PointFInLine(PointF p, PointD p1, PointD p2)
         {
             const int LOGICAL_0 = 5;
             double deltaY = p1.Y - p2.Y;
@@ -331,18 +331,18 @@ namespace MalaSpiritGIS
             return PointFInPolygon(p, new PointD[] { pd1, pd2, pd3, pd4, pd1 });
 
         }
-        private bool PointInMLPolyline(PointF p,MLPolyline m)  //p是显示坐标，不是地图坐标
+        private bool PointInMLPolyline(PointF p, MLPolyline m)  //p是显示坐标，不是地图坐标
         {
             PolylineD[] lines = m.Segments;
-            for(int i = 0;i != lines.Length; ++i)
+            for (int i = 0; i != lines.Length; ++i)
             {
                 PolylineD line = lines[i];
-                for(int j = 1;j != line.Count; ++j)
+                for (int j = 1; j != line.Count; ++j)
                 {
                     if (PointFInLine(p, line.GetPoint(j - 1), line.GetPoint(j)))
                         return true;
                 }
-                for(int j = 0;j != line.Count; ++j)
+                for (int j = 0; j != line.Count; ++j)
                 {
                     if (PointFInPointD(p, line.GetPoint(j)))
                         return true;
@@ -350,30 +350,30 @@ namespace MalaSpiritGIS
             }
             return false;
         }
-        private bool PointInMLPolygon(PointF p,MLPolygon m)
+        private bool PointInMLPolygon(PointF p, MLPolygon m)
         {
             PolygonD pd = m.Polygon;
-            for(int i = 0;i != pd.Count; ++i)
+            for (int i = 0; i != pd.Count; ++i)
             {
                 if (PointFInPolygon(p, pd.GetRing(i).GetPoints()))
                     return true;
             }
             return false;
         }
-        private void PaintPoint(MLFeature feature,Brush brush,Pen pen,Graphics g,string PointSign,float size)  //绘制点要素
+        private void PaintPoint(MLFeature feature, Brush brush, Pen pen, Graphics g, string PointSign, float size)  //绘制点要素
         {
             PointD point = ((MLPoint)feature).Point;
             PointF sScreenPoint = FromMapPoint(new PointF((float)point.X, (float)point.Y));
-            
-            if(PointSign == PointSigns[0])//空心圆
+
+            if (PointSign == PointSigns[0])//空心圆
             {
-                g.DrawEllipse(pen, sScreenPoint.X - size, sScreenPoint.Y - size, size*2, size*2);
+                g.DrawEllipse(pen, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
             }
-            else if(PointSign == PointSigns[1])//实心圆
+            else if (PointSign == PointSigns[1])//实心圆
             {
-                g.FillEllipse(brush, sScreenPoint.X - size, sScreenPoint.Y - size, size*2, size*2);
+                g.FillEllipse(brush, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
             }
-            else if(PointSign == PointSigns[2])//空心正方形
+            else if (PointSign == PointSigns[2])//空心正方形
             {
                 g.DrawRectangle(pen, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
             }
@@ -384,8 +384,8 @@ namespace MalaSpiritGIS
             else if (PointSign == PointSigns[4])//空心三角形
             {
                 PointF p1 = new PointF(sScreenPoint.X, sScreenPoint.Y - size);
-                PointF p2 = new PointF(sScreenPoint.X-size, sScreenPoint.Y + size);
-                PointF p3 = new PointF(sScreenPoint.X+size, sScreenPoint.Y + size);
+                PointF p2 = new PointF(sScreenPoint.X - size, sScreenPoint.Y + size);
+                PointF p3 = new PointF(sScreenPoint.X + size, sScreenPoint.Y + size);
                 g.DrawLine(pen, p1, p2);
                 g.DrawLine(pen, p3, p2);
                 g.DrawLine(pen, p1, p3);
@@ -402,7 +402,7 @@ namespace MalaSpiritGIS
             else if (PointSign == PointSigns[6])//空心同心圆
             {
                 g.DrawEllipse(pen, sScreenPoint.X - size, sScreenPoint.Y - size, size * 2, size * 2);
-                g.DrawEllipse(pen, sScreenPoint.X - size*2, sScreenPoint.Y - size*2, size * 4, size * 4);
+                g.DrawEllipse(pen, sScreenPoint.X - size * 2, sScreenPoint.Y - size * 2, size * 4, size * 4);
             }
             else if (PointSign == PointSigns[7])//实心同心圆
             {
@@ -410,7 +410,7 @@ namespace MalaSpiritGIS
                 g.DrawEllipse(pen, sScreenPoint.X - size * 2, sScreenPoint.Y - size * 2, size * 4, size * 4);
             }
         }
-        private void PaintMultiPoint(MLFeature feature, Brush brush, Pen pen,Graphics g, string PointSign, float size)  //绘制多点要素
+        private void PaintMultiPoint(MLFeature feature, Brush brush, Pen pen, Graphics g, string PointSign, float size)  //绘制多点要素
         {
             PointD[] ps = ((MLMultiPoint)feature).Points;
             for (int k = 0; k != ps.Length; ++k)
@@ -462,9 +462,9 @@ namespace MalaSpiritGIS
                 }
             }
         }
-        private void PaintPolyline(MLFeature feature, Pen pen, Graphics g,string LineStyle)  //绘制线要素
+        private void PaintPolyline(MLFeature feature, Pen pen, Graphics g, string LineStyle)  //绘制线要素
         {
-            if(LineStyle == "Solid")
+            if (LineStyle == "Solid")
             {
                 pen.DashStyle = DashStyle.Solid;
             }
@@ -485,20 +485,20 @@ namespace MalaSpiritGIS
                 }
             }
         }
-        private void PaintPolygon(MLFeature feature, Brush brush,Pen pen, Graphics g)  //绘制面要素，仅支持简单面
+        private void PaintPolygon(MLFeature feature, Brush brush, Pen pen, Graphics g)  //绘制面要素，仅支持简单面
         {
             PolygonD polygon = ((MLPolygon)feature).Polygon;
             for (int k = 0; k != polygon.Count; ++k)
             {
                 PolylineD ring = polygon.GetRing(k);
                 PointF[] ps = new PointF[ring.Count];
-                for(int i = 0;i != ps.Length; ++i)
+                for (int i = 0; i != ps.Length; ++i)
                     ps[i] = FromMapPoint(new PointF((float)ring.GetPoint(i).X, (float)ring.GetPoint(i).Y));
                 g.FillPolygon(brush, ps);
                 g.DrawPolygon(pen, ps);
             }
         }
-        private void SelectPolygon(MLFeature feature,Pen pen,Graphics g)  //不填充仅描边
+        private void SelectPolygon(MLFeature feature, Pen pen, Graphics g)  //不填充仅描边
         {
             PolygonD polygon = ((MLPolygon)feature).Polygon;
             for (int k = 0; k != polygon.Count; ++k)
@@ -517,7 +517,7 @@ namespace MalaSpiritGIS
         //绘制要素
         private void DrawFeatureClass(Graphics g)  //画出所有图层中的所有要素
         {
-            if (dataFrame!=null&&dataFrame.layers != null)  //必须要有图层才能开始画
+            if (dataFrame != null && dataFrame.layers != null)  //必须要有图层才能开始画
             {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 for (int i = dataFrame.layers.Count - 1; i != -1; --i)  //从最后一个图层开始画，越上层的越不会被遮盖
@@ -534,19 +534,19 @@ namespace MalaSpiritGIS
                         switch (fc.Type)
                         {
                             case FeatureType.POINT:
-                                if(render == 0)
+                                if (render == 0)
                                 {
                                     PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
                                 }
-                                else if(render == 1)
+                                else if (render == 1)
                                 {
                                     brush = new SolidBrush(colors[j]);
                                     pen = new Pen(colors[j], boundaryWidth);
                                     PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
                                 }
-                                else if(render == 2)
+                                else if (render == 2)
                                 {
-                                    
+
                                     int k;
                                     float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
                                     float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
@@ -607,7 +607,7 @@ namespace MalaSpiritGIS
                                     PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
 
                                 }
-                                
+
                                 break;
                             case FeatureType.POLYLINE:
                                 pen.Width = dataFrame.layers[i].LineWidth;
@@ -693,8 +693,37 @@ namespace MalaSpiritGIS
             }
         }
 
+        private void LoadAnnotation(Graphics g)
+        {
+            if (dataFrame != null && dataFrame.layers != null)  //必须要有图层才能开始画
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                for (int i = dataFrame.layers.Count - 1; i != -1; --i)  //从最后一个图层开始画，越上层的越不会被遮盖
+                {
 
-        
+                    int annoIndex = dataFrame.layers[i].annotateIndex;
+                    if (annoIndex > -1)
+                    {
+                        Brush brush = new SolidBrush(dataFrame.layers[i].annotateColor);
+                        Font font = new Font(dataFrame.layers[i].annotateFontStyle, dataFrame.layers[i].annotateFontSize, FontStyle.Bold);
+                        MLFeatureClass fc = dataFrame.layers[i].featureClass;
+                        string anno;
+                        for (int j = 0; j != fc.Count; ++j)
+                        {
+                            PointF fromP = new PointF((float)(fc.GetFeature(j).XMin + fc.GetFeature(j).XMax) / 2, (float)(fc.GetFeature(j).YMin + fc.GetFeature(j).YMax) / 2);
+                            PointF ToP = FromMapPoint(fromP);
+                            anno = fc.GetAttributeCell(j, annoIndex).ToString();
+                            ToP.X -= anno.Length * 10;
+                            g.DrawString(anno, font, brush, ToP);
+                        }
+                        brush.Dispose();
+                        font.Dispose();
+                    }
+                }
+
+            }
+        }
+
 
         private void DrawTrackingFeatures(Graphics g)  //描绘正在追踪中的要素
         {
@@ -752,14 +781,14 @@ namespace MalaSpiritGIS
                     switch (fc.FeatureType)
                     {
                         case FeatureType.POINT:
-                            PaintPoint(fc, brush, pen,g, dataFrame.layers[selectedFeatures[i].numLayer].PointSign, dataFrame.layers[selectedFeatures[i].numLayer].PointSize);
+                            PaintPoint(fc, brush, pen, g, dataFrame.layers[selectedFeatures[i].numLayer].PointSign, dataFrame.layers[selectedFeatures[i].numLayer].PointSize);
                             break;
                         case FeatureType.MULTIPOINT:
                             PaintMultiPoint(fc, brush, pen, g, dataFrame.layers[selectedFeatures[i].numLayer].PointSign, dataFrame.layers[selectedFeatures[i].numLayer].PointSize);
                             break;
                         case FeatureType.POLYLINE:
                             pen.Width = dataFrame.layers[selectedFeatures[i].numLayer].LineWidth + 2;
-                            PaintPolyline(fc, pen, g,dataFrame.layers[selectedFeatures[i].numLayer].LineStyle);
+                            PaintPolyline(fc, pen, g, dataFrame.layers[selectedFeatures[i].numLayer].LineStyle);
                             break;
                         case FeatureType.POLYGON:
                             pen.Width = dataFrame.layers[selectedFeatures[i].numLayer].LineWidth + 2;
@@ -858,7 +887,7 @@ namespace MalaSpiritGIS
                         switch (fc.FeatureType)
                         {
                             case FeatureType.POINT:
-                                if(PointFInPointD(e.Location, ((MLPoint)fc).Point))
+                                if (PointFInPointD(e.Location, ((MLPoint)fc).Point))
                                 {
                                     EditPoint.p = ((MLPoint)fc).Point;
                                     return;
@@ -866,7 +895,7 @@ namespace MalaSpiritGIS
                                 break;
                             case FeatureType.MULTIPOINT:
                                 PointD[] ps = ((MLMultiPoint)fc).Points;
-                                for(int i = 0;i != ps.Length; ++i)
+                                for (int i = 0; i != ps.Length; ++i)
                                 {
                                     if (PointFInPointD(e.Location, ps[i]))
                                     {
@@ -876,10 +905,10 @@ namespace MalaSpiritGIS
                                 }
                                 break;
                             case FeatureType.POLYLINE:
-                                PolylineD[] polylines =((MLPolyline)fc).Segments;
-                                for(int i = 0;i != polylines.Length; ++i)
+                                PolylineD[] polylines = ((MLPolyline)fc).Segments;
+                                for (int i = 0; i != polylines.Length; ++i)
                                 {
-                                    for(int j = 0;j != polylines[i].Count; ++j)
+                                    for (int j = 0; j != polylines[i].Count; ++j)
                                     {
                                         if (PointFInPointD(e.Location, polylines[i].GetPoint(j)))
                                         {
@@ -891,9 +920,9 @@ namespace MalaSpiritGIS
                                 break;
                             case FeatureType.POLYGON:
                                 PolygonD pd = ((MLPolygon)fc).Polygon;
-                                for(int i = 0;i != pd.Count; ++i)
+                                for (int i = 0; i != pd.Count; ++i)
                                 {
-                                    if(PointFInPointD(e.Location, pd.GetRing(i).GetPoint(0)))
+                                    if (PointFInPointD(e.Location, pd.GetRing(i).GetPoint(0)))
                                     {
                                         PolylineD pld = pd.GetRing(i);
                                         pld.RemoveLastOne();
@@ -905,9 +934,9 @@ namespace MalaSpiritGIS
                                         EditPoint.numRing = i;
                                         return;
                                     }
-                                    for(int j = 0;j != pd.GetRing(i).Count - 1; ++j)
+                                    for (int j = 0; j != pd.GetRing(i).Count - 1; ++j)
                                     {
-                                        if(PointFInPointD(e.Location, pd.GetRing(i).GetPoint(j)))
+                                        if (PointFInPointD(e.Location, pd.GetRing(i).GetPoint(j)))
                                         {
                                             EditPoint.p = pd.GetRing(i).GetPoint(j);
                                             return;
@@ -919,7 +948,7 @@ namespace MalaSpiritGIS
                         break;
                     case 8:
                         MLFeatureClass mfc = dataFrame.layers[selectedFeatures[0].numLayer].featureClass;
-                        for (int i = 0;i != mfc.Count; ++i)
+                        for (int i = 0; i != mfc.Count; ++i)
                         {
                             if (!mergeFeatures.Contains(mfc.GetFeature(i)))
                             {
@@ -941,11 +970,11 @@ namespace MalaSpiritGIS
                                         break;
                                     case FeatureType.POLYLINE:
                                         MLPolyline polyline = (MLPolyline)mfc.GetFeature(i);
-                                        for(int j = 0;j != polyline.Segments.Length; ++j)
+                                        for (int j = 0; j != polyline.Segments.Length; ++j)
                                         {
-                                            for(int k = 1;k != polyline.Segments[j].Count; ++k)
+                                            for (int k = 1; k != polyline.Segments[j].Count; ++k)
                                             {
-                                                if(PointFInLine(e.Location, polyline.Segments[j].GetPoint(k-1), polyline.Segments[j].GetPoint(k)))
+                                                if (PointFInLine(e.Location, polyline.Segments[j].GetPoint(k - 1), polyline.Segments[j].GetPoint(k)))
                                                 {
                                                     mergeFeatures.Add(polyline);
                                                     Refresh();
@@ -956,7 +985,7 @@ namespace MalaSpiritGIS
                                         break;
                                     case FeatureType.POLYGON:
                                         MLPolygon polygon = (MLPolygon)mfc.GetFeature(i);
-                                        for(int j = 0;j != polygon.Polygon.Count; ++j)
+                                        for (int j = 0; j != polygon.Polygon.Count; ++j)
                                         {
                                             if (PointFInPolygon(e.Location, polygon.Polygon.GetRing(j).GetPoints()))
                                             {
@@ -973,7 +1002,7 @@ namespace MalaSpiritGIS
                         break;
                 }
             }
-            else if(e.Button == MouseButtons.Right)
+            else if (e.Button == MouseButtons.Right)
             {
                 for (int i = 0; i != selectedFeatures.Count; ++i)
                 {
@@ -1065,7 +1094,7 @@ namespace MalaSpiritGIS
                 case 7:
                     if (e.Button == MouseButtons.Left)
                     {
-                        if(EditPoint.p != null)
+                        if (EditPoint.p != null)
                         {
                             EditPoint.p.Move(e.Location.X - startPoint.X, startPoint.Y - e.Location.Y);
                             startPoint = e.Location;
@@ -1128,7 +1157,7 @@ namespace MalaSpiritGIS
                                     MLPolygon polygon = new MLPolygon(new PolylineD(polygonPs));
                                     if (TrackingFinished != null)
                                     {
-                                        TrackingFinished(this,polygon);
+                                        TrackingFinished(this, polygon);
                                     }
                                     trackingFeature.Clear();
                                 }
@@ -1142,7 +1171,7 @@ namespace MalaSpiritGIS
                     if (e.Button == MouseButtons.Left)
                     {
                         MLFeatureClass fc = dataFrame.layers[selectedFeatures[0].numLayer].featureClass;
-                        for(int i = 1;i != mergeFeatures.Count; ++i)
+                        for (int i = 1; i != mergeFeatures.Count; ++i)
                         {
                             switch (fc.featureType)
                             {
@@ -1181,7 +1210,7 @@ namespace MalaSpiritGIS
         {
             if (e.Delta > 0)
             {
-                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,this.ClientSize.Height / 2);  //屏幕中心点
+                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2, this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
                 ZoomByCenter(sCenterPointOnMap, zoomRatio);
                 Refresh();
@@ -1288,7 +1317,7 @@ namespace MalaSpiritGIS
                 Graphics g = e.Graphics;
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                 float scale = Math.Min((float)Height / image.Height, (float)Width / image.Width);
-                g.DrawImage(image, new RectangleF((- scale * image.Width+Width)/2, (-scale * image.Height+Height)/2, scale*image.Width, scale*image.Height));
+                g.DrawImage(image, new RectangleF((-scale * image.Width + Width) / 2, (-scale * image.Height + Height) / 2, scale * image.Width, scale * image.Height));
             }
             //绘制所有多边形
             DrawFeatureClass(e.Graphics);
@@ -1300,6 +1329,8 @@ namespace MalaSpiritGIS
             DrawSelectedFeatures(e.Graphics);
 
             DrawMergeFeatures(e.Graphics);
+
+            LoadAnnotation(e.Graphics);
         }
 
 

@@ -146,10 +146,10 @@
             this.layerMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.修改图层名称ToolStripMenuItem,
             this.删除图层ToolStripMenuItem,
+            this.保存图层ToolStripMenuItem,
             this.打开属性表ToolStripMenuItem,
             this.渲染ToolStripMenuItem,
-            this.标注要素ToolStripMenuItem,
-            this.保存图层ToolStripMenuItem});
+            this.标注要素ToolStripMenuItem});
             this.layerMenu.Name = "contextMenuStrip1";
             this.layerMenu.Size = new System.Drawing.Size(181, 158);
             // 
@@ -186,6 +186,7 @@
             this.标注要素ToolStripMenuItem.Name = "标注要素ToolStripMenuItem";
             this.标注要素ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.标注要素ToolStripMenuItem.Text = "标注要素";
+            this.标注要素ToolStripMenuItem.Click += new System.EventHandler(this.标注要素ToolStripMenuItem_Click);
             // 
             // 保存图层ToolStripMenuItem
             // 

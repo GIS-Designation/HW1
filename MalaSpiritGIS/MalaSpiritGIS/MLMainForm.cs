@@ -112,6 +112,7 @@ namespace MalaSpiritGIS
             if (DialogResult.OK == shpFileDialog.ShowDialog())
             {
                 featureBox.addLayer(FeatureType.POINT, 0, shpFileDialog.FileName);
+                mlmap.Refresh();
             }
         }
 

@@ -117,6 +117,10 @@ namespace MalaSpiritGIS
             public float LineWidth;//线符号和面符号的轮廓宽度
             public List<Color> RenderColors;//渲染用颜色
             public string _selectedValue;//渲染用值字段；
+            public int annotateIndex=-1;
+            public Color annotateColor = Color.Black;
+            public string annotateFontStyle = "Adobe Gothic Std";
+            public float annotateFontSize = 10;
 
 
             public Layer(FeatureType type, int _index,uint id=uint.MaxValue)
