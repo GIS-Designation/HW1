@@ -209,7 +209,7 @@ namespace MalaSpiritGIS
             sMapRender.color = data.layers[data.index].CurColor;
             sMapRender.renderMethod = data.layers[data.index].renderMethod;
             sMapRender.selectedValue = data.layers[data.index]._selectedValue;
-            sMapRender.colors = data.layers[data.index].RenderColors;
+            //sMapRender.colors = data.layers[data.index].RenderColors;
             if (sMapRender.ShowDialog(this) == DialogResult.OK)
             {
                 data.layers[data.index] = sMapRender.CurLayer;

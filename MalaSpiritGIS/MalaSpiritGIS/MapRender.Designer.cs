@@ -36,32 +36,32 @@
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tpgUniqueValue = new System.Windows.Forms.TabPage();
-            this.tpgRange = new System.Windows.Forms.TabPage();
-            this.btnOK = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.UniqueValueList = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.ColorBar1 = new System.Windows.Forms.ComboBox();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.UniqueValueList = new System.Windows.Forms.ComboBox();
+            this.tpgRange = new System.Windows.Forms.TabPage();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.listBox2 = new System.Windows.Forms.ListBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.ColorBar2 = new System.Windows.Forms.ComboBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.rangeValueList = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
+            this.btnOK = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tpgSimple.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.tpgUniqueValue.SuspendLayout();
-            this.tpgRange.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.tpgRange.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.SuspendLayout();
@@ -155,59 +155,44 @@
             this.tpgUniqueValue.Text = "唯一值法";
             this.tpgUniqueValue.UseVisualStyleBackColor = true;
             // 
-            // tpgRange
+            // label7
             // 
-            this.tpgRange.Controls.Add(this.label4);
-            this.tpgRange.Controls.Add(this.label3);
-            this.tpgRange.Controls.Add(this.label2);
-            this.tpgRange.Controls.Add(this.listBox2);
-            this.tpgRange.Controls.Add(this.groupBox5);
-            this.tpgRange.Controls.Add(this.groupBox6);
-            this.tpgRange.Location = new System.Drawing.Point(4, 22);
-            this.tpgRange.Name = "tpgRange";
-            this.tpgRange.Size = new System.Drawing.Size(631, 358);
-            this.tpgRange.TabIndex = 2;
-            this.tpgRange.Text = "分级法";
-            this.tpgRange.UseVisualStyleBackColor = true;
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(250, 81);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(29, 12);
+            this.label7.TabIndex = 5;
+            this.label7.Text = "计数";
             // 
-            // btnOK
+            // label6
             // 
-            this.btnOK.Location = new System.Drawing.Point(469, 410);
-            this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(75, 23);
-            this.btnOK.TabIndex = 1;
-            this.btnOK.Text = "确定";
-            this.btnOK.UseVisualStyleBackColor = true;
-            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(113, 81);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(17, 12);
+            this.label6.TabIndex = 4;
+            this.label6.Text = "值";
             // 
-            // btnCancel
+            // label5
             // 
-            this.btnCancel.Location = new System.Drawing.Point(572, 410);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 2;
-            this.btnCancel.Text = "取消";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(34, 81);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(29, 12);
+            this.label5.TabIndex = 3;
+            this.label5.Text = "符号";
             // 
-            // groupBox3
+            // listBox1
             // 
-            this.groupBox3.Controls.Add(this.UniqueValueList);
-            this.groupBox3.Location = new System.Drawing.Point(30, 15);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(218, 43);
-            this.groupBox3.TabIndex = 0;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "值字段";
-            // 
-            // UniqueValueList
-            // 
-            this.UniqueValueList.FormattingEnabled = true;
-            this.UniqueValueList.Location = new System.Drawing.Point(6, 17);
-            this.UniqueValueList.Name = "UniqueValueList";
-            this.UniqueValueList.Size = new System.Drawing.Size(205, 20);
-            this.UniqueValueList.TabIndex = 0;
-            this.UniqueValueList.SelectedIndexChanged += new System.EventHandler(this.UniqueValueList_SelectedIndexChanged);
+            this.listBox1.ColumnWidth = 100;
+            this.listBox1.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 12;
+            this.listBox1.Location = new System.Drawing.Point(30, 106);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(472, 220);
+            this.listBox1.TabIndex = 2;
+            this.listBox1.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem);
             // 
             // groupBox4
             // 
@@ -229,25 +214,78 @@
             this.ColorBar1.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ColorBar1_DrawItem);
             this.ColorBar1.SelectedIndexChanged += new System.EventHandler(this.ColorBar1_SelectedIndexChanged);
             // 
-            // listBox1
+            // groupBox3
             // 
-            this.listBox1.ColumnWidth = 100;
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 12;
-            this.listBox1.Location = new System.Drawing.Point(30, 106);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(472, 220);
-            this.listBox1.TabIndex = 2;
+            this.groupBox3.Controls.Add(this.UniqueValueList);
+            this.groupBox3.Location = new System.Drawing.Point(30, 15);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(218, 43);
+            this.groupBox3.TabIndex = 0;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "值字段";
+            // 
+            // UniqueValueList
+            // 
+            this.UniqueValueList.FormattingEnabled = true;
+            this.UniqueValueList.Location = new System.Drawing.Point(6, 17);
+            this.UniqueValueList.Name = "UniqueValueList";
+            this.UniqueValueList.Size = new System.Drawing.Size(205, 20);
+            this.UniqueValueList.TabIndex = 0;
+            this.UniqueValueList.SelectedIndexChanged += new System.EventHandler(this.UniqueValueList_SelectedIndexChanged);
+            // 
+            // tpgRange
+            // 
+            this.tpgRange.Controls.Add(this.label4);
+            this.tpgRange.Controls.Add(this.label3);
+            this.tpgRange.Controls.Add(this.label2);
+            this.tpgRange.Controls.Add(this.listBox2);
+            this.tpgRange.Controls.Add(this.groupBox5);
+            this.tpgRange.Controls.Add(this.groupBox6);
+            this.tpgRange.Location = new System.Drawing.Point(4, 22);
+            this.tpgRange.Name = "tpgRange";
+            this.tpgRange.Size = new System.Drawing.Size(631, 358);
+            this.tpgRange.TabIndex = 2;
+            this.tpgRange.Text = "分级法";
+            this.tpgRange.UseVisualStyleBackColor = true;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(264, 94);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(29, 12);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "标注";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(116, 94);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(29, 12);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "范围";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(34, 94);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(29, 12);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "符号";
             // 
             // listBox2
             // 
             this.listBox2.ColumnWidth = 100;
+            this.listBox2.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.listBox2.FormattingEnabled = true;
             this.listBox2.ItemHeight = 12;
             this.listBox2.Location = new System.Drawing.Point(34, 112);
             this.listBox2.Name = "listBox2";
             this.listBox2.Size = new System.Drawing.Size(472, 220);
             this.listBox2.TabIndex = 5;
+            this.listBox2.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox2_DrawItem);
             // 
             // groupBox5
             // 
@@ -288,59 +326,25 @@
             this.rangeValueList.TabIndex = 0;
             this.rangeValueList.SelectedIndexChanged += new System.EventHandler(this.rangeValueList_SelectedIndexChanged);
             // 
-            // label2
+            // btnOK
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(34, 94);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 12);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "符号";
+            this.btnOK.Location = new System.Drawing.Point(469, 410);
+            this.btnOK.Name = "btnOK";
+            this.btnOK.Size = new System.Drawing.Size(75, 23);
+            this.btnOK.TabIndex = 1;
+            this.btnOK.Text = "确定";
+            this.btnOK.UseVisualStyleBackColor = true;
+            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
-            // label3
+            // btnCancel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(116, 94);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 12);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "范围";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(264, 94);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(29, 12);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "标注";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(34, 81);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(29, 12);
-            this.label5.TabIndex = 3;
-            this.label5.Text = "符号";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(113, 81);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(17, 12);
-            this.label6.TabIndex = 4;
-            this.label6.Text = "值";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(250, 81);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(29, 12);
-            this.label7.TabIndex = 5;
-            this.label7.Text = "计数";
+            this.btnCancel.Location = new System.Drawing.Point(572, 410);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 2;
+            this.btnCancel.Text = "取消";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // MapRender
             // 
@@ -359,10 +363,10 @@
             this.groupBox2.PerformLayout();
             this.tpgUniqueValue.ResumeLayout(false);
             this.tpgUniqueValue.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
             this.tpgRange.ResumeLayout(false);
             this.tpgRange.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.ResumeLayout(false);

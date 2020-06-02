@@ -320,6 +320,22 @@ namespace MalaSpiritGIS
 
         }
 
+        //重绘listbox,实时显示颜色条
+        private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            if (e.Index < 0)
+                return;
+
+            e.DrawBackground();
+            SolidBrush brush = new SolidBrush(_colors[e.Index]);
+
+            // Draw the current item text based on the current Font and the custom brush settings.
+            e.Graphics.DrawString(listBox1.Items[e.Index].ToString(), e.Font, brush, e.Bounds, StringFormat.GenericDefault);
+            // If the ListBox has focus, draw a focus rectangle around the selected item.
+            e.DrawFocusRectangle();
+        }
+
         //选择色带
         private void ColorBar1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -346,17 +362,17 @@ namespace MalaSpiritGIS
                 Font f = new Font("宋体", 9.0f, FontStyle.Bold);
                 if(CurLayer.featureClass.featureType == FeatureType.POINT || CurLayer.featureClass.featureType == FeatureType.MULTIPOINT)
                 {
-                    string str = "·             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue]+ "                               1";
+                    string str = "·             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue]+ "                         1";
                     listBox1.Items.Add(str);
                 }
                 else if(CurLayer.featureClass.featureType == FeatureType.POLYLINE)
                 {
-                    string str = "—             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "                               1";
+                    string str = "—             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "                         1";
                     listBox1.Items.Add(str);
                 }
                 else
                 {
-                    string str = "■             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "                               1";
+                    string str = "■             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "                         1";
                     listBox1.Items.Add(str);
                 }
             }
@@ -401,6 +417,22 @@ namespace MalaSpiritGIS
             g.DrawRectangle(Pens.Black, rect);
         }
 
+        //重绘listbox,实时显示颜色条
+        private void listBox2_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            if (e.Index < 0)
+                return;
+
+            e.DrawBackground();
+            SolidBrush brush = new SolidBrush(_colors[e.Index]);
+
+            // Draw the current item text based on the current Font and the custom brush settings.
+            e.Graphics.DrawString(listBox2.Items[e.Index].ToString(), e.Font, brush, e.Bounds, StringFormat.GenericDefault);
+            // If the ListBox has focus, draw a focus rectangle around the selected item.
+            e.DrawFocusRectangle();
+        }
+
         //选择色带
         private void ColorBar2_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -442,16 +474,49 @@ namespace MalaSpiritGIS
                     Color c = Color.FromArgb(r, _colorRamp.fromColor.G, _colorRamp.fromColor.B);
                     _colors.Add(c);
                     float smax = min + step * i;
-                    string str = min + "——" + smax + "             " + min + "——" + smax;
-                    listBox2.Items.Add(str);
+
+                    if (CurLayer.featureClass.featureType == FeatureType.POINT || CurLayer.featureClass.featureType == FeatureType.MULTIPOINT)
+                    {
+                        string str = "·             " + min + "——" + smax + "             " + min + "——" + smax;
+                        listBox2.Items.Add(str);
+                    }
+                    else if (CurLayer.featureClass.featureType == FeatureType.POLYLINE)
+                    {
+                        string str = "—             " + min + "——" + smax + "             " + min + "——" + smax;
+                        listBox2.Items.Add(str);
+                    }
+                    else
+                    {
+                        string str = "■             " + min + "——" + smax + "             " + min + "——" + smax;
+                        listBox2.Items.Add(str);
+                    }
+                   
+                    
                 }
             }
             else
             {
+                int r = _colorRamp.fromColor.R;
                 for (i = 0; i < CurLayer.featureClass.Count; i++)
                 {
-                    string str = CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "——"+ "             "+ CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] ;
-                    listBox2.Items.Add(str);
+                    r = r + 10;
+                    Color c = Color.FromArgb(r, _colorRamp.fromColor.G, _colorRamp.fromColor.B);
+                    _colors.Add(c);
+                    if (CurLayer.featureClass.featureType == FeatureType.POINT || CurLayer.featureClass.featureType == FeatureType.MULTIPOINT)
+                    {
+                        string str = "·             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "——" + "             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue];
+                        listBox2.Items.Add(str);
+                    }
+                    else if (CurLayer.featureClass.featureType == FeatureType.POLYLINE)
+                    {
+                        string str = "—             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "——" + "             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue];
+                        listBox2.Items.Add(str);
+                    }
+                    else
+                    {
+                        string str = "■             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue] + "——" + "             " + CurLayer.featureClass.AttributeData.Rows[i][_selectedValue];
+                        listBox2.Items.Add(str);
+                    }
                 }
             }
             _renderMethod = 2;
@@ -547,6 +612,8 @@ namespace MalaSpiritGIS
             colorRamp.toColor = Color.FromArgb(34, 102, 51);
             myColorRamps.Add(colorRamp);
         }
+
+
 
 
 
