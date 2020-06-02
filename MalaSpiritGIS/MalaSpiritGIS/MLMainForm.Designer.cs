@@ -278,7 +278,7 @@
             // mlRecordBox
             // 
             this.mlRecordBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.mlRecordBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.mlRecordBox.Location = new System.Drawing.Point(742, 52);
             this.mlRecordBox.Margin = new System.Windows.Forms.Padding(4);

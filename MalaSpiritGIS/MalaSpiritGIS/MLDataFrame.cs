@@ -109,11 +109,14 @@ namespace MalaSpiritGIS
             public int index;  //在数据框data中的索引
 
 
+            public int renderMethod;//渲染方法，0:单一符号法,1:唯一值法，2:分级法
             public string PointSign;//点符号类型
             public float PointSize;//点符号大小
             public string LineStyle;//线条风格（实线或虚线）
             public Color CurColor;//图层符号的颜色
             public float LineWidth;//线符号和面符号的轮廓宽度
+            public List<Color> RenderColors;//渲染用颜色
+            public string _selectedValue;//渲染用值字段；
 
 
             public Layer(FeatureType type, int _index,uint id=uint.MaxValue)
@@ -145,6 +148,7 @@ namespace MalaSpiritGIS
                 LineStyle = "Solid";//实线
                 PointSign = "FilledCircle";//初始化默认点符号类型为实心圆
                 PointSize = 2;//点符号大小初始为2
+                renderMethod = 0;//初始默认使用单一符号法渲染
                 if (id == uint.MaxValue)
                     featureClass = new MLFeatureClass(MLMainForm.FeatureProcessor, name.Text, type);  //新建一个要素类
                 else

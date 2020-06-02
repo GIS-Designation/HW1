@@ -41,12 +41,13 @@ namespace MalaSpiritGIS
             }
         }
         private List<Selected> selectedFeatures = new List<Selected>();  //选中要素集合
+        private List<MLFeature> mergeFeatures = new List<MLFeature>();
         public void SetSelectedFeatures(List<Selected> s) { selectedFeatures = s;}
         public void ClearSelectedFeatures() { selectedFeatures = new List<Selected>();Refresh();}
         public void AddSelectedFeatures(int numLayer,int numFeature) { selectedFeatures.Add(new Selected(numLayer, numFeature));}
         //内部变量
         private float offsetX = 0, offsetY = 0;  //窗口左上点的地图坐标
-        private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素,6移动要素,7编辑节点
+        private int mapOpStyle = 0;  //当前地图操作类型，0无，1放大，2缩小，3漫游，4创建要素，5选择要素,6移动要素,7编辑节点,8裁剪图形
         private List<PointD> trackingFeature = new List<PointD>();  //用户正在描绘的要素
         private PointF mouseLocation = new PointF();  //鼠标当前的位置，用于漫游、拉框等
         private PointF startPoint = new PointF();  //记录鼠标按下时的位置，用于拉框
@@ -525,23 +526,164 @@ namespace MalaSpiritGIS
                     Brush brush = new SolidBrush(color);
                     Pen pen = new Pen(color, boundaryWidth);
                     MLFeatureClass fc = dataFrame.layers[i].featureClass;
+                    List<Color> colors = dataFrame.layers[i].RenderColors;
+                    int render = dataFrame.layers[i].renderMethod;
+                    string _selectedValue = dataFrame.layers[i]._selectedValue;
                     for (int j = 0; j != fc.Count; ++j)
                     {
                         switch (fc.Type)
                         {
                             case FeatureType.POINT:
-                                PaintPoint(fc.GetFeature(j), brush , pen, g , dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                if(render == 0)
+                                {
+                                    PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if(render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if(render == 2)
+                                {
+                                    
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+
+                                }
+
                                 break;
                             case FeatureType.MULTIPOINT:
-                                PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                if (render == 0)
+                                {
+                                    PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if (render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+                                }
+                                else if (render == 2)
+                                {
+
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintMultiPoint(fc.GetFeature(j), brush, pen, g, dataFrame.layers[i].PointSign, dataFrame.layers[i].PointSize);
+
+                                }
+                                
                                 break;
                             case FeatureType.POLYLINE:
                                 pen.Width = dataFrame.layers[i].LineWidth;
-                                PaintPolyline(fc.GetFeature(j), pen, g,dataFrame.layers[i].LineStyle);
+                                if (render == 0)
+                                {
+                                    PaintPolyline(fc.GetFeature(j), pen, g, dataFrame.layers[i].LineStyle);
+                                }
+                                else if (render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintPolyline(fc.GetFeature(j), pen, g, dataFrame.layers[i].LineStyle);
+                                }
+                                else if (render == 2)
+                                {
+
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintPolyline(fc.GetFeature(j), pen, g, dataFrame.layers[i].LineStyle);
+                                }
+                                //PaintPolyline(fc.GetFeature(j), pen, g,dataFrame.layers[i].LineStyle);
                                 break;
                             case FeatureType.POLYGON:
                                 pen.Width = dataFrame.layers[i].LineWidth;
-                                PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                if (render == 0)
+                                {
+                                    PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                }
+                                else if (render == 1)
+                                {
+                                    brush = new SolidBrush(colors[j]);
+                                    pen = new Pen(colors[j], boundaryWidth);
+                                    PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                }
+                                else if (render == 2)
+                                {
+
+                                    int k;
+                                    float max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    float min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[0][_selectedValue]);
+                                    for (k = 0; k < dataFrame.layers[i].featureClass.Count; k++)
+                                    {
+                                        if (max < (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            max = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                        if (min > (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]))
+                                        {
+                                            min = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[k][_selectedValue]);
+                                        }
+                                    }
+                                    float step = (max - min) / 5;
+                                    float cur = (float)Convert.ToDouble(dataFrame.layers[i].featureClass.AttributeData.Rows[j][_selectedValue]);
+                                    int index = Convert.ToInt32(Math.Floor(Convert.ToDecimal((cur - min) / step)));
+                                    brush = new SolidBrush(colors[index]);
+                                    pen = new Pen(colors[index], boundaryWidth);
+                                    PaintPolygon(fc.GetFeature(j), brush, pen, g);
+                                }
+                                //PaintPolygon(fc.GetFeature(j), brush, pen, g);
                                 break;
                         }
                     }
@@ -550,6 +692,9 @@ namespace MalaSpiritGIS
                 }
             }
         }
+
+
+        
 
         private void DrawTrackingFeatures(Graphics g)  //描绘正在追踪中的要素
         {
@@ -619,6 +764,37 @@ namespace MalaSpiritGIS
                         case FeatureType.POLYGON:
                             pen.Width = dataFrame.layers[selectedFeatures[i].numLayer].LineWidth + 2;
                             SelectPolygon(fc, pen, g);
+                            break;
+                    }
+                }
+                brush.Dispose();
+                pen.Dispose();
+            }
+        }
+        private void DrawMergeFeatures(Graphics g)  //画出待融合的要素
+        {
+            if (mergeFeatures.Count > 1 && selectedFeatures.Count != 0)  //如果有要素被选中
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                Pen pen = new Pen(selectedColor, 2);
+                SolidBrush brush = new SolidBrush(selectedColor);
+                for (int i = 1; i != mergeFeatures.Count; ++i)
+                {
+                    switch (dataFrame.layers[selectedFeatures[0].numLayer].featureClass.featureType)
+                    {
+                        case FeatureType.POINT:
+                            PaintPoint(mergeFeatures[i], brush, pen, g, dataFrame.layers[selectedFeatures[0].numLayer].PointSign, dataFrame.layers[selectedFeatures[0].numLayer].PointSize);
+                            break;
+                        case FeatureType.MULTIPOINT:
+                            PaintMultiPoint(mergeFeatures[i], brush, pen, g, dataFrame.layers[selectedFeatures[0].numLayer].PointSign, dataFrame.layers[selectedFeatures[0].numLayer].PointSize);
+                            break;
+                        case FeatureType.POLYLINE:
+                            pen.Width = dataFrame.layers[selectedFeatures[0].numLayer].LineWidth + 2;
+                            PaintPolyline(mergeFeatures[i], pen, g, dataFrame.layers[selectedFeatures[0].numLayer].LineStyle);
+                            break;
+                        case FeatureType.POLYGON:
+                            pen.Width = dataFrame.layers[selectedFeatures[0].numLayer].LineWidth + 2;
+                            SelectPolygon(mergeFeatures[i], pen, g);
                             break;
                     }
                 }
@@ -741,6 +917,60 @@ namespace MalaSpiritGIS
                                 break;
                         }
                         break;
+                    case 8:
+                        MLFeatureClass mfc = dataFrame.layers[selectedFeatures[0].numLayer].featureClass;
+                        for (int i = 0;i != mfc.Count; ++i)
+                        {
+                            if (!mergeFeatures.Contains(mfc.GetFeature(i)))
+                            {
+                                switch (mfc.featureType)
+                                {
+                                    case FeatureType.POINT:
+                                        break;
+                                    case FeatureType.MULTIPOINT:
+                                        MLMultiPoint mp = (MLMultiPoint)mfc.GetFeature(i);
+                                        for (int j = 0; j != mp.Points.Length; ++j)
+                                        {
+                                            if (PointFInPointD(e.Location, mp.Points[j]))
+                                            {
+                                                mergeFeatures.Add(mp);
+                                                Refresh();
+                                                return;
+                                            }
+                                        }
+                                        break;
+                                    case FeatureType.POLYLINE:
+                                        MLPolyline polyline = (MLPolyline)mfc.GetFeature(i);
+                                        for(int j = 0;j != polyline.Segments.Length; ++j)
+                                        {
+                                            for(int k = 1;k != polyline.Segments[j].Count; ++k)
+                                            {
+                                                if(PointFInLine(e.Location, polyline.Segments[j].GetPoint(k-1), polyline.Segments[j].GetPoint(k)))
+                                                {
+                                                    mergeFeatures.Add(polyline);
+                                                    Refresh();
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    case FeatureType.POLYGON:
+                                        MLPolygon polygon = (MLPolygon)mfc.GetFeature(i);
+                                        for(int j = 0;j != polygon.Polygon.Count; ++j)
+                                        {
+                                            if (PointFInPolygon(e.Location, polygon.Polygon.GetRing(j).GetPoints()))
+                                            {
+                                                mergeFeatures.Add(polygon);
+                                                Refresh();
+                                                return;
+                                            }
+                                        }
+                                        break;
+                                }
+                            }
+
+                        }
+                        break;
                 }
             }
             else if(e.Button == MouseButtons.Right)
@@ -768,7 +998,7 @@ namespace MalaSpiritGIS
                                 selected = true;
                             break;
                     }
-                    if(selected)
+                    if (selected)
                     {
                         selectedFeatures = new List<Selected>() { selectedFeatures[i] };
                         Refresh();
@@ -827,7 +1057,7 @@ namespace MalaSpiritGIS
                     if (e.Button == MouseButtons.Left)
                     {
                         MLFeature fe = dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature);
-                        fe.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                        fe.Move(e.Location.X - startPoint.X, startPoint.Y - e.Location.Y);
                         startPoint = e.Location;
                         Refresh();
                     }
@@ -837,7 +1067,7 @@ namespace MalaSpiritGIS
                     {
                         if(EditPoint.p != null)
                         {
-                            EditPoint.p.Move(e.Location.X - startPoint.X, e.Location.Y - startPoint.Y);
+                            EditPoint.p.Move(e.Location.X - startPoint.X, startPoint.Y - e.Location.Y);
                             startPoint = e.Location;
                             Refresh();
                         }
@@ -908,22 +1138,57 @@ namespace MalaSpiritGIS
                     break;
                 case 5:  //选择
                     break;
+                case 8:
+                    if (e.Button == MouseButtons.Left)
+                    {
+                        MLFeatureClass fc = dataFrame.layers[selectedFeatures[0].numLayer].featureClass;
+                        for(int i = 1;i != mergeFeatures.Count; ++i)
+                        {
+                            switch (fc.featureType)
+                            {
+                                case FeatureType.POINT:
+                                    break;
+                                case FeatureType.MULTIPOINT:
+                                    MLMultiPoint parent = (MLMultiPoint)mergeFeatures[0];
+                                    MLMultiPoint child = (MLMultiPoint)mergeFeatures[i];
+                                    for (int j = 0; j != child.Points.Length; ++j)
+                                        parent.AddPoint(child.Points[j]);
+                                    fc.RemoveFeaure(child);
+                                    break;
+                                case FeatureType.POLYLINE:
+                                    MLPolyline parent2 = (MLPolyline)mergeFeatures[0];
+                                    MLPolyline child2 = (MLPolyline)mergeFeatures[i];
+                                    for (int j = 0; j != child2.Segments.Length; ++j)
+                                        parent2.AddLine(child2.Segments[j]);
+                                    fc.RemoveFeaure(child2);
+                                    break;
+                                case FeatureType.POLYGON:
+                                    MLPolygon parent3 = (MLPolygon)mergeFeatures[0];
+                                    MLPolygon child3 = (MLPolygon)mergeFeatures[i];
+                                    for (int j = 0; j != child3.Polygon.Count; ++j)
+                                        parent3.AddPolygon(child3.Polygon.GetRing(j));
+                                    fc.RemoveFeaure(child3);
+                                    break;
+                            }
+                        }
+                        mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
+                        MessageBox.Show("完成合并");
+                    }
+                    break;
             }
         }
         private void MLMouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta > 0)
             {
-                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
-                    this.ClientSize.Height / 2);  //屏幕中心点
+                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
                 ZoomByCenter(sCenterPointOnMap, zoomRatio);
                 Refresh();
             }
             else
             {
-                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2,
-                    this.ClientSize.Height / 2);  //屏幕中心点
+                PointF sCenterPoint = new PointF(this.ClientSize.Width / 2, this.ClientSize.Height / 2);  //屏幕中心点
                 PointF sCenterPointOnMap = ToMapPoint(sCenterPoint); //中心的地图坐标
                 ZoomByCenter(sCenterPointOnMap, 1 / zoomRatio);
                 Refresh();
@@ -955,8 +1220,8 @@ namespace MalaSpiritGIS
                         PointF sTopLeftOnMap = ToMapPoint(sTopLeft);
                         PointF sBottomRightOnMap = ToMapPoint(sBottomRight);
                         float width = sBottomRightOnMap.X - sTopLeftOnMap.X;
-                        float height = sBottomRightOnMap.Y - sTopLeftOnMap.Y;
-                        RectangleF sSelBox = new RectangleF(sTopLeftOnMap.X, sTopLeftOnMap.Y, width, height);
+                        float height = sTopLeftOnMap.Y - sBottomRightOnMap.Y;
+                        RectangleF sSelBox = new RectangleF(sTopLeftOnMap.X, sBottomRightOnMap.Y, width, height);
                         Refresh();
                         SelectingFinished?.Invoke(this, sSelBox);
                     }
@@ -1008,10 +1273,11 @@ namespace MalaSpiritGIS
             mapOpStyle = 7;
             this.Cursor = cur_Cross;
         }
-
-        private void 裁剪ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void 合并ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+            mapOpStyle = 8;
+            this.Cursor = cur_Cross;
+            mergeFeatures = new List<MLFeature>() { dataFrame.layers[selectedFeatures[0].numLayer].featureClass.GetFeature(selectedFeatures[0].numFeature) };
         }
 
         //母版重绘
@@ -1033,6 +1299,7 @@ namespace MalaSpiritGIS
             //绘制选中多边形
             DrawSelectedFeatures(e.Graphics);
 
+            DrawMergeFeatures(e.Graphics);
         }
 
 
