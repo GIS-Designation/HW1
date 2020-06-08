@@ -59,10 +59,10 @@ namespace MalaSpiritGIS
         string server = "182.92.161.171";
         string database = "mala_spirit_gis_db";
         string userId = "root";
-        string password = "";
+        string password = "Jzm19260817";
         string charset = "utf8";
         string port = "3306";
-        public string defaultShpPath = @"C:\\Users\\Kuuhakuj\\Documents\\PKU\\大三下\\GIS设计和应用\\HW1SHP\\";
+        public string defaultShpPath = @"..\\..\\..\\..\\HW1SHP\\";
 
         MySqlConnection connection;
 
@@ -228,17 +228,18 @@ namespace MalaSpiritGIS
                             string fieldName;
                             Type[] fieldTypes;
                             fieldTypes = new Type[attributeCount];
+                            char ch;
                             for (int i = 0; i < attributeCount; ++i)
                             {
                                 br_dbf.BaseStream.Seek(i * 32 + 32, SeekOrigin.Begin);
                                 fieldName = Encoding.UTF8.GetString(br_dbf.ReadBytes(11)).Trim('\0');
-                                switch (br_dbf.ReadChar())
+                                switch (ch=br_dbf.ReadChar())
                                 {
-                                    case 'N':
                                     case 'I':
                                     case 'L':
                                         fieldTypes[i] = typeof(int);
                                         break;
+                                    case 'N':
                                     case 'F':
                                     case 'B':
                                         fieldTypes[i] = typeof(double);
@@ -423,7 +424,7 @@ sql += "," + curFeaClass.GetFieldName(i) + " varchar(100)";
         {
             nextFeaClassId = 0;
             string connstr = "server=" + server + ";database=" + database +
-                ";uid=" + userId + ";charset=" + charset + ";port=" + port;
+                ";uid=" + userId + ";password=" + password + ";charset=" + charset + ";port=" + port;
             connection = new MySqlConnection(connstr);
             connection.Open();
             records = new List<MLRecord>();

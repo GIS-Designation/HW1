@@ -106,7 +106,7 @@ namespace MalaSpiritGIS
         {
             OpenFileDialog shpFileDialog = new OpenFileDialog();
             shpFileDialog.Title = "打开Shapefile文件";
-            shpFileDialog.InitialDirectory = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\china_shp\Province_9";
+            //shpFileDialog.InitialDirectory = @"C:\Users\Kuuhakuj\Documents\PKU\大三下\GIS设计和应用\china_shp\Province_9";
             shpFileDialog.Filter = "SHP文件(*.shp)|*.shp";
             shpFileDialog.RestoreDirectory = true;
             if (DialogResult.OK == shpFileDialog.ShowDialog())
